@@ -1,0 +1,97 @@
+<div class="fixed inset-0 z-50 overflow-y-auto" (click)="onCancel()">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+
+    <div
+      class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
+      (click)="$event.stopPropagation()">
+      <div
+        class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+            {{ campaign ? t('campaign.edit_campaign') : t('campaign.create_campaign') }}
+          </h3>
+          <button type="button" (click)="onCancel()"
+            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6">
+        <form (ngSubmit)="submit()" class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('campaign.name') }} *</label>
+            <input type="text" [(ngModel)]="model.name" name="name" required
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
+                     focus:ring-[#3e66ea] focus:border-[#3e66ea] text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('campaign.start_date')
+                }}</label>
+              <input type="date" [(ngModel)]="model.start_date" name="start_date"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
+                            focus:ring-[#3e66ea] focus:border-[#3e66ea] text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('campaign.end_date')
+                }}</label>
+              <input type="date" [(ngModel)]="model.end_date" name="end_date"
+                class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
+                            focus:ring-[#3e66ea] focus:border-[#3e66ea] text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('campaign.description')
+              }}</label>
+            <textarea rows="3" [(ngModel)]="model.description" name="description"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
+                     focus:ring-[#3e66ea] focus:border-[#3e66ea] text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
+          </div>
+
+          <!-- ... dentro del <form> justo después de la descripción ... -->
+
+          <!-- Funnel -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              {{ t('campaign.funnel') }}
+            </label>
+            <select [(ngModel)]="model.funnel_id" name="funnel_id" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
+           focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea]
+           text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+              <option [ngValue]="null">{{ t('campaign.select_funnel') }}</option>
+              <option *ngFor="let f of funnels" [ngValue]="f.id">
+                {{ f.name }}
+              </option>
+            </select>
+          </div>
+
+          <div class="flex items-center">
+            <input id="is_active" type="checkbox" [(ngModel)]="model.is_active" name="is_active"
+              class="h-4 w-4 text-[#3e66ea] border-gray-300 rounded focus:ring-[#3e66ea]" />
+            <label for="is_active" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+              {{ t('campaign.active_status') }}
+            </label>
+          </div>
+        </form>
+      </div>
+
+      <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+        <button type="button" (click)="submit()" [disabled]="isSubmitting || !model.name"
+          class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#3e66ea] text-white hover:bg-[#2d5bd9] sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50">
+          {{ isSubmitting ? t('campaign.saving') : (campaign ? t('campaign.update') : t('campaign.create')) }}
+        </button>
+        <button type="button" (click)="onCancel()"
+          class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 px-4 py-2 bg-white text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600">
+          {{ t('campaign.cancel') }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,142 @@
+<div
+  class="fixed inset-y-0 left-0 z-50 w-64 h-screen bg-[#00113f] shadow-2xl transform transition-transform duration-300 ease-in-out flex flex-col translate-x-0"
+  >
+    <!-- Header -->
+    <div id="logo" class="flex items-center justify-center h-16 px-4 bg-[#00113f] border-b border-[#3e66ea]/20">
+        <div  class="flex items-center">
+            <img  src="assets/harmony_logo.svg" alt="Harmony Logo" width="52" class="mb-2 drop-shadow-lg" 
+                style="background: transparent; object-fit: contain; border-radius: 0.5rem" />
+            <!-- <span class="ml-2 text-white font-semibold text-lg">Harmony</span> -->
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <!-- Navigation -->
+    <nav class="flex-1 mt-4 overflow-y-auto  nav-scroll">
+        <div class="px-4 space-y-1 pb-24 pr-2">
+
+            <ng-container *ngFor="let node of navigation">
+
+                <!-- ITEM SUELTO -->
+                <ng-container *ngIf="node.type === 'item'; else groupTpl">
+                    <a [routerLink]="node.href" [class]="getItemClasses(node.href)"
+                        class="flex items-center px-4 py-2 text-sm font-medium rounded-xl group transition-all duration-200 cursor-pointer">
+                        <!-- Iconos por nombre (reutiliza tus SVGs existentes) -->
+                        <svg *ngIf="node.icon === 'LayoutDashboard'" class="mr-3 h-5 w-5" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <rect x="3" y="3" width="7" height="9" rx="1" ry="1" stroke-width="2"></rect>
+                            <rect x="14" y="3" width="7" height="5" rx="1" ry="1" stroke-width="2"></rect>
+                            <rect x="14" y="12" width="7" height="9" rx="1" ry="1" stroke-width="2"></rect>
+                            <rect x="3" y="16" width="7" height="5" rx="1" ry="1" stroke-width="2"></rect>
+                        </svg>
+                        <!-- ... deja aquí el resto de tus SVGs condicionales ... -->
+                        <svg *ngIf="node.icon === 'MessageCircle'" class="mr-3 h-5 w-5" fill="none"
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 10h10M7 14h6" />
+                        </svg>
+
+                        {{ t(node.name) }}
+                    </a>
+                </ng-container>
+
+                <!-- GRUPO (ACORDEÓN) -->
+                <ng-template #groupTpl>
+                    <div class="select-none">
+                        <!-- Header del grupo -->
+                        <button type="button"
+                            class="w-full flex items-center justify-between px-4 py-2 text-sm font-semibold text-white/90 hover:text-white hover:bg-[#3e66ea]/30 rounded-xl transition"
+                            (click)="toggleGroup(node.name)">
+                            <span class="flex items-center">
+                                <!-- Icono del grupo opcional -->
+                                <svg *ngIf="node.icon === 'Folder'" class="mr-3 h-5 w-5" fill="none"
+                                    stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M3 7h4l2 2h12v8a2 2 0 01-2 2H3V7z"></path>
+                                </svg>
+                                {{ t(node.name) }}
+                            </span>
+
+                            <!-- Chevron -->
+                            <svg class="h-4 w-4 transform transition-transform" [class.rotate-180]="isOpen(node.name)"
+                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M19 9l-7 7-7-7"></path>
+                            </svg>
+                        </button>
+
+                        <!-- Contenido del grupo -->
+                        <div class="mt-1 overflow-hidden transition-all"
+                            [style.maxHeight]="isOpen(node.name) ? '1000px' : '0px'"
+                            *ngIf="node.type === 'group' && node.children as children">
+                            <div class="space-y-1 pl-2">
+                                <a *ngFor="let child of children" [routerLink]="child.href"
+                                    [class]="getItemClasses(child.href)"
+                                    class="flex items-center px-4 py-2 text-sm font-medium rounded-xl transition cursor-pointer">
+
+                                    <!-- Iconos por nombre (reutiliza tus SVGs existentes) -->
+                                    <!-- Building -->
+                                    <svg *ngIf="child.icon === 'Building'" class="mr-3 h-5 w-5" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <!-- Base -->
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M3 22h18" />
+                                        <!-- Contorno del edificio -->
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M6 22V4h12v18" />
+                                        <!-- Filas de ventanas -->
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 8h6M9 12h6M9 16h6" />
+                                    </svg>
+
+
+                                    <!-- Departments / Org Chart -->
+                                    <!-- Departments (compact) -->
+                                    <svg *ngIf="child.icon === 'Departments'" class="mr-3 h-5 w-5" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M9 4h6v4H9zM12 8v4M6 16h4v4H6zM10 16h4v4h-4zM14 16h4v4h-4zM7 12h10" />
+                                    </svg>
+
+                                    <!-- Channels -->
+                                    <!-- Channels (network) -->
+                                    <svg *ngIf="child.icon === 'Channels'" class="mr-3 h-5 w-5" fill="none"
+                                        stroke="currentColor" viewBox="0 0 24 24">
+                                        <!-- nodo central -->
+                                        <circle cx="12" cy="12" r="2" stroke-width="2" />
+                                        <!-- nodos -->
+                                        <circle cx="6" cy="6" r="2" stroke-width="2" />
+                                        <circle cx="18" cy="6" r="2" stroke-width="2" />
+                                        <circle cx="6" cy="18" r="2" stroke-width="2" />
+                                        <circle cx="18" cy="18" r="2" stroke-width="2" />
+                                        <!-- conexiones -->
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M8 8l2.5 2.5M16 8l-2.5 2.5M8 16l2.5-2.5M16 16l-2.5-2.5" />
+                                    </svg>
+
+                                    {{ t(child.name) }}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </ng-template>
+
+            </ng-container>
+
+        </div>
+    </nav>
+
+    <!-- Divider line -->
+    <div class="w-full h-px bg-gradient-to-r from-transparent via-[#3e66ea]/30 to-transparent mt-3"></div>
+
+    <!-- Footer with Logo and Version -->
+    <div class="mt-auto">
+        <div class="w-full h-px bg-gradient-to-r from-transparent via-[#3e66ea]/30 to-transparent"></div>
+        <div class="flex flex-col items-center py-4">
+            <span class="text-white text-xs font-medium tracking-wide">
+                {{ appVersion }}
+            </span>
+        </div>
+    </div>
+</div>

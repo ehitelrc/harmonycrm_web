@@ -1,0 +1,229 @@
+<div class="bg-white dark:bg-gray-800 shadow-sm rounded-lg border border-gray-200 dark:border-gray-700 mt-6">
+  <!-- Search & Sort -->
+  <div class="p-4 sm:p-6">
+    <div class="flex flex-col lg:flex-row lg:items-center gap-4">
+      <!-- Search -->
+      <div class="flex-1">
+        <div class="relative">
+          <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+            <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </div>
+          <input type="text" [(ngModel)]="searchTerm" (ngModelChange)="onSearch($event)"
+            [placeholder]="t('company.search_placeholder')"
+            class="pl-9 block w-full px-3 py-2 border border-gray-300 rounded-lg shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:placeholder-gray-400" />
+        </div>
+      </div>
+
+      <!-- Sort -->
+      <div class="flex items-center gap-3">
+        <select [(ngModel)]="sortBy" (ngModelChange)="onSort($event)"
+          class="block px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white text-sm">
+          <option value="id">{{ t('company.sort_by_id') }}</option>
+          <option value="name">{{ t('company.sort_by_name') }}</option>
+        </select>
+        <button type="button" (click)="onSort(sortBy)"
+          class="px-3 py-2 border rounded-md text-sm font-medium bg-gray-50 text-gray-600 hover:bg-gray-100 dark:bg-gray-700 dark:text-gray-200 dark:border-gray-600">
+          {{ sortOrder === 'asc' ? t('company.order_asc') : t('company.order_desc') }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <div class="table-scroll-container overflow-x-auto" (scroll)="onTableScroll($event)">
+    <ng-container *ngIf="filteredCompanies.length > 0; else noDataTemplate">
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead class="bg-gray-50 dark:bg-gray-700">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ t('company.table_id') }}</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ t('company.table_name') }}
+            </th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ t('company.table_industry')
+              }}</th>
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">{{ t('company.table_actions')
+              }}</th>
+
+          </tr>
+        </thead>
+
+        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+          <tr *ngFor="let c of visibleCompanies" class="hover:bg-gray-50 dark:hover:bg-gray-700">
+            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">{{ c.id }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-200">{{ c.name || '-' }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-700 dark:text-gray-200">{{ c.industry || '-' }}
+            </td>
+
+            <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+              <div class="flex items-center justify-center space-x-2">
+                    <!-- Ir a Departamentos -->
+                <button (click)="goDepartments(c)"
+                  class="text-gray-400 hover:text-[#4465ec] focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:ring-offset-2 rounded"
+                  [title]="t('company.view_departments')">
+                  <!-- Ícono Departments (compacto) -->
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M9 4h6v4H9zM12 8v4M6 16h4v4H6zM10 16h4v4h-4zM14 16h4v4h-4zM7 12h10" />
+                  </svg>
+                </button>
+                
+                <!-- Ver -->
+                <button (click)="viewingCompany = c"
+                  class="text-gray-400 hover:text-[#4465ec] focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:ring-offset-2 rounded"
+                  [title]="t('company.view')">
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z">
+                    </path>
+                  </svg>
+                </button>
+
+                <!-- Editar -->
+                <button (click)="onEdit(c)"
+                  class="text-gray-400 hover:text-[#4465ec] focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:ring-offset-2 rounded"
+                  [title]="t('company.edit')">
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
+                    </path>
+                  </svg>
+                </button>
+
+                <!-- Eliminar -->
+                <button (click)="confirmDelete(c.id)"
+                  class="text-gray-400 hover:text-red-600 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 rounded"
+                  [title]="t('company.delete')">
+                  <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
+                    </path>
+                  </svg>
+                </button>
+
+            
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </ng-container>
+
+    <ng-template #noDataTemplate>
+      <div class="p-6 text-center text-sm text-gray-600 dark:text-gray-300">
+        {{ t('company.no_data') }}
+      </div>
+    </ng-template>
+  </div>
+</div>
+
+<!-- View Company Modal -->
+<div *ngIf="viewingCompany" class="fixed inset-0 z-50 overflow-y-auto" (click)="onBackdropClick($event)">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+
+    <div
+      class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full"
+      (click)="$event.stopPropagation()">
+
+      <div
+        class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+            {{ t('company.details') }}
+          </h3>
+          <button type="button" (click)="viewingCompany = null"
+            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:ring-offset-2 rounded">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400">{{ t('company.id') }}</label>
+            <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingCompany.id }}</p>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400">{{ t('company.name') }}</label>
+            <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingCompany.name || '-' }}</p>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-gray-500 dark:text-gray-400">{{ t('company.industry')
+              }}</label>
+            <p class="mt-1 text-sm text-gray-900 dark:text-white">{{ viewingCompany.industry || '-' }}</p>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+        <button type="button" (click)="viewingCompany = null"
+          class="w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] sm:w-auto sm:text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700">
+          {{ t('company.close') }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div *ngIf="deletingCompanyId !== null" class="fixed inset-0 z-50 overflow-y-auto" (click)="onBackdropClick($event)">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+
+    <div
+      class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full"
+      (click)="$event.stopPropagation()">
+
+      <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+        <div class="sm:flex sm:items-start">
+          <div
+            class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900 sm:mx-0 sm:h-10 sm:w-10">
+            <svg class="h-6 w-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z">
+              </path>
+            </svg>
+          </div>
+          <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+              {{ t('company.confirm_delete_title') }}
+            </h3>
+            <div class="mt-2">
+              <p class="text-sm text-gray-500 dark:text-gray-400">
+                {{ t('company.confirm_delete_message') }}
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+        <button type="button" (click)="deleteCompanyItem()" [disabled]="isDeleting"
+          class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+          <svg *ngIf="isDeleting" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+            </path>
+          </svg>
+          {{ isDeleting ? t('company.deleting') : t('company.delete') }}
+        </button>
+
+        <button type="button" (click)="cancelDelete()" [disabled]="isDeleting"
+          class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
+          {{ t('company.cancel') }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

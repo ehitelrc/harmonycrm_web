@@ -1,0 +1,56 @@
+.link {
+  color: #3e66ea;
+  text-decoration: underline;
+}
+.link:hover { opacity: .9; }
+
+.chip-btn {
+  font-size: 12px;
+  border: 1px solid rgba(0,0,0,.1);
+  padding: 6px 10px;
+  border-radius: 9999px;
+  background: #fff;
+  color: #374151;
+}
+.dark .chip-btn {
+  background: #1f2937;
+  color: #e5e7eb;
+  border-color: #374151;
+}
+
+.chat-scrollbox { scroll-behavior: smooth; }
+
+
+/* Caja del modal: altura max 90vh y layout en columna */
+.modal-box {
+  max-height: 80vh;
+  max-width: 70vw;
+  display: flex;
+  flex-direction: column;
+}
+
+/* El body del modal ocupa el resto del alto y permite scroll interno */
+.modal-body {
+  overflow: hidden;     /* importante para que los hijos controlen su propio scroll */
+}
+
+/* Panel del visor con scroll vertical propio */
+.viewer-pane .viewer-scroll {
+  /* La combinación flex-1 + min-h-0 en HTML deja que esta capa haga overflow */
+  overscroll-behavior: contain;
+}
+
+#case-button, #new-client {
+  background: #3e66ea;
+  color: white;
+  border: none;
+  border-radius: 9999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+#case-button, #new-client:hover {
+  background: #00113f;
+}

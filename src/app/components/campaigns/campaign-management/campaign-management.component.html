@@ -1,0 +1,114 @@
+<app-main-layout>
+  <div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-semibold text-[#00113f] dark:text-white">
+          {{ t('campaign.management_title') }}
+        </h1>
+        <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">
+          {{ t('campaign.management_description') }}
+        </p>
+      </div>
+
+      <div class="flex gap-2">
+        <button
+          *ngIf="isAdmin()"
+          type="button"
+          (click)="openCreateDialog()"
+          [disabled]="!companyId"
+          class="flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium
+                 text-white bg-[#00113f] hover:bg-[#3e66ea] disabled:opacity-50 disabled:cursor-not-allowed"
+          [title]="!companyId ? t('campaign.select_company_first') : ''"
+        >
+          <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+          </svg>
+          {{ t('campaign.add_new_campaign') }}
+        </button>
+      </div>
+    </div>
+
+    <!-- Company Selector -->
+    <div class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4">
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        {{ t('company.select_company') }}
+      </label>
+      <select
+        [(ngModel)]="companyId"
+        (ngModelChange)="onCompanyChange($event)"
+        class="block w-full sm:w-80 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
+               focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f]
+               dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+      >
+        <option [ngValue]="null">{{ t('company.select_company_placeholder') }}</option>
+        <option *ngFor="let c of companies" [ngValue]="c.id">{{ c.name }}</option>
+      </select>
+      <p *ngIf="!companyId" class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+        {{ t('campaign.select_company_to_load_campaigns') }}
+      </p>
+    </div>
+
+    <!-- List -->
+    <app-campaigns-list
+      [campaigns]="campaigns"
+      [isLoading]="isLoading"
+      (edit)="onEdit($event)"
+      (remove)="onRemove($event)"
+      (view)="onView($event)">
+    </app-campaigns-list>
+
+    <!-- Form -->
+    <app-campaign-form
+      *ngIf="isFormOpen && companyId"
+      [companyId]="companyId"
+      [campaign]="selected"
+      (success)="onSuccess($event)"
+      (cancel)="closeDialog()">
+    </app-campaign-form>
+
+    <!-- Delete Modal -->
+    <div *ngIf="isDeleteOpen" class="fixed inset-0 z-50 overflow-y-auto" (click)="cancelDelete()">
+      <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+        <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+
+        <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full" (click)="$event.stopPropagation()">
+          <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
+            <div class="sm:flex sm:items-start">
+              <div class="mx-auto flex-shrink-0 flex items-center justify-center h-12 w-12 rounded-full bg-red-100 dark:bg-red-900 sm:mx-0 sm:h-10 sm:w-10">
+                <svg class="h-6 w-6 text-red-600 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                </svg>
+              </div>
+              <div class="mt-3 text-center sm:mt-0 sm:ml-4 sm:text-left">
+                <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">{{ t('campaign.confirm_delete_title') }}</h3>
+                <div class="mt-2">
+                  <p class="text-sm text-gray-500 dark:text-gray-400">{{ t('campaign.confirm_delete_message') }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+            <button type="button" (click)="confirmDelete()" [disabled]="isDeleting"
+                    class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-red-600 text-white hover:bg-red-700 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50">
+              <svg *ngIf="isDeleting" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                <path class="opacity-75" fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+              </svg>
+              {{ isDeleting ? t('campaign.deleting') : t('campaign.delete') }}
+            </button>
+            <button type="button" (click)="cancelDelete()" [disabled]="isDeleting"
+                    class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 px-4 py-2 bg-white text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600">
+              {{ t('campaign.cancel') }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</app-main-layout>

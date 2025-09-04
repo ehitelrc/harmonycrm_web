@@ -1,0 +1,51 @@
+<app-main-layout>
+  <div class="space-y-6">
+    <!-- Header -->
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-semibold text-[#00113f] dark:text-white">
+          {{ t('funnel.stages_management_title') }}
+        </h1>
+        <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">
+          {{ t('funnel.stages_management_description') }}
+        </p>
+        <div class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+          <span class="font-medium">{{ t('funnel.table_name') }}:</span>
+          <span>{{ funnel?.name || '—' }}</span>
+        </div>
+      </div>
+
+      <div class="flex gap-2">
+        <button *ngIf="isAdmin()" type="button" (click)="openCreateDialog()"
+          class="flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#00113f] hover:bg-[#3e66ea] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea]">
+          <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+          </svg>
+          {{ t('funnel.add_new_stage') }}
+        </button>
+        <a routerLink="/funnels"
+          class="px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700">
+          {{ t('back') }}
+        </a>
+      </div>
+    </div>
+
+    <!-- Stages List -->
+    <app-stages-list
+      [stages]="stages"
+      [isLoading]="isLoading"
+      (editStage)="openEditDialog($event)"
+      (deleteStage)="onStageDeleted()">
+    </app-stages-list>
+
+    <!-- Create / Edit Stage Dialog -->
+    <app-stage-form
+      *ngIf="isCreateDialogOpen"
+      [funnelId]="funnelId"
+      [stage]="selectedStage"
+      (success)="onStageSuccess()"
+      (cancel)="closeCreateDialog()">
+    </app-stage-form>
+  </div>
+</app-main-layout>

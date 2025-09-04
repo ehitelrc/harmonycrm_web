@@ -1,0 +1,209 @@
+
+@if (isCaseMode) {
+<div class="h-[calc(100vh-2rem)] w-full bg-white dark:bg-gray-900 rounded-xl shadow-lg overflow-hidden flex">
+  <section class="flex-1 flex flex-col min-w-0">
+
+    <!-- Header (mismo formato/márgenes que la lista de conversaciones) -->
+    <div class="p-4 border-b border-gray-200 dark:border-gray-800">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <button
+            type="button"
+            class="inline-flex items-center justify-center h-8 w-8 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"
+            (click)="isCaseMode = false"
+            aria-label="Regresar"
+            title="Regresar">
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
+
+          <div class="text-base font-semibold text-[#00113f] dark:text-white">
+            Tarjeta del caso
+          </div>
+        </div>
+
+        <!-- Acciones rápidas del caso -->
+        <div class="flex items-center gap-2">
+          <button class="chip-btn" (click)="toggleRightPanel()">
+            {{ isRightPanelOpen ? 'Ocultar adjuntos' : 'Ver adjuntos' }}
+          </button>
+          <button class="chip-btn">Añadir nota</button>
+          <button class="chip-btn">Cerrar caso</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contenido -->
+    <div class="flex-1 overflow-y-auto p-4">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+
+        <!-- Columna izquierda: info principal del caso -->
+        <div class="lg:col-span-2 space-y-4">
+
+          <!-- Resumen del caso -->
+          <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
+            <div class="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+              <div class="flex items-center gap-3">
+                <img
+                  [src]="selectedCase ? channelIcon(selectedCase.channel_code || '') : 'assets/icons/default-channel.svg'"
+                  class="h-9 w-9 rounded-md bg-white p-1 shadow-sm"
+                  alt="canal" />
+                <div>
+                  <div class="text-sm font-semibold text-[#00113f] dark:text-white">
+                    Caso #{{ selectedCase?.case_id }}
+                  </div>
+                  <div class="text-xs text-gray-500 dark:text-gray-400">
+                    {{ selectedCase?.client_name || 'Cliente no asignado' }}
+                  </div>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
+                  {{ selectedCase?.status || '—' }}
+                </span>
+                <span *ngIf="selectedCase?.unread_count"
+                      class="px-2 py-1 rounded-full text-xs font-semibold bg-[#3e66ea] text-white">
+                  {{ selectedCase?.unread_count }} sin leer
+                </span>
+              </div>
+            </div>
+
+            <div class="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div class="rounded-lg bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 p-3">
+                <div class="text-xs text-gray-500 dark:text-gray-400">Canal</div>
+                <div class="text-sm text-[#00113f] dark:text-gray-100">
+                  {{ selectedCase?.channel_code || '—' }}
+                </div>
+              </div>
+              <div class="rounded-lg bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 p-3">
+                <div class="text-xs text-gray-500 dark:text-gray-400">Último mensaje</div>
+                <div class="text-sm text-[#00113f] dark:text-gray-100 line-clamp-2">
+                  {{ selectedCase?.last_message_preview || '—' }}
+                </div>
+              </div>
+              <div class="rounded-lg bg-gray-50 dark:bg-gray-800/60 border border-gray-200 dark:border-gray-700 p-3">
+                <div class="text-xs text-gray-500 dark:text-gray-400">Actualizado</div>
+                <div class="text-sm text-[#00113f] dark:text-gray-100">
+                  <!-- Ajusta si tienes un campo updated_at -->
+                  {{ (messages?.[messages.length-1]?.created_at) | date:'short' }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Timeline / Actividad (placeholder bonito) -->
+          <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
+            <div class="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+              <div class="text-sm font-semibold text-[#00113f] dark:text-white">Actividad reciente</div>
+              <button class="chip-btn" >Actualizar</button>
+            </div>
+
+            <div class="p-4">
+              @if (messages?.length) {
+                <ul class="space-y-3">
+                  @for (m of messages; track m.id) {
+                    <li class="flex items-start gap-3">
+                      <div class="mt-1 h-2 w-2 rounded-full"
+                           [class.bg-[#3e66ea]]="isFromAgent(m)"
+                           [class.bg-gray-400]="!isFromAgent(m)"></div>
+                      <div class="flex-1">
+                        <div class="text-xs text-gray-500 dark:text-gray-400">
+                          {{ m.created_at | date:'short' }} ·
+                          <span class="font-medium" [class.text-[#3e66ea]]="isFromAgent(m)">
+                            {{ isFromAgent(m) ? 'Agente' : 'Cliente' }}
+                          </span>
+                        </div>
+                        <div class="text-sm text-[#00113f] dark:text-gray-100">
+                          @if (m.message_type === 'text') {
+                            {{ m.text_content || '—' }}
+                          } @else {
+                            [{{ m.message_type | uppercase }}]
+                            <button class="link" (click)="openAttachment(m)">Ver adjunto</button>
+                          }
+                        </div>
+                      </div>
+                    </li>
+                  }
+                </ul>
+              } @else {
+                <div class="text-sm text-gray-500 dark:text-gray-400">No hay actividad todavía.</div>
+              }
+            </div>
+          </div>
+
+          <!-- Notas del caso (placeholder) -->
+          <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
+            <div class="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+              <div class="text-sm font-semibold text-[#00113f] dark:text-white">Notas</div>
+              <button class="chip-btn">Añadir nota</button>
+            </div>
+            <div class="p-4">
+              <div class="text-sm text-gray-500 dark:text-gray-400">Aún no hay notas.</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Columna derecha: cliente / campaña / acciones -->
+        <div class="space-y-4">
+
+          <!-- Cliente -->
+          <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
+            <div class="p-4 border-b border-gray-100 dark:border-gray-800">
+              <div class="text-sm font-semibold text-[#00113f] dark:text-white">Cliente</div>
+            </div>
+            <div class="p-4 flex items-center gap-3">
+              <div class="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-sm font-semibold text-gray-600 dark:text-gray-200">
+                {{ (selectedCase?.client_name || 'C')[0] || 'C' }}
+              </div>
+              <div class="min-w-0">
+                <div class="text-sm text-[#00113f] dark:text-gray-100 truncate">
+                  {{ selectedCase?.client_name || 'Sin asignar' }}
+                </div>
+                <div class="text-xs text-gray-500 dark:text-gray-400">
+                  ID: {{ selectedCase?.case_id }}
+                </div>
+              </div>
+            </div>
+            <div class="px-4 pb-4">
+              <button class="w-full chip-btn">Ver ficha de cliente</button>
+            </div>
+          </div>
+
+          <!-- Campaña (si aplica) -->
+          <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
+            <div class="p-4 border-b border-gray-100 dark:border-gray-800">
+              <div class="text-sm font-semibold text-[#00113f] dark:text-white">Campaña</div>
+            </div>
+            <div class="p-4 space-y-2">
+              <div class="text-sm text-[#00113f] dark:text-gray-100">—</div>
+              <div class="text-xs text-gray-500 dark:text-gray-400">
+                Vincula esta conversación a una campaña.
+              </div>
+            </div>
+            <div class="px-4 pb-4">
+              <button class="w-full chip-btn">Vincular a campaña</button>
+            </div>
+          </div>
+
+          <!-- Acciones rápidas -->
+          <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
+            <div class="p-4 border-b border-gray-100 dark:border-gray-800">
+              <div class="text-sm font-semibold text-[#00113f] dark:text-white">Acciones</div>
+            </div>
+            <div class="p-4 space-y-2">
+              <button class="w-full chip-btn">Asignar a agente</button>
+              <button class="w-full chip-btn">Cambiar estado</button>
+              <button class="w-full chip-btn" (click)="isCaseMode = false">Volver al chat</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </section>
+</div>
+}

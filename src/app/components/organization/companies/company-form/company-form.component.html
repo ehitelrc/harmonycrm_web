@@ -1,0 +1,88 @@
+<!-- Modal Overlay -->
+<div class="fixed inset-0 z-50 overflow-y-auto" (click)="onBackdropClick($event)">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <!-- Background overlay -->
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+
+    <!-- Center helper -->
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+
+    <!-- Modal -->
+    <div
+      class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-xl sm:w-full"
+      (click)="$event.stopPropagation()"
+    >
+      <!-- Header -->
+      <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+            {{ isEditing ? t('company.edit') : t('company.create') }}
+          </h3>
+          <button type="button" (click)="close()"
+                  class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:ring-offset-2 rounded">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6">
+        <form [formGroup]="form" class="space-y-6" (ngSubmit)="onSubmit()">
+          <!-- Name -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              {{ t('company.table_name') }} *
+            </label>
+            <input
+              type="text"
+              formControlName="name"
+              [class.border-red-500]="isFieldInvalid('name')"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              [placeholder]="t('company.table_name')"
+            />
+            <p *ngIf="isFieldInvalid('name')" class="mt-1 text-sm text-red-600">
+              {{ getFieldError('name') }}
+            </p>
+          </div>
+
+          <!-- Industry -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              {{ t('company.table_industry') }}
+            </label>
+            <input
+              type="text"
+              formControlName="industry"
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              [placeholder]="t('company.table_industry')"
+            />
+          </div>
+ 
+        </form>
+      </div>
+
+      <!-- Footer -->
+      <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse border-t border-gray-200 dark:border-gray-600">
+        <button
+          type="button"
+          (click)="onSubmit()"
+          [disabled]="isSubmitting || form.invalid"
+          class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-[#3e66ea] text-base font-medium text-white hover:bg-[#2d5bd9] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed">
+          <svg *ngIf="isSubmitting" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+          </svg>
+          {{ isSubmitting ? t('company.deleting') : (isEditing ? t('update') : t('create')) }}
+        </button>
+        <button
+          type="button"
+          (click)="onCancel()"
+          class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:bg-gray-800 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-700">
+          {{ t('company.cancel') }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
