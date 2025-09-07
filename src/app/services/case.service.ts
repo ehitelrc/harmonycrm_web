@@ -9,6 +9,8 @@ import { Message } from '@app/models/message.model';
 import { AgentMessage } from '@app/models/agent-message.model';
 import { CaseNote } from '@app/models/case-notes.model';
 import { CaseNoteView } from '@app/models/case-notes-view.model';
+import { MoveCaseStagePayload } from '@app/models/move_case_stager_payload';
+
 
 const GATEWAY = '/messages';
 export const CASE_URL = returnCompleteURI({
@@ -159,4 +161,17 @@ export class CaseService {
     });
   }
 
+  moveCaseStage(payload: MoveCaseStagePayload) {
+    return this.fetch.post<ApiResponse<void>>({
+      API_Gateway: `${CASE_URL}/entry/case_funnel/set_stage`,
+      values: payload,
+    });
+  }
+
+  async closeCase(caseId: number, note: string, user_id: number, funnel_id: number | null): Promise<ApiResponse<void>> {
+    return await this.fetch.post<ApiResponse<void>>({
+      API_Gateway: `${CASE_URL}/entry/close_case`,
+      values: { case_id: caseId, note: note, closed_by: user_id, funnel_id: funnel_id },
+    });
+  }
 }

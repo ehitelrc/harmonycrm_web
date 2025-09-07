@@ -54,3 +54,18 @@
 #case-button, #new-client:hover {
   background: #00113f;
 }
+
+#close-case-button {
+  background: #950340;
+  color: white;
+  border: none;
+  border-radius: 9999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+#close-case-button:hover {
+  background: #00113f;
+}

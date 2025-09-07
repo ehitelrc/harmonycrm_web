@@ -567,6 +567,14 @@ export const esTranslations = {
   "campaign.funnel": "Embudo",
   "campaign.select_funnel": "Seleccione un embudo",
   "campaign.failed_to_load_funnels": "No se pudieron cargar los embudos",
+  "case.move_stage_title": "Mover etapa del caso",
+  "case.current_stage": "Etapa actual",
+  "case.funnel": "Embudo",
+  "case.new_stage": "Nueva etapa",
+  "case.note": "Nota",
+  "case.note_placeholder": "Agrega una nota sobre el cambio de etapa (opcional)",
+  "case.apply_change": "Aplicar cambio",
+
  
 
   // Generic terms

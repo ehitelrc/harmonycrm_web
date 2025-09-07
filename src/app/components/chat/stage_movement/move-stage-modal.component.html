@@ -1,0 +1,118 @@
+<!-- src/app/components/cases/move-stage-modal/move-stage-modal.component.html -->
+<div *ngIf="isOpen" class="fixed inset-0 z-50 overflow-y-auto" (click)="close()">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+    <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
+
+    <div
+      class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
+      (click)="$event.stopPropagation()">
+
+      <!-- Header -->
+      <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+            {{ t('case.move_stage_title') || 'Cambiar estado del caso' }}
+          </h3>
+          <button type="button" (click)="close()"
+                  class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 space-y-4">
+        <!-- Estado actual -->
+        <div class="rounded-md border border-gray-200 dark:border-gray-700 p-3 bg-gray-50 dark:bg-gray-900/40">
+          <div class="text-xs text-gray-500 dark:text-gray-400">
+            {{ t('case.current_stage') || 'Estado actual' }}
+          </div>
+          <div class="text-sm text-[#00113f] dark:text-gray-100">
+            <div class="font-medium">
+              {{ current.current_stage_name || (current.action === 'assign' ? 'NA' : '—') }}
+            </div>
+            <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+              {{ t('case.funnel') || 'Embudo' }}:
+              {{ current.funnel_name || '—' }}
+              <span class="mx-1">·</span>
+              {{ t('updated_at') || 'Actualizado' }}:
+              {{ current.last_changed_at | date:'medium' }}
+              <span *ngIf="current?.last_changed_by_label" class="mx-1">·</span>
+              <span *ngIf="current?.last_changed_by_label">
+                {{ t('by') || 'por' }} {{ current.last_changed_by_label }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Nuevo estado -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            {{ t('case.new_stage') || 'Nuevo estado' }} *
+          </label>
+
+          <select
+            [(ngModel)]="selectedStageId"
+            name="to_stage_id"
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
+                   focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea]
+                   text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            <option [ngValue]="null" disabled>
+              {{ isLoadingStages ? (t('loading') || 'Cargando…') : (t('select') || 'Seleccione…') }}
+            </option>
+            <option *ngFor="let s of stages" [ngValue]="s.id">
+              {{ s.position }}. {{ s.name }}
+              <span *ngIf="s.is_won"> — ({{ t('stage.won') || 'Ganado' }})</span>
+              <span *ngIf="s.is_lost"> — ({{ t('stage.lost') || 'Perdido' }})</span>
+            </option>
+          </select>
+
+          <div *ngIf="sameAsCurrent()" class="mt-1 text-xs text-red-600">
+            {{ t('case.stage_same_warning') || 'El nuevo estado es igual al actual.' }}
+          </div>
+        </div>
+
+        <!-- Nota -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+            {{ t('case.note') || 'Nota (opcional)' }}
+          </label>
+          <textarea
+            [(ngModel)]="note"
+            name="note"
+            rows="3"
+            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
+                   focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea]
+                   text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            placeholder="{{ t('case.note_placeholder') || 'Motivo del cambio, contexto, etc.' }}"></textarea>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+        <button
+          type="button"
+          (click)="submit()"
+          [disabled]="isSubmitting || !canSubmit()"
+          class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2
+                 bg-[#3e66ea] text-white hover:bg-[#2d5bd9] sm:ml-3 sm:w-auto sm:text-sm
+                 disabled:opacity-50 disabled:cursor-not-allowed">
+          {{ isSubmitting ? (t('saving') || 'Guardando…') : (t('case.apply_change') || 'Aplicar cambio') }}
+        </button>
+
+        <button
+          type="button"
+          (click)="close()"
+          class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2
+                 bg-white text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm
+                 dark:bg-gray-800 dark:text-white dark:border-gray-600">
+          {{ t('cancel') || 'Cancelar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

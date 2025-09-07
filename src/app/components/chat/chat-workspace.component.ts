@@ -17,17 +17,32 @@ import { AuthService } from '@app/services';
 import { CaseNoteView } from '@app/models/case-notes-view.model';
 import { CampaignWithFunnel } from '@app/models/campaign-with-funnel.model';
 import { CampaignService } from '@app/services/campaign.service';
+import { MoveStageModalComponent } from './stage_movement/move-stage-modal.component';
+import { MoveCaseStagePayload } from '@app/models/move_case_stager_payload';
+import { ThisReceiver } from '@angular/compiler';
 
 @Component({
   selector: 'app-chat-workspace',
   standalone: true,
-  imports: [CommonModule, FormsModule, ClientFormComponent],
+  imports: [CommonModule, FormsModule, ClientFormComponent, MoveStageModalComponent],
   templateUrl: './chat-workspace.component.html',
   styleUrls: ['./chat-workspace.component.css']
 })
 export class ChatWorkspaceComponent implements OnInit, OnDestroy {
 
   currentCaseFunnel: VwCaseCurrentStage | null = null;
+
+  isCloseCaseOpen = false;
+  closeNote = '';
+  isClosingCase = false;
+
+
+  // En tu componente padre
+  isMoveStageOpen = false;
+  currentStage: VwCaseCurrentStage | null = null;
+
+
+  isChangeStatusOpen = false;
 
   isHistoryOpen = false;
   isLoadingHistory = false;
@@ -141,6 +156,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
     console.log('Agent ID:', this.agent_id);
 
     if (!this.agent_id) return;
+
     await this.loadCases();
   }
 
@@ -207,7 +223,8 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
       });
 
       await this.loadCurrentCaseFunnel(c.case_id);
-      
+
+      await this.loadCurrentStage(c.case_id); // Nueva línea para cargar el estado actual
 
       if (c.client_id) {
         const clientResponse = await this.clientService.getById(c.client_id);
@@ -282,6 +299,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
       this.isLoadingMessages = false;
     }
   }
+
 
   // Helpers render
   isText(m: Message) { return m.message_type === 'text'; }
@@ -839,6 +857,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
 
   async loadCurrentCaseFunnel(caseId: number) {
     try {
+
       const res = await this.chatService.getCaseFunnelCurrent(caseId);
       this.currentCaseFunnel = res?.data || null;
 
@@ -869,5 +888,76 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
     this.isHistoryOpen = false;
   }
 
+  openChangeStatusModal() {
+    if (!this.selectedCase?.case_id) return;
+    this.loadCurrentCaseFunnel(this.selectedCase.case_id);
+    this.isMoveStageOpen = true;
+
+  }
+
+  async openMoveStage() {
+    // Asegúrate de tener el estado actual (ya tienes getCaseFunnelCurrent en CaseService)
+
+    this.isMoveStageOpen = true;
+  }
+
+  async onMoveStage(payload: MoveCaseStagePayload) {
+    // Aquí llamas tu endpoint para mover el stage:
+    payload.changed_by = this.authData?.user_id || 0;
+    await this.chatService.moveCaseStage(payload);
+    // Luego refrescas currentStage e historial
+
+
+    this.loadCases();
+    this.loadCurrentCaseFunnel(this.selectedCase!.case_id);
+
+    this.isMoveStageOpen = false;
+
+
+  }
+
+  async loadCurrentStage(case_id: number) {
+    const res = await this.chatService.getCaseFunnelCurrent(case_id);
+    this.currentStage = res.data || null;
+
+  }
+
+  openCloseCaseModal() {
+    this.isCloseCaseOpen = true;
+    this.closeNote = '';
+  }
+
+  closeCloseCaseModal() {
+    this.isCloseCaseOpen = false;
+  }
+
+  async confirmCloseCase() {
+    if (!this.selectedCase) return;
+
+    try {
+      this.isClosingCase = true;
+      const res = await this.chatService.closeCase(this.selectedCase.case_id,
+        this.closeNote,
+        this.authData?.user_id || 0,
+        this.selectedCase.funnel_id || 0);
+
+      if (res.success) {
+        this.alert.success('Caso cerrado correctamente');
+        this.selectedCase.status = 'closed';
+        this.isCaseMode = false;
+        this.loadCases();
+        this.selectedCase = null;
+ 
+        this.closeCloseCaseModal();
+      } else {
+        this.alert.error(res.message || 'No se pudo cerrar el caso');
+      }
+    } catch (err) {
+      console.error(err);
+      this.alert.error('Error al cerrar el caso');
+    } finally {
+      this.isClosingCase = false;
+    }
+  }
 
 }
