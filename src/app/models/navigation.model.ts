@@ -4,6 +4,7 @@ export interface NavigationItem {
   name: string;
   href: string;
   icon: string;
+  permission: string;
 }
 
 export interface NavigationGroup {
@@ -15,7 +16,7 @@ export interface NavigationGroup {
 
  
 
-export interface NavigationItem { type:'item'; name:string; href:string; icon:string; }
+export interface NavigationItem { type:'item'; name:string; href:string; icon:string; permission:string;   }
 export interface NavigationGroup { type:'group'; name:string; icon?:string; children:NavigationItem[]; }
 export type NavigationNode = NavigationItem | NavigationGroup;
 export type NavigationItems = ReadonlyArray<NavigationNode>;

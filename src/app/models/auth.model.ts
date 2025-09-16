@@ -30,6 +30,7 @@ export interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
   error: string | null;
+  permissions?: string[];
 }
 
 // Form validation interfaces
@@ -60,4 +61,9 @@ export interface JwtPayload {
   role?: string;
   iat: number; // issued at
   exp: number; // expires at
+}
+
+export interface UserPermission {
+  permission_code: string;
+  description?: string;
 }

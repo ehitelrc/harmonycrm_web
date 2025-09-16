@@ -41,14 +41,27 @@ export class SidebarComponent implements OnInit {
     this.currentLocation = this.router.url;
     this.navigation = this.navigationService.getItems();
 
-    // Opcional: abrir todos los grupos al inicio
-    // Iniciar todos los grupos colapsados
+
+  // 👇 escucha cambios en items
+  this.navigationService.items$.subscribe(items => {
+    this.navigation = items;
+
+    // inicializar estado de grupos
     this.navigation.forEach(node => {
       if ((node as NavigationGroup).type === 'group') {
-        const g = node as NavigationGroup;
-        this.openGroups[g.name] = false; // todos cerrados al inicio
+        this.openGroups[(node as NavigationGroup).name] = false;
       }
     });
+  });
+
+    // Opcional: abrir todos los grupos al inicio
+    // Iniciar todos los grupos colapsados
+    // this.navigation.forEach(node => {
+    //   if ((node as NavigationGroup).type === 'group') {
+    //     const g = node as NavigationGroup;
+    //     this.openGroups[g.name] = false; // todos cerrados al inicio
+    //   }
+    // });
   }
 
   t(key: string): string {

@@ -5,6 +5,8 @@ import { returnCompleteURI } from '@app/utils';
 import { environment } from '@environment';
 import { BehaviorSubject } from 'rxjs';
 import { FetchService } from './extras/fetch.service';
+import { UserPermission } from '@app/models/auth.model';
+import { NavigationService } from './extras/navigation.service';
 
 const GATEWAY = '/auth';
 export const AUTH_URL = returnCompleteURI({
@@ -24,14 +26,16 @@ export class AuthService {
 		token: null,
 		isAuthenticated: false,
 		isLoading: false,
-		error: null
+		error: null,
+		permissions: []
 	});
 
 	public authState$ = this.authStateSubject.asObservable();
 
 	constructor(
 		private fetchService: FetchService,
-		private router: Router
+		private router: Router,
+		private navigationService: NavigationService
 	) {
 		this.initializeAuthState();
 	}
@@ -43,7 +47,7 @@ export class AuthService {
 	 */
 	private initializeAuthState(): void {
 		const authData = this.getStoredAuthData();
-		
+
 		if (authData?.token) {
 			try {
 				const user = this.decodeTokenPayload(authData);
@@ -54,6 +58,10 @@ export class AuthService {
 					isLoading: false,
 					error: null
 				});
+
+				// 👇 SOLUCIÓN CRÍTICA
+				this.loadUserPermissions(authData.user_id, authData.company_id);
+
 			} catch (error) {
 				this.clearAuthData();
 			}
@@ -98,6 +106,19 @@ export class AuthService {
 		}
 	}
 
+	private async loadUserPermissions(userId: number, companyId: number) {
+		const response = await this.fetchService.get<ApiResponse<UserPermission[]>>({
+			API_Gateway: `${environment.API.BASE}/auth/permissions/${userId}/${companyId}`,
+		});
+
+		if (response.success) {
+			const codes = response.data.map(p => p.permission_code);
+			this.updateAuthState({ permissions: codes });
+
+			this.navigationService.setPermissions(codes);
+		}
+	}
+
 	/**
 	 * @description Register new user
 	 * @param userData Registration data
@@ -134,7 +155,7 @@ export class AuthService {
 	async logout(): Promise<void> {
 		try {
 			const authData = this.getStoredAuthData();
-			
+
 			if (authData?.token) {
 				// Call logout endpoint
 				await this.fetchService.post<ApiResponse<any>>({
@@ -199,7 +220,7 @@ export class AuthService {
 	 * @memberof AuthService
 	 * @version 4.17.0.11
 	 */
-	  getStoredAuthData(): AuthData | null {
+	getStoredAuthData(): AuthData | null {
 		try {
 			const stored = localStorage.getItem(this.AUTH_STORAGE_KEY);
 			return stored ? JSON.parse(stored) : null;
@@ -218,7 +239,7 @@ export class AuthService {
 	 */
 	private decodeTokenPayload(authData: AuthData): User {
 
-		
+
 		return {
 			user_id: authData.user_id,
 			user_name: authData.full_name,
@@ -229,7 +250,7 @@ export class AuthService {
 		// try {
 		// 	const payload = token.split('.')[1];
 		// 	const decoded = JSON.parse(atob(payload));
-			
+
 		// 	return {
 		// 		user_id: decoded.user_id,
 		// 		user_name: decoded.user_name,
@@ -270,6 +291,8 @@ export class AuthService {
 			isLoading: false,
 			error: null
 		});
+
+		this.loadUserPermissions(authData.user_id, authData.company_id);
 
 		// Navigate to dashboard or home
 		this.router.navigate(['/dashboard']);
@@ -418,4 +441,6 @@ export class AuthService {
 			throw error;
 		}
 	}
+
+
 }
