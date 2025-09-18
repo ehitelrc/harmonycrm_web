@@ -177,8 +177,8 @@ export class LoginComponent implements OnInit {
         // Map form data to User format for UserService
         const userData: Partial<User> = {
           email: formData.email,
-          first_name: formData.firstName,
-          last_name: formData.lastName,
+          full_name: formData.firstName,
+     
           role: 'operator', // Default role
           is_active: true,
           auth_provider: 'local'

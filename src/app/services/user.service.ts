@@ -23,7 +23,7 @@ export class UserService {
 	 */
 	async getAll(): Promise<ApiResponse<User[]>> {
 		return await this.fetchService.get<ApiResponse<User[]>>({
-			API_Gateway: `${USER_URL}/`,
+			API_Gateway: `${USER_URL}`,
 		});
 	}
 
@@ -45,7 +45,7 @@ export class UserService {
 	 */
 	async create(user: Partial<User>): Promise<ApiResponse<any>> {
 		return await this.fetchService.post<ApiResponse<any>>({
-			API_Gateway: `${USER_URL}/`,
+			API_Gateway: `${USER_URL}`,
 			values: user,
 		});
 	}
@@ -56,9 +56,9 @@ export class UserService {
 	 * @param data Partial user data
 	 * @returns Promise<ApiResponse<any>>
 	 */
-	async update(id: string, data: Partial<User>): Promise<ApiResponse<any>> {
+	async update(id: number, data: Partial<User>): Promise<ApiResponse<any>> {
 		return await this.fetchService.put<ApiResponse<any>>({
-			API_Gateway: `${USER_URL}/${id}`,
+			API_Gateway: `${USER_URL}`,
 			values: data,
 		});
 	}
@@ -68,7 +68,7 @@ export class UserService {
 	 * @param id User ID
 	 * @returns Promise<ApiResponse<any>>
 	 */
-	async delete(id: string): Promise<ApiResponse<any>> {
+	async delete(id: number): Promise<ApiResponse<any>> {
 		return await this.fetchService.delete<ApiResponse<any>>({
 			API_Gateway: `${USER_URL}/${id}`,
 		});
@@ -80,10 +80,13 @@ export class UserService {
 	 * @param newPassword New password
 	 * @returns Promise<ApiResponse<any>>
 	 */
-	async updatePassword(id: string, newPassword: string): Promise<ApiResponse<any>> {
+	async updatePassword(id: number, newPassword: string): Promise<ApiResponse<any>> {
+
+		const data : any = { new_password: newPassword };
+
 		return await this.fetchService.put<ApiResponse<any>>({
 			API_Gateway: `${USER_URL}/${id}/password`,
-			values: { newPassword },
+			values: data,
 		});
 	}
 

@@ -139,9 +139,9 @@ export class PasswordChangeComponent implements OnInit, OnChanges {
   getUserDisplayName(): string {
     if (!this.user) return '';
     
-    if (this.user.first_name || this.user.last_name) {
-      return `${this.user.first_name || ""} ${this.user.last_name || ""}`.trim();
+    if (this.user.full_name) {
+      return `${this.user.full_name || ""}`.trim();
     }
-    return this.user.email || this.user.id;
+    return this.user.email || this.user.id.toString();
   }
 }

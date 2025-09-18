@@ -4,6 +4,7 @@ import { environment } from "@environment";
 import { FetchService } from "./extras/fetch.service";
 import { ApiResponse } from "@app/models";
 import { Company } from "@app/models/company.model";
+import { CompanyUser } from "@app/models/companies_user_view";
 
 const GATEWAY = '/companies';
 export const COMPANY_URL = returnCompleteURI({
@@ -31,6 +32,12 @@ export class CompanyService {
     async getCompanyById(id:number) : Promise<ApiResponse<Company>> {
         return await this.fetchService.get<ApiResponse<Company>>({
             API_Gateway: `${COMPANY_URL}/${id}`,
+        });
+    }
+
+    async getCompaniesByUserId(userId: number): Promise<ApiResponse<CompanyUser[]>> {
+        return await this.fetchService.get<ApiResponse<CompanyUser[]>>({
+            API_Gateway: `${COMPANY_URL}/user/${userId}`,
         });
     }
 

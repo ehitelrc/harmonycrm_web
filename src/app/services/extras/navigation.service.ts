@@ -5,53 +5,53 @@ import { NavigationItems } from '../../models/navigation.model';
 @Injectable({ providedIn: 'root' })
 export class NavigationService {
   private fullMenu: NavigationItems = [
-    { type: 'item', name: 'dashboard', href: '/', icon: 'LayoutDashboard', permission: 'dashboard.access' },
-    { type: 'item', name: 'conversations', href: '/conversations', icon: 'MessageCircle', permission: 'conversations.access' },
+    { type: 'item', name: 'menu.dashboard', href: '/', icon: 'LayoutDashboard', permission: 'dashboard.access' },
+    { type: 'item', name: 'menu.conversations', href: '/conversations', icon: 'MessageCircle', permission: 'conversations.access' },
 
     {
       type: 'group',
-      name: 'organization',
+      name: 'menu.organization',
       icon: 'Folder',
       children: [
-        { type: 'item', name: 'companies', href: '/companies', icon: 'Building', permission: 'companies.access' },
+        { type: 'item', name: 'menu.companies', href: '/companies', icon: 'Building', permission: 'companies.access' },
       ],
     },
     {
       type: 'group',
-      name: 'commerce',
+      name: 'menu.commerce',
       icon: 'Folder',
       children: [
-        { type: 'item', name: 'products', href: '/products', icon: 'Package', permission: 'products.access' },
-        { type: 'item', name: 'customers', href: '/customers', icon: 'Users', permission: 'customers.access' },
-        { type: 'item', name: 'campaigns', href: '/campaigns', icon: 'LayoutDashboard', permission: 'campaigns.access' },
+        { type: 'item', name: 'menu.products', href: '/products', icon: 'Package', permission: 'products.access' },
+        { type: 'item', name: 'menu.customers', href: '/customers', icon: 'Users', permission: 'customers.access' },
+        { type: 'item', name: 'menu.campaigns', href: '/campaigns', icon: 'LayoutDashboard', permission: 'campaigns.access' },
       ],
     },
     {
       type: 'group',
-      name: 'operation',
+      name: 'menu.operation',
       icon: 'Folder',
       children: [
-        { type: 'item', name: 'channels', href: '/channels', icon: 'Channels', permission: 'channels.access' },
-        { type: 'item', name: 'funnels', href: '/funnels', icon: 'Funnel', permission: 'funnels.access' },
+        { type: 'item', name: 'menu.channels', href: '/channels', icon: 'Channels', permission: 'channels.access' },
+        { type: 'item', name: 'menu.funnels', href: '/funnels', icon: 'Funnel', permission: 'funnels.access' },
       ],
     },
     {
       type: 'group',
-      name: 'security',
+      name: 'menu.security',
       icon: 'Folder',
       children: [
-        { type: 'item', name: 'users', href: '/users', icon: 'user', permission: 'users.access' },
-        { type: 'item', name: 'agents', href: '/agents', icon: 'agent', permission: 'agents.access' },
-        { type: 'item', name: 'roles', href: '/roles', icon: 'roles', permission: 'roles.access' },
+        { type: 'item', name: 'menu.users', href: '/users', icon: 'user', permission: 'users.access' },
+        { type: 'item', name: 'menu.agents', href: '/agents', icon: 'agent', permission: 'agents.access' },
+        { type: 'item', name: 'menu.roles', href: '/roles', icon: 'roles', permission: 'roles.access' },
         { type: 'item', name: 'role-permissions', href: '/role-permissions', icon: 'rol-permissions', permission: 'role-permissions.access' },
       ],
     },
     {
       type: 'group',
-      name: 'reports',
+      name: 'menu.reports',
       icon: 'Folder',
       children: [
-        { type: 'item', name: 'convertions', href: '/convertions', icon: 'PackageOpen', permission: 'reports.access' },
+        { type: 'item', name: 'menu.convertions', href: '/convertions', icon: 'PackageOpen', permission: 'reports.access' },
       ],
     }
   ];

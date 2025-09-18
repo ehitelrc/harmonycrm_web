@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 
 export interface AuthData {
   token: string;
-    id: string;
+    id: number;
     email: string;
     first_name: string;
     last_name: string;

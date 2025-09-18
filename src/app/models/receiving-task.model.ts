@@ -3,7 +3,7 @@ export interface ReceivingTask {
 	task_id: string;
 	inbound_number: string;
 	created_by: string;
-	assigned_to?: string | null;
+	assigned_to?: number | null;
 	status: string;
 	priority: string;
 	notes?: string | null;

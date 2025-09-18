@@ -23,6 +23,7 @@ export const esTranslations = {
   'auth.company_placeholder': 'Seleccionar la empresa',
   'auth.company_required': 'La empresa es requerida',
 
+  'user_management.select_company': 'Seleccionar compañía',
   'auth.error_login': 'Error al iniciar sesión',
   'auth.error_register': 'Error al registrar',
   'auth.hero_title': 'Gestión Ágil Omnicanal',
@@ -404,6 +405,7 @@ export const esTranslations = {
   'user_management.create_user': 'Crear Usuario',
   'user_management.edit_user': 'Editar Usuario',
   'user_management.view_details': 'Ver Detalles',
+  'user_management.user_roles': 'Roles de Usuario',
   'user_management.delete_user': 'Eliminar Usuario',
   'user_management.update_user': 'Actualizar Usuario',
   'user_management.name': 'Nombre',

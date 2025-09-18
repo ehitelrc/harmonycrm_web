@@ -49,11 +49,11 @@ export class ReceivingTaskListComponent {
 		}
 	}
 
-	getUserDisplayName(userId: string | null | undefined): string {
+	getUserDisplayName(userId: number | null | undefined): string {
 		if (!userId) return this.t('unassigned');
 		const user = this.users.find(u => u.id === userId);
-		if (!user) return userId;
-		return user.first_name + ' ' + user.last_name || user.email;
+		if (!user) return userId.toString()	;
+		return user.full_name || user.email;
 	}
 
 	getStatusBadge(status: string): { variant: string; className: string; text: string } {

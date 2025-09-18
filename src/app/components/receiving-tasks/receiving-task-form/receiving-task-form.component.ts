@@ -344,9 +344,9 @@ export class ReceivingTaskFormComponent implements OnInit {
 		return !!article?.track_by_serial;
 	}
 
-	getUserDisplayName(userId: string): string {
+	getUserDisplayName(userId: number): string {
 		const user = this.users.find(u => u.id === userId);
-		return user ? user.first_name + ' ' + user.last_name || user.email : userId;
+		return user ? user.full_name|| user.email : userId.toString();
 	}
 
 	getLocationDisplayName(locationCode: string): string {
