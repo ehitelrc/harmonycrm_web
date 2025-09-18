@@ -1,0 +1,65 @@
+<div *ngIf="isOpen" class="fixed inset-0 z-50 overflow-y-auto" (click)="close()">
+  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <!-- Fondo -->
+    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
+
+    <!-- Contenedor -->
+    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full dark:bg-gray-800"
+         (click)="$event.stopPropagation()">
+
+      <!-- Header -->
+      <div class="bg-white px-4 pt-5 pb-4 sm:p-6 dark:bg-gray-800">
+        <div class="flex items-center justify-between">
+          <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
+            {{ t('agent_user_management.non_agents_list') }}
+          </h3>
+          <button type="button" (click)="close()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+            <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div class="bg-white px-4 pb-4 sm:p-6 dark:bg-gray-800">
+        <!-- Loading -->
+        <div *ngIf="isLoading" class="text-center py-4">
+          {{ t('agent_loading') }}...
+        </div>
+
+        <!-- Empty -->
+        <div *ngIf="!isLoading && users.length === 0" class="text-center py-6 text-gray-500">
+          {{ t('agent_user_management.no_non_agents_found') }}
+        </div>
+
+        <!-- Table -->
+        <div *ngIf="!isLoading && users.length > 0" class="overflow-x-auto">
+          <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+            <thead class="bg-gray-50 dark:bg-gray-700">
+              <tr>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ t('agent_user_management.name') }}</th>
+                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">{{ t('agent_user_management.email') }}</th>
+                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">{{ t('agent_user_management.actions') }}</th>
+              </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-700">
+              <tr *ngFor="let user of users" class="hover:bg-gray-50 dark:hover:bg-gray-800">
+                <td class="px-6 py-4">{{ user.full_name }}</td>
+                <td class="px-6 py-4">{{ user.email }}</td>
+                <td class="px-6 py-4 text-center">
+                  <button (click)="convertToAgent(user)"
+                          [disabled]="isSubmitting"
+                          class="px-3 py-1 text-sm font-medium text-white bg-green-600 rounded hover:bg-green-700 disabled:opacity-50">
+                    {{ t('agent_user_management.convert_to_agent') }}
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

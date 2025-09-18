@@ -376,6 +376,13 @@ export const esTranslations = {
   'control_center': 'Centro de Control',
   'locations': 'Ubicaciones',
   'user_management': 'Gestión de Usuarios',
+  'user_management.success': 'Éxito',
+  'user_management.roles_updated': 'Roles actualizados correctamente',
+  'user_management.error': 'Error',
+  'user_management.failed_update_roles': 'Error al actualizar roles',
+  'user_management.no_user_or_company': 'No se ha seleccionado ningún usuario o compañía',
+
+
   'loading': 'Cargando...',
   // Dashboard widgets
   'total_skus': 'Total de SKUs',
@@ -430,8 +437,7 @@ export const esTranslations = {
   'user_management.select_role': 'Seleccionar Rol',
   'user_management.user_id': 'ID de Usuario',
   'user_management.select_image': 'Seleccionar Imagen',
-  'user_management.success': 'Éxito',
-  'user_management.error': 'Error',
+  
   'user_management.user_created': 'Usuario creado exitosamente',
   'user_management.user_updated': 'Usuario actualizado exitosamente',
   'user_management.user_deleted': 'Usuario eliminado exitosamente',
@@ -577,6 +583,43 @@ export const esTranslations = {
   "case.note_placeholder": "Agrega una nota sobre el cambio de etapa (opcional)",
   "case.apply_change": "Aplicar cambio",
 
+
+  // Agents
+ 
+  "agent_user_management": "Gestión de agentes",
+  "agent_user_management.description": "Descripción de gestión de agentes",
+  "agent_export": "Exportar",
+  "agent_import": "Importar",
+  "agent_user_management.add_user": "Agregar agente",
+  "agent_user_management.no_users_found": "No se encontraron agentes",
+  "agent_user_management.get_started_by_creating_user": "Comienza creando un agente",
+  "agent_user_management.name": "Nombre",
+  "agent_user_management.email": "Correo electrónico",
+  "agent_user_management.status": "Estado",
+  "agent_user_management.actions": "Acciones",
+  "agent_user_management.active": "Activo",
+  "agent_user_management.inactive": "Inactivo",
+  "agent_user_management.edit_user": "Editar agente",
+  "agent_user_management.user_roles": "Roles del agente",
+  "agent_user_management.change_password": "Cambiar contraseña",
+  "agent_user_management.delete_user": "Eliminar agente",
+  "agent_user_management.delete_confirm": "¿Estás seguro de que deseas eliminar este agente?",
+  "agent_user_management.delete_warning": "Esta acción no se puede deshacer",
+  "agent_user_management.deleting": "Eliminando...",
+  "agent_user_management.delete": "Eliminar",
+  "agent_user_management.cancel": "Cancelar",
+  "agent_user_management.select_company": "Seleccionar compañía",
+  "agent_loading": "Cargando",
+  "agent_save": "Guardar",
+  "agent_close": "Cerrar",
+  "agent_select": "Seleccionar",
+ 
+  "agent_user_management.non_agents_list": "Usuarios no agentes",
+  "agent_user_management.no_non_agents_found": "No se encontraron usuarios no agentes",
+  "agent_user_management.convert_to_agent": "Convertir en agente",
+  "agent_user_management.user_converted": "Usuario convertido en agente con éxito",
+ 
+ 
  
 
   // Generic terms

@@ -33,6 +33,13 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
 
+    {
+    path: 'agents',
+    loadComponent: () => import('./components/agents/agent-user-management/agent-user-management.component').then(m => m.AgentUserManagementComponent),
+    canActivate: [AuthGuard]
+  },
+
+
   // Location Management route - requires authentication
   {
     path: 'locations',
