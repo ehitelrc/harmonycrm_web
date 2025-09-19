@@ -54,30 +54,30 @@ export const esTranslations = {
   'auth.logout_failed': 'Error',
   'auth.logout_confirm': '¿Deseas cerrar sesión?',
   'auth.logout': 'Cerrar sesión',
-  
+
   // Navigation items
 
   'menu.dashboard': 'Tablero',
   'menu.companies': 'Compañías',
-  'menu.conversations' : 'Conversaciones',
-  'menu.organization' : 'Organización',
+  'menu.conversations': 'Conversaciones',
+  'menu.organization': 'Organización',
 
   'menu.departments': 'Departamentos',
   'menu.channels': 'Canales',
 
-  'menu.commerce' : 'Comercial',
-  'menu.products' : 'Productos',
-  'menu.orders' : 'Órdenes',
+  'menu.commerce': 'Comercial',
+  'menu.products': 'Productos',
+  'menu.orders': 'Órdenes',
   'menu.customers': 'Clientes',
 
-  'menu.operation' : 'Operaciones',
- 
+  'menu.operation': 'Operaciones',
+
   'menu.campaigns': 'Campañas',
 
   'menu.reports': 'Informes',
-  'menu.convertions' : "Conversiones",
+  'menu.convertions': "Conversiones",
 
-  'menu.security' : 'Seguridad',
+  'menu.security': 'Seguridad',
 
   'menu.users': 'Usuarios',
   'menu.agents': 'Agentes',
@@ -90,7 +90,7 @@ export const esTranslations = {
 
   // Companies
 
- 
+
   "company.management_title": "Gestión de Compañías",
   "company.management_description": "Administra las compañías y sus datos asociados",
   "company.search_company": "Buscar compañía",
@@ -111,7 +111,7 @@ export const esTranslations = {
   "company.delete": "Eliminar",
   "company.close": "Cerrar",
 
- 
+
   "company.confirm_delete_title": "Confirmar eliminación",
   "company.delete_company_warning": "Esta acción eliminará la compañía seleccionada. ¿Deseas continuar?",
   "company.deleting": "Eliminando...",
@@ -132,10 +132,10 @@ export const esTranslations = {
   "company.id": "ID",
   "company.name": "Nombre",
   "company.industry": "Industria",
-  "company.confirm_delete_message" : "¿Estás seguro de que deseas eliminar esta compañía?",
+  "company.confirm_delete_message": "¿Estás seguro de que deseas eliminar esta compañía?",
   "company.update_successful": "Compañía actualizada correctamente",
   "company.create_successful": "Compañía creada correctamente",
-  "company.add_new_company" : "Nueva compañía",
+  "company.add_new_company": "Nueva compañía",
   "company.view_departments": "Ver departamentos",
 
   "company.select_company": "Seleccionar compañía",
@@ -171,7 +171,7 @@ export const esTranslations = {
 
   // Clients
 
-   "client.management_title": "Gestión de Clientes",
+  "client.management_title": "Gestión de Clientes",
   "client.management_description": "Administra los clientes y sus datos",
   "client.add_new_client": "Nuevo cliente",
 
@@ -221,7 +221,7 @@ export const esTranslations = {
 
   // Items
 
-   "item.management_title": "Gestión de Ítems",
+  "item.management_title": "Gestión de Ítems",
   "item.management_description": "Administra productos y servicios de la compañía",
   "item.back_to_companies": "Volver a compañías",
   "item.add_new_item": "Nuevo ítem",
@@ -273,7 +273,7 @@ export const esTranslations = {
 
   // Campaigns
 
-   "campaign.management_title": "Gestión de Campañas",
+  "campaign.management_title": "Gestión de Campañas",
   "campaign.management_description": "Administra las campañas de la compañía seleccionada",
   "campaign.add_new_campaign": "Nueva campaña",
   "campaign.search_campaign": "Buscar campaña",
@@ -314,7 +314,7 @@ export const esTranslations = {
   "campaign.confirm_delete_message": "Esta acción no se puede deshacer. ¿Eliminar la campaña seleccionada?",
   "campaign.select_company_first": "Primero selecciona una compañía",
   "campaign.select_company_to_load_campaigns": "Selecciona una compañía para cargar sus campañas",
- 
+
   "company.failed_to_load": "Error al cargar compañías",
 
 
@@ -437,7 +437,7 @@ export const esTranslations = {
   'user_management.select_role': 'Seleccionar Rol',
   'user_management.user_id': 'ID de Usuario',
   'user_management.select_image': 'Seleccionar Imagen',
-  
+
   'user_management.user_created': 'Usuario creado exitosamente',
   'user_management.user_updated': 'Usuario actualizado exitosamente',
   'user_management.user_deleted': 'Usuario eliminado exitosamente',
@@ -534,15 +534,15 @@ export const esTranslations = {
 
   "funnel.confirm_delete_title": "Confirmar eliminación",
   "funnel.confirm_delete_message": "¿Estás seguro que deseas eliminar este embudo?",
-  "funnel.sort_by_active" : "Ordenar por estado",
+  "funnel.sort_by_active": "Ordenar por estado",
   "funnel.active_yes": "Activo",
   "funnel.active_no": "Inactivo",
 
   // 
-  
+
   "funnel.stages_management_title": "Gestión de Etapas",
   "funnel.stages_management_description": "Administra las etapas del embudo seleccionado",
-  "funnel.add_new_stage" : "Agregar nueva etapa",
+  "funnel.add_new_stage": "Agregar nueva etapa",
   "funnel.stage_filter_id": "Filtrar por ID de etapa",
   "funnel.stage_filter_name": "Filtrar por nombre de etapa",
   "funnel.stage_filter_outcome_won": "Filtrar por estado (Ganada)",
@@ -554,8 +554,8 @@ export const esTranslations = {
   "funnel.stage_table_status": "Estado de la Etapa",
   "funnel.stage_table_actions": "ACCIONES",
   "funnel.stage_neutral": "Neutral",
-  "funnel.stage_is_lost" : "Perdida",
-  "funnel.stage_is_won" : "Ganada",
+  "funnel.stage_is_lost": "Perdida",
+  "funnel.stage_is_won": "Ganada",
   "funnel.stage_edit": "Editar etapa",
   "funnel.stage_create": "Crear nueva etapa",
   "funnel.sort_by_position": "Ordenar por posición",
@@ -564,11 +564,11 @@ export const esTranslations = {
   "funnel.sort_by_neutral": "Ordenar por estado (Neutral)",
   "funnel.stage_search_placeholder": "Buscar etapa por nombre o ID",
   "funnel.stage_name": "Nombre de etapa",
-  "funnel.stage_position" : "Posición de etapa",
+  "funnel.stage_position": "Posición de etapa",
   "funnel.stage_cancel": "Cancelar",
   "funnel.stage_name_placeholder": "Ingresar el contacto",
-  "funnel.stage_confirm_delete_title" : "Confirmar eliminación de etapa",
-  "funnel.stage_confirm_delete_message" : "¿Estás seguro que deseas eliminar esta etapa?",
+  "funnel.stage_confirm_delete_title": "Confirmar eliminación de etapa",
+  "funnel.stage_confirm_delete_message": "¿Estás seguro que deseas eliminar esta etapa?",
   "funnel.stage_deleted_successfully": "Etapa eliminada correctamente",
   "funnel.failed_to_delete_stage": "Error al eliminar la etapa",
   "campaign.funnel_name": "Embudo",
@@ -585,7 +585,7 @@ export const esTranslations = {
 
 
   // Agents
- 
+
   "agent_user_management": "Gestión de agentes",
   "agent_user_management.description": "Descripción de gestión de agentes",
   "agent_export": "Exportar",
@@ -613,14 +613,28 @@ export const esTranslations = {
   "agent_save": "Guardar",
   "agent_close": "Cerrar",
   "agent_select": "Seleccionar",
- 
-  "agent_user_management.non_agents_list": "Usuarios no agentes",
+
+  "agent_user_management.non_agents_list": "Usuarios",
   "agent_user_management.no_non_agents_found": "No se encontraron usuarios no agentes",
   "agent_user_management.convert_to_agent": "Convertir en agente",
   "agent_user_management.user_converted": "Usuario convertido en agente con éxito",
- 
- 
- 
+  "agent_user_management.success": "Éxito",
+  "agent_user_management.error": "Error",
+  "agent_user_management.failed_delete": "Error al eliminar el agente",
+  "agent_user_management.failed_load_users": "Error al cargar los agentes",
+  "agent_user_management.failed_create": "Error al crear el agente",
+  "agent_user_management.cannot_delete": "No se puede eliminar",
+  "agent_user_management.user_deleted": "Agente eliminado con éxito",
+  "agent_user_management.user_created": "Agente creado con éxito",
+  "agent_user_management.user_updated": "Agente actualizado con éxito",
+  "agent_user_management.departments": "Departamentos",
+  "agent_user_management.departments_updated": "Departamentos actualizados con éxito",
+
+
+
+
+
+
 
   // Generic terms
   'import': 'Importar',
@@ -649,7 +663,7 @@ export const esTranslations = {
   'price': 'Precio',
   'location': 'Ubicación',
   'quantity': 'Cantidad',
-  
+
   // File operations
   'choose_file': 'Elegir Archivo',
   'template_info': 'Info de Plantilla',

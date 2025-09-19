@@ -15,8 +15,8 @@ import { AgentUserService } from '@app/services/agent-user.service';
   templateUrl: './agent-user-form.component.html',
   styleUrls: ['./agent-user-form.component.css']
 })
-export class AgentUserFormComponent implements OnInit {
-   @Input() isOpen = false;
+export class AgentUserFormComponent implements OnInit, OnChanges {
+  @Input() isOpen = false;
   @Output() closed = new EventEmitter<void>();
   @Output() success = new EventEmitter<void>();
 
@@ -28,8 +28,17 @@ export class AgentUserFormComponent implements OnInit {
     private agentUserService: AgentUserService,
     private alertService: AlertService,
     private languageService: LanguageService
-  ) {}
+  ) { }
 
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['isOpen'] && changes['isOpen'].currentValue) {
+      // Cada vez que se abre el modal, recargar usuarios
+      this.loadNonAgents();
+    }
+
+  }
+  
   get t() {
     return this.languageService.t.bind(this.languageService);
   }

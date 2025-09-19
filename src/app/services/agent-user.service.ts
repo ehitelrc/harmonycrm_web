@@ -5,11 +5,17 @@ import { returnCompleteURI } from '@app/utils';
 import { environment } from '@environment';
 import { FetchService } from './extras/fetch.service';
 import { AgentUser } from '@app/models/agent_user.models';
+import { AgentDepartmentAssignment } from '@app/models/agent_department_assignment_view';
 
 const GATEWAY = '/agents';
 export const USER_URL = returnCompleteURI({
 	URI: environment.API.BASE,
 	API_Gateway: GATEWAY,
+});
+
+export const DEPARTMENT_ASSIGNMENTS_URL = returnCompleteURI({
+	URI: environment.API.BASE,
+	API_Gateway: '/agent-department-assignments',
 });
 
 @Injectable({
@@ -53,7 +59,7 @@ export class AgentUserService {
 	async create(user_id: number): Promise<ApiResponse<any>> {
 		return await this.fetchService.post<ApiResponse<any>>({
 			API_Gateway: `${USER_URL}`,
-			values: { user_id : user_id },
+			values: { user_id: user_id },
 		});
 	}
 
@@ -123,4 +129,26 @@ export class AgentUserService {
 			API_Gateway: `${USER_URL}/export/?format=${format}`,
 		});
 	}
+
+	/**
+	 * @description Get assigned agents to companies' departments
+	 * @param format Export format (csv or xlsx)
+	 * @returns Promise<AgentDepartmentAssignment[]>
+	 */
+
+	async companiesDepartments(company_id: number, user_id: number): Promise<ApiResponse<AgentDepartmentAssignment[]>> {
+	 
+		return await this.fetchService.get<ApiResponse<AgentDepartmentAssignment[]>>({
+			API_Gateway: `${DEPARTMENT_ASSIGNMENTS_URL}/company/${company_id}/agent/${user_id}`,
+		});
+	}
+
+	async updateAssignments(user_id: number, company_id: number, assignments: AgentDepartmentAssignment[]): Promise<ApiResponse<any>> {
+		const url = `${DEPARTMENT_ASSIGNMENTS_URL}/company/${company_id}/agent/${user_id}`;
+		return await this.fetchService.post<ApiResponse<any>>({
+			API_Gateway: url,
+			values: assignments
+		});
+	}
+
 }

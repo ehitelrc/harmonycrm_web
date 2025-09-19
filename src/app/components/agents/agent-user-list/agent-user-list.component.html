@@ -100,7 +100,7 @@
           <td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
             <div class="flex justify-center space-x-2">
               <!-- Edit Button - Only for admin -->
-              <button *ngIf="isAdmin()" (click)="onEdit(user)"
+              <!-- <button *ngIf="isAdmin()" (click)="onEdit(user)"
                 class="text-gray-400 hover:text-[#4465ec] p-1 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea]"
                 [title]="t('user_management.edit_user')">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -108,22 +108,21 @@
                     d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z">
                   </path>
                 </svg>
-              </button>
+              </button> -->
 
               <!-- View Button - Available for all users -->
               <button (click)="onView(user)"
                 class="text-gray-400 hover:text-[#4465ec] p-1 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea]"
-                [title]="t('user_management.user_roles')">
+                [title]="t('agent_user_management.departments')">
 
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M12 11c1.657 0 3-1.343 3-3V5a3 3 0 00-6 0v3c0 1.657 1.343 3 3 3z" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 11h14v10H5z" />
+                    d="M12 6V4m0 2a2 2 0 11-4 0 2 2 0 014 0zm0 0a2 2 0 104 0 2 2 0 00-4 0zM6 10H4m2 0a2 2 0 11-4 0 2 2 0 014 0zm0 0a2 2 0 104 0 2 2 0 00-4 0zm12 0h-2m2 0a2 2 0 11-4 0 2 2 0 014 0zm0 0a2 2 0 104 0 2 2 0 00-4 0zM12 14v2m0-2a2 2 0 11-4 0 2 2 0 014 0zm0 0a2 2 0 104 0 2 2 0 00-4 0z" />
                 </svg>
               </button>
 
               <!-- Change Password Button - Only for admin -->
-              <button *ngIf="isAdmin()" (click)="onChangePassword(user)"
+              <!-- <button *ngIf="isAdmin()" (click)="onChangePassword(user)"
                 class="text-gray-400 hover:text-orange-600 p-1 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500"
                 [title]="t('user_management.change_password')">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -131,7 +130,7 @@
                     d="M15 7a2 2 0 012 2m0 0a2 2 0 012 2m-2-2a2 2 0 00-2 2m2-2V5a2 2 0 00-2-2H9a2 2 0 00-2 2v2m0 0a2 2 0 002 2h6a2 2 0 002-2m0 0V9a2 2 0 00-2-2H9a2 2 0 00-2 2v8a2 2 0 002 2h6a2 2 0 002-2V9z">
                   </path>
                 </svg>
-              </button>
+              </button> -->
 
               <!-- Delete Button - Only for admin -->
               <button *ngIf="isAdmin()" (click)="onDelete(user.id)"
@@ -151,10 +150,6 @@
   </div>
 </div>
 
-<!-- Edit User Dialog -->
-<app-agent-user-form [initialData]="editingUser" [isOpen]="!!editingUser" (success)="onEditSuccess()"
-  (closed)="closeEditDialog()">
-</app-agent-user-form>
 
 
 
@@ -171,7 +166,7 @@
       <!-- Header -->
       <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 dark:bg-gray-800">
         <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
-          {{ t('user_management.user_roles') }}
+          {{ t('agent_user_management.departments') }}
         </h3>
       </div>
 
@@ -193,20 +188,21 @@
           </select>
         </div>
 
-        <!-- Roles Checklist -->
+        <!-- Departments Checklist -->
         <div *ngIf="selectedCompany">
           <!-- Loading -->
           <div *ngIf="loadingRoles" class="text-gray-500 text-sm">
             {{ t('loading') }}...
           </div>
 
-          <!-- Roles -->
-          <div *ngIf="!loadingRoles && userRoles.length > 0" class="space-y-2">
-            <div *ngFor="let role of userRoles" class="flex items-center">
-              <input type="checkbox" [id]="'role-' + role.role_id" [(ngModel)]="role.has_role"
+          <!-- Departments -->
+          <div *ngIf="!loadingRoles && departments.length > 0" class="space-y-2">
+            <div *ngFor="let dept of departments" class="flex items-center">
+              <input type="checkbox" [id]="'dept-' + dept.department_id" [(ngModel)]="dept.department_assigned"
+                (change)="toggleDepartment(dept.department_id, $event)"
                 class="h-4 w-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500" />
-              <label [for]="'role-' + role.role_id" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
-                {{ role.user_role_company }}
+              <label [for]="'dept-' + dept.department_id" class="ml-2 block text-sm text-gray-700 dark:text-gray-300">
+                {{ dept.department_name }}
               </label>
             </div>
           </div>
@@ -284,5 +280,3 @@
     </div>
   </div>
 </div>
-
- 

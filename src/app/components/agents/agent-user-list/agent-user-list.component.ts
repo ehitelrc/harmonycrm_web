@@ -5,7 +5,7 @@ import { UserService } from '../../../services/user.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { AlertService } from '../../../services/extras/alert.service';
 
- 
+
 import { CompanySelectComponent } from '@app/components/shared/user-companies-select/company-select.component';
 import { User as UserAuthModel } from '../../../models/auth.model';
 import { CompanyUser, UserRoleCompanyManage } from '@app/models/companies_user_view';
@@ -16,11 +16,13 @@ import { AuthorizationService } from '@app/services/extras/authorization.service
 import { AuthService } from '@app/services';
 import { AgentUserFormComponent } from '../agent-user-form/agent-user-form.component';
 import { AgentUser } from '@app/models/agent_user.models';
+import { AgentUserService } from '@app/services/agent-user.service';
+import { AgentDepartmentAssignment } from '@app/models/agent_department_assignment_view';
 
 @Component({
   selector: 'app-agent-user-list',
   standalone: true,
-  imports: [CommonModule, AgentUserFormComponent, FormsModule],
+  imports: [CommonModule, FormsModule],
   templateUrl: './agent-user-list.component.html',
   styleUrls: ['./agent-user-list.component.css']
 })
@@ -47,8 +49,14 @@ export class AgentUserListComponent implements OnInit {
   loadingCompanies = false;
 
 
+  departments: AgentDepartmentAssignment[] = [];
+
+
+
+
+
   constructor(
-    private userService: UserService,
+    private agentUserService: AgentUserService,
     private languageService: LanguageService,
     private alertService: AlertService,
     private authService: AuthService,
@@ -190,24 +198,24 @@ export class AgentUserListComponent implements OnInit {
     this.isDeleting = true;
 
     try {
-      const response = await this.userService.delete(this.deletingUserId);
+      const response = await this.agentUserService.delete(this.deletingUserId);
 
       if (response.success) {
         this.alertService.success(
-          this.t('user_management.success'),
-          this.t('user_management.user_deleted')
+          this.t('agent_user_management.success'),
+          this.t('agent_user_management.user_deleted')
         );
         this.refresh.emit();
       } else {
         throw new Error(response.message || this.t('delete_failed'));
       }
     } catch (error: any) {
-      let errorMessage = this.t('user_management.failed_delete');
-      let errorTitle = this.t('user_management.error');
+      let errorMessage = this.t('agent_user_management.failed_delete');
+      let errorTitle = this.t('agent_user_management.error');
 
       // Parse specific error messages
       if (error.message?.includes('Cannot delete user')) {
-        errorTitle = this.t('user_management.cannot_delete');
+        errorTitle = this.t('agent_user_management.cannot_delete');
         errorMessage = error.message;
       } else if (error.message) {
         errorMessage = error.message;
@@ -234,67 +242,56 @@ export class AgentUserListComponent implements OnInit {
     const value = (event.target as HTMLSelectElement).value;
     this.selectedCompany = value ? +value : null;
 
-    this.loadRoles(this.selectedCompany!, this.viewingUser!.id);
+    if (this.selectedCompany && this.viewingUser) {
+      this.loadDepartments(this.selectedCompany, this.viewingUser.id);
+    }
   }
 
-  loadRoles(companyId: number, userId: number) {
-    if (!companyId || !userId) return;
 
+  async loadDepartments(companyId: number, userId: number) {
     this.loadingRoles = true;
-    this.userRoles = [];
-    this.companyUserRolesService.getRolesByUserAndCompany(userId, companyId).then(response => {
-      if (response && response.data) {
-        this.userRoles = response.data;
+    this.departments = [];
+    try {
+      const response = await this.agentUserService.companiesDepartments(companyId, userId);
+      if (response.success) {
+        this.departments = response.data;
       } else {
-        this.alertService.error(this.t('user_management.error'), response.message || this.t('user_management.failed_load_roles'));
+        this.alertService.error(this.t('agent_user_management.error'), response.message);
       }
+    } catch (err: any) {
+      this.alertService.error(this.t('agent_user_management.error'), err.message || 'Error al cargar departamentos');
+    } finally {
       this.loadingRoles = false;
-    }).catch(err => {
-      console.error('Error loading user roles:', err);
-      this.alertService.error(this.t('user_management.error'), this.t('user_management.failed_load_roles'));
-      this.loadingRoles = false;
-    });
+    }
   }
 
-  // Cuando se marca/desmarca un rol
-  toggleRole(roleId: number, event: Event) {
+
+  toggleDepartment(departmentId: number, event: Event) {
     const checked = (event.target as HTMLInputElement).checked;
-    this.userRoles = this.userRoles.map(r =>
-      r.role_id === roleId ? { ...r, has_role: checked } : r
+    this.departments = this.departments.map(d =>
+      d.department_id === departmentId ? { ...d, department_assigned: checked } : d
     );
   }
 
-  // Luego podrás mandar userRoles filtrando los que tengan has_role=true
-  saveAssignments() {
+  async saveAssignments() {
     if (!this.viewingUser || !this.selectedCompany) {
-      this.alertService.error(this.t('user_management.error'), this.t('user_management.no_user_or_company'));
+      this.alertService.error(this.t('agent_user_management.error'), this.t('agent_user_management.no_user_or_company'));
       return;
     }
 
-    // Construir payload completo
-    const payload = this.userRoles.map(role => ({
-      user_id: this.viewingUser!.id,
-      company_id: this.selectedCompany!,
-      role_id: role.role_id,
-      user_role_company: role.user_role_company,
-      has_role: role.has_role
-    }));
-
-    console.log('Payload enviado a batchUpdate:', payload);
-
-    this.companyUserRolesService.batchUpdate(payload).then(response => {
+    try {
+      const response = await this.agentUserService.updateAssignments(this.viewingUser.id, this.selectedCompany, this.departments);
       if (response.success) {
         this.alertService.success(
-          this.t('user_management.success'),
-          this.t('user_management.roles_updated')
+          this.t('agent_user_management.success'),
+          this.t('agent_user_management.departments_updated')
         );
         this.closeViewDialog();
       } else {
-        this.alertService.error(this.t('user_management.error'), response.message || this.t('user_management.failed_update_roles'));
+        this.alertService.error(this.t('agent_user_management.error'), response.message);
       }
-    }).catch(err => {
-      console.error('Error en batchUpdate:', err);
-      this.alertService.error(this.t('user_management.error'), this.t('user_management.failed_update_roles'));
-    });
+    } catch (err: any) {
+      this.alertService.error(this.t('agent_user_management.error'), err.message || 'Error al actualizar departamentos');
+    }
   }
 }
