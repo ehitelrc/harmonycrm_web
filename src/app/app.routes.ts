@@ -32,10 +32,14 @@ export const routes: Routes = [
     loadComponent: () => import('./components/users/user-management/user-management.component').then(m => m.UserManagementComponent),
     canActivate: [AuthGuard]
   },
-
-    {
+  {
     path: 'agents',
     loadComponent: () => import('./components/agents/agent-user-management/agent-user-management.component').then(m => m.AgentUserManagementComponent),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'roles',
+    loadComponent: () => import('./components/roles/roles-management/roles-management.component').then(m => m.RolesManagementComponent),
     canActivate: [AuthGuard]
   },
 

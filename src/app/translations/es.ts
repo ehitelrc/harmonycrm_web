@@ -631,6 +631,48 @@ export const esTranslations = {
   "agent_user_management.departments_updated": "Departamentos actualizados con éxito",
 
 
+  // Roles Management
+  "roles_management": "Gestión de Roles",
+  "roles_management.description": "Descripción de gestión de roles",
+  "roles_management.add_user": "Agregar usuario",
+  "roles_management.name": "Nombre",
+  "roles_management.email": "Correo electrónico",
+  "roles_management.status": "Estado",
+  "roles_management.actions": "Acciones",
+  "roles_management.active": "Activo",
+  "roles_management.inactive": "Inactivo",
+  "roles_management.created": "Fecha de creación",
+  "roles_management.user_roles": "Roles de usuario",
+  "roles_management.select_company": "Seleccione la compañía",
+  "roles_management.select": "Seleccione",
+  "roles_management.loading": "Cargando...",
+  "roles_management.save": "Guardar",
+  "roles_management.close": "Cerrar",
+  "roles_management.success": "Éxito",
+  "roles_management.error": "Error",
+  "roles_management.roles_updated": "Los roles fueron actualizados correctamente",
+  "roles_management.no_user_or_company": "Debe seleccionar un usuario y una compañía",
+  "roles_management.failed_load_roles": "No se pudieron cargar los roles",
+  "roles_management.failed_update_roles": "No se pudieron actualizar los roles",
+  "roles_management.failed_delete": "No se pudo eliminar el rol",
+  "roles_management.cannot_delete": "No se puede eliminar",
+  "roles_management.edit_role": "Editar rol",
+  "roles_management.create_role": "Crear rol",
+  "roles_management.delete_role": "Eliminar rol",
+  "roles_management.role_name": "Nombre del rol",
+  "roles_management.name_placeholder": "Ingrese el nombre del rol",
+  "roles_management.role_description": "Descripción del rol",
+  "role_management.description_placeholder": "Ingrese una descripción para el rol",
+  "roles_management.role_permissions": "Permisos del rol",
+  "roles_management.failed_update": "No se pudo actualizar el rol",
+  "roles_management.role_created": "Rol creado con éxito",
+  "roles_management.role_updated": "Rol actualizado con éxito",
+  "role_management.role_deleted": "Éxito",
+  "role_management.success": "Rol eliminado con éxito",
+ 
+ 
+ 
+ 
 
 
 
