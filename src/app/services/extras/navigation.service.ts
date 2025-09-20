@@ -43,7 +43,7 @@ export class NavigationService {
         { type: 'item', name: 'menu.users', href: '/users', icon: 'user', permission: 'users.access' },
         { type: 'item', name: 'menu.agents', href: '/agents', icon: 'agent', permission: 'agents.access' },
         { type: 'item', name: 'menu.roles', href: '/roles', icon: 'roles', permission: 'roles.access' },
-        { type: 'item', name: 'role-permissions', href: '/role-permissions', icon: 'rol-permissions', permission: 'role-permissions.access' },
+        { type: 'item', name: 'menu.role-permissions', href: '/role-permissions', icon: 'rol-permissions', permission: 'role-permissions.access' },
       ],
     },
     {

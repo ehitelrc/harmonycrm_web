@@ -42,7 +42,11 @@ export const routes: Routes = [
     loadComponent: () => import('./components/roles/roles-management/roles-management.component').then(m => m.RolesManagementComponent),
     canActivate: [AuthGuard]
   },
-
+  {
+    path: 'role-permissions',
+    loadComponent: () => import('./components/permissions_role/roles-management/permissions-roles-management.component').then(m => m.PermissionsRoleManagementComponent),
+    canActivate: [AuthGuard]
+  },
 
   // Location Management route - requires authentication
   {

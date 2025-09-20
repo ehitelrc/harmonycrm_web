@@ -4,9 +4,7 @@ import { CommonModule } from '@angular/common';
 import { UserService } from '../../../services/user.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { AlertService } from '../../../services/extras/alert.service';
-
-
-import { PasswordChangeComponent } from '../password-change/password-change.component';
+ 
 import { CompanySelectComponent } from '@app/components/shared/user-companies-select/company-select.component';
 import { User as UserAuthModel } from '../../../models/auth.model';
 import { CompanyUser, UserRoleCompanyManage } from '@app/models/companies_user_view';

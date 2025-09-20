@@ -1,0 +1,80 @@
+<app-main-layout>
+  <div class="space-y-6">
+    <!-- Header Section -->
+    <div class="flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-semibold text-[#00113f] dark:text-white">
+          {{ t('permissions_management') }}
+        </h1>
+        <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">
+          {{ t('permissions_management.description') }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Select Role -->
+    <div class="bg-white shadow rounded-lg dark:bg-gray-800 p-4">
+      <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+        {{ t('permissions_management.select_role') }}
+      </label>
+      <select [(ngModel)]="selectedRoleId" (change)="onRoleChange()"
+        class="mt-2 block w-full border-gray-300 rounded-md shadow-sm focus:ring-[#3e66ea] focus:border-[#3e66ea] sm:text-sm">
+        <option value="" disabled selected hidden>
+          {{ t('permissions_management.select_role') }}
+        </option>
+        <option *ngFor="let role of roles" [ngValue]="role.id" style="color: black;">
+          {{ role.name }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Permissions Actions -->
+    @if (selectedRoleId){
+    <div class="flex gap-2 mb-4">
+      <button type="button" (click)="selectAll()"
+        class="px-3 py-1 bg-green-600 text-white rounded-md shadow hover:bg-green-700 text-sm">
+        Marcar todo
+      </button>
+      <button type="button" (click)="deselectAll()"
+        class="px-3 py-1 bg-red-600 text-white rounded-md shadow hover:bg-red-700 text-sm">
+        Desmarcar todo
+      </button>
+      <button type="button" (click)="invertSelection()"
+        class="px-3 py-1 bg-yellow-600 text-white rounded-md shadow hover:bg-yellow-700 text-sm">
+        Invertir selección
+      </button>
+    </div>
+    }
+
+    <!-- Permissions Table -->
+    <div class="bg-white shadow rounded-lg dark:bg-gray-800 p-4" *ngIf="permissions.length > 0">
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead class="bg-gray-50 dark:bg-gray-700">
+          <tr>
+            <!-- <th class="px-4 py-2 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Código</th> -->
+            <th class="px-4 py-2 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Descripción</th>
+            <th class="px-4 py-2 text-center text-sm font-medium text-gray-500 dark:text-gray-300">Asignado</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
+          <tr *ngFor="let p of permissions">
+            <!-- <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">{{ p.code }}</td> -->
+            <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">{{ p.description }}</td>
+            <td class="px-4 py-2 text-center">
+              <input type="checkbox" [(ngModel)]="p.assigned"
+                class="h-4 w-4 text-[#3e66ea] border-gray-300 rounded focus:ring-[#3e66ea]" />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <!-- Save Button -->
+      <div class="mt-4 flex justify-end">
+        <button (click)="savePermissions()"
+          class="px-4 py-2 bg-[#00113f] text-white rounded-md shadow hover:bg-[#3e66ea] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea]">
+          {{ t('save') }}
+        </button>
+      </div>
+    </div>
+  </div>
+</app-main-layout>

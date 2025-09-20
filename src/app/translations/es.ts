@@ -55,6 +55,22 @@ export const esTranslations = {
   'auth.logout_confirm': '¿Deseas cerrar sesión?',
   'auth.logout': 'Cerrar sesión',
 
+
+  // Roles permissions Management
+   "permissions_management": "Gestión de Permisos",
+  "permissions_management.description": "Administra los permisos asignados a cada rol dentro del sistema.",
+  "permissions_management.select_role": "Seleccione un rol",
+  "permissions_management.error": "Error en la gestión de permisos",
+  "permissions_management.failed_load_roles": "No se pudieron cargar los roles.",
+  "permissions_management.failed_load_permissions": "No se pudieron cargar los permisos para este rol.",
+  "permissions_management.failed_save_permissions": "No se pudieron guardar los permisos.",
+  "permissions_management.permissions_saved": "Permisos guardados correctamente.",
+  "permissions_management.save_changes": "Guardar cambios",
+
+  
+
+  'menu.roles_management': 'Gestión de Roles',
+
   // Navigation items
 
   'menu.dashboard': 'Tablero',
