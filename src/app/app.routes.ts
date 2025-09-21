@@ -55,6 +55,12 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
 
+  // Cases Management route - requires authentication
+  { path: 'cases',
+    loadComponent: () => import('./components/cases/cases-management/cases-management.component').then(m => m.CasesManagementComponent),
+    canActivate: [AuthGuard]
+  },
+
   // Inventory Management route - requires authentication
   {
     path: 'inventory',

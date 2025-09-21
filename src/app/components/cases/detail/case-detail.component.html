@@ -1,0 +1,109 @@
+<div class="bg-white dark:bg-gray-800 shadow rounded-lg">
+  <div class="p-4 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center">
+    <!-- Izquierda: Título -->
+    <h2 class="text-lg font-semibold text-[#00113f] dark:text-white">
+      Caso #{{ caseData.case_id }}
+    </h2>
+
+    <!-- Derecha: Botones -->
+    <div class="flex gap-2">
+      <button (click)="closeCase()" class="px-3 py-1 rounded bg-red-600 text-white text-sm hover:bg-red-700">
+        Cerrar Caso
+      </button>
+      <button (click)="goBack()"
+        class="px-3 py-1 rounded bg-gray-100 text-sm hover:bg-gray-200 dark:bg-gray-700 dark:text-white">
+        Volver
+      </button>
+    </div>
+  </div>
+
+  <div class="p-4 space-y-4">
+    <!-- Información básica -->
+    <div class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
+      <div class="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+
+        <!-- Texto a la izquierda -->
+        <div class="text-sm font-semibold text-[#00113f] dark:text-white flex-1">
+          Cliente
+        </div>
+
+        <!-- Botones a la derecha -->
+        <div class="flex gap-2">
+          <button id="new-client" class="chip-btn" (click)="addNewClient()">Nuevo cliente</button>
+
+          @if (caseData.client_name) {
+          <button class="chip-btn" (click)="openAssignClientModal()">Cambiar</button>
+          } @else {
+          <button class="chip-btn" (click)="openAssignClientModal()">Asignar</button>
+          }
+        </div>
+      </div>
+
+      <div class="p-4">
+        @if (caseData.client_name) {
+        <div class="flex items-center gap-3">
+          <div
+            class="h-10 w-10 rounded-full bg-blue-800 dark:bg-blue-800 flex items-center justify-center text-sm font-semibold text-white">
+            {{ (caseData.client_name || 'C')[0] || 'C' }}
+          </div>
+          <div class="min-w-0">
+            <div class="text-sm text-[#00113f] dark:text-gray-100 truncate">
+              {{ caseData.client_name }}
+            </div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">
+              Identificación: {{client.external_id }}
+            </div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">
+              Teléfono: {{client.phone }}
+            </div>
+            <div class="text-xs text-gray-500 dark:text-gray-400">
+              Email: {{client.email }}
+            </div>
+          </div>
+        </div>
+        } @else {
+        <div class="text-sm text-gray-500 dark:text-gray-400">
+          Este caso aún no está vinculado a un cliente.
+        </div>
+        }
+      </div>
+    </div>
+
+
+    <div class="text-sm text-gray-500">Departamento</div>
+    <div class="text-base">{{ caseData.department_name }}</div>
+
+    <div>
+      <div class="text-sm text-gray-500">Canal</div>
+      <div class="text-base">{{ caseData.channel_name }}</div>
+    </div>
+
+    <div>
+      <div class="text-sm text-gray-500">Etapa actual</div>
+      <div class="text-base">{{ currentCaseFunnel?.current_stage_name }}</div>
+    </div>
+
+    <!-- Acciones de stage -->
+    <div class="flex gap-3">
+      <button (click)="moveToStage(2)" class="px-3 py-1 rounded bg-blue-600 text-white text-sm">
+        Mover a Stage 2
+      </button>
+    </div>
+
+    <!-- Notas -->
+    <div>
+      <div class="text-sm font-semibold mb-2">Notas</div>
+      <textarea [(ngModel)]="newNote" rows="2" placeholder="Añadir nota..."
+        class="w-full border rounded-md px-2 py-1"></textarea>
+      <button (click)="addNote()" [disabled]="isSavingNote || !newNote.trim()"
+        class="mt-2 px-3 py-1 rounded bg-[#00113f] text-white text-sm">
+        {{ isSavingNote ? 'Guardando...' : 'Añadir' }}
+      </button>
+
+      <div *ngFor="let n of notes" class="mt-2 border-t pt-2">
+        <div class="text-xs text-gray-500">{{ n.created_at | date:'short' }}</div>
+        {{ n.note }}
+      </div>
+    </div>
+  </div>
+</div>

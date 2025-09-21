@@ -43,7 +43,7 @@
                dark:bg-gray-700 dark:border-gray-600 dark:text-white"
       >
         <option [ngValue]="null">{{ t('company.select_company_placeholder') }}</option>
-        <option *ngFor="let c of companies" [ngValue]="c.id">{{ c.name }}</option>
+        <option *ngFor="let c of companies" [ngValue]="c.company_id">{{ c.company_name }}</option>
       </select>
       <p *ngIf="!companyId" class="mt-2 text-xs text-gray-500 dark:text-gray-400">
         {{ t('campaign.select_company_to_load_campaigns') }}

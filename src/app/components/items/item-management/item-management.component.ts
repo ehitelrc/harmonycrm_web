@@ -1,8 +1,8 @@
 import { CommonModule } from '@angular/common';
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MainLayoutComponent } from '@app/components/layout/main-layout.component';
-import { LanguageService } from '@app/services';
+import { AuthService, LanguageService } from '@app/services';
 import { AuthorizationService } from '@app/services/extras/authorization.service';
 import { AlertService } from '@app/services/extras/alert.service';
 import { ItemService } from '@app/services/item.service';
@@ -12,6 +12,9 @@ import { ItemFormComponent } from '../item-form/item-form.component';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CompanyService } from '@app/services/company.service';
 import { Company } from '@app/models/company.model';
+import { User as UserAuthModel } from '../../../models/auth.model';
+import { CompanyUser } from '@app/models/companies_user_view';
+
 
 @Component({
   selector: 'app-item-management',
@@ -20,7 +23,7 @@ import { Company } from '@app/models/company.model';
   templateUrl: './item-management.component.html',
   styleUrls: ['./item-management.component.css']
 })
-export class ItemManagementComponent {
+export class ItemManagementComponent implements OnInit {
   companyId!: number | null;
 
   items: Item[] = [];
@@ -33,9 +36,13 @@ export class ItemManagementComponent {
   deletingId: number | null = null;
   isDeleting = false;
 
-  companies: Company[] = [];
+  companies: CompanyUser[] = [];
+
+  loggedUser: UserAuthModel | null = null;
+
 
   constructor(
+    private authService: AuthService,
     private lang: LanguageService,
     private auth: AuthorizationService,
     private alert: AlertService,
@@ -43,12 +50,18 @@ export class ItemManagementComponent {
     private route: ActivatedRoute,
     private companyService: CompanyService,
     private router: Router
-  ) {}
+  ) { }
+
+
+
 
   get t() { return this.lang.t.bind(this.lang); }
   isAdmin(): boolean { return true; /* o this.auth.isAdmin(); */ }
 
   async ngOnInit(): Promise<void> {
+
+    this.loggedUser = this.authService.getCurrentUser();
+
     // 1) Cargar compañías
     await this.loadCompanies();
 
@@ -74,7 +87,7 @@ export class ItemManagementComponent {
   async loadCompanies(): Promise<void> {
     try {
       this.isLoading = true;
-      const r = await this.companyService.getAllCompanies();
+      const r = await this.companyService.getCompaniesByUserId(this.loggedUser?.user_id || 0);
       if (r.success && r.data) this.companies = r.data;
       else this.alert.error(this.t('company.failed_to_load'));
     } catch {

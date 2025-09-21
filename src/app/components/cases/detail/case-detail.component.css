@@ -1,0 +1,44 @@
+ 
+#case-button, #new-client {
+  background: #3e66ea;
+  color: white;
+  border: none;
+  border-radius: 9999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+#case-button, #new-client:hover {
+  background: #00113f;
+}
+
+#close-case-button {
+  background: #950340;
+  color: white;
+  border: none;
+  border-radius: 9999px;
+  padding: 6px 12px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+#close-case-button:hover {
+  background: #00113f;
+}
+
+.chip-btn {
+  font-size: 12px;
+  border: 1px solid rgba(0,0,0,.1);
+  padding: 6px 10px;
+  border-radius: 9999px;
+  background: #fff;
+  color: #374151;
+}
+.dark .chip-btn {
+  background: #1f2937;
+  color: #e5e7eb;
+  border-color: #374151;
+}

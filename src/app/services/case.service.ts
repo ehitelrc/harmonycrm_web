@@ -10,6 +10,7 @@ import { AgentMessage } from '@app/models/agent-message.model';
 import { CaseNote } from '@app/models/case-notes.model';
 import { CaseNoteView } from '@app/models/case-notes-view.model';
 import { MoveCaseStagePayload } from '@app/models/move_case_stager_payload';
+import { CaseGeneralInformation } from '@app/models/case_general_information_view.model';
 
 
 const GATEWAY = '/messages';
@@ -174,4 +175,11 @@ export class CaseService {
       values: { case_id: caseId, note: note, closed_by: user_id, funnel_id: funnel_id },
     });
   }
+
+  async getCaseGeneralInformation(company_id: number, campaign_id: number, stage_id: number): Promise<ApiResponse<CaseGeneralInformation[]>> {
+    return await this.fetch.get<ApiResponse<CaseGeneralInformation[]>>({
+      API_Gateway: `${CASE_URL}/entry/case_general_info/${company_id}/${campaign_id}/${stage_id}`,
+    });
+  }
+
 }

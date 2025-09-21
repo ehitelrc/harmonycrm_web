@@ -3,7 +3,7 @@ import { ApiResponse } from '@app/models';
 import { FetchService } from './extras/fetch.service';
 import { environment } from '@environment';
 import { returnCompleteURI } from '@app/utils';
-import { Funnel } from '@app/models/funnel.model';
+import { Funnel, FunnelStage } from '@app/models/funnel.model';
 
 const GATEWAY = '/funnels';
 export const FUNNEL_URL = returnCompleteURI({
@@ -52,8 +52,8 @@ export class FunnelService {
     }
 
     // funnel.service.ts (solo los métodos de stages)
-    async getStages(funnelId: number) {
-        return await this.fetch.get<ApiResponse<any[]>>({
+    async getStages(funnelId: number) : Promise<ApiResponse<FunnelStage[]>> {
+        return await this.fetch.get<ApiResponse<FunnelStage[]>>({
             API_Gateway: `${FUNNEL_URL}/${funnelId}/stages`,
         });
     }

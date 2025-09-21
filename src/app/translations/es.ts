@@ -101,6 +101,7 @@ export const esTranslations = {
   'menu.role-permissions': 'Permisos de Rol',
 
   'menu.funnels': 'Embudos',
+  'menu.cases': 'Mantenimiento de casos',
 
 
 

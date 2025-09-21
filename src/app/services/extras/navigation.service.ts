@@ -21,6 +21,7 @@ export class NavigationService {
       name: 'menu.commerce',
       icon: 'Folder',
       children: [
+        { type: 'item', name: 'menu.cases', href: '/cases', icon: 'Package', permission: 'cases.access' },
         { type: 'item', name: 'menu.products', href: '/products', icon: 'Package', permission: 'products.access' },
         { type: 'item', name: 'menu.customers', href: '/customers', icon: 'Users', permission: 'customers.access' },
         { type: 'item', name: 'menu.campaigns', href: '/campaigns', icon: 'LayoutDashboard', permission: 'campaigns.access' },

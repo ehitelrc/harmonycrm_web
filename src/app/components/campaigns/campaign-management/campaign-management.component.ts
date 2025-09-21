@@ -7,12 +7,13 @@ import { AuthorizationService } from '@app/services/extras/authorization.service
 import { AlertService } from '@app/services/extras/alert.service';
 import { ActivatedRoute, Router } from '@angular/router';
 import { CompanyService } from '@app/services/company.service';
-import { Company } from '@app/models/company.model';
-import { Campaign } from '@app/models/campaign.model';
+ import { AuthService } from '@app/services';
 import { CampaignService } from '@app/services/campaign.service';
 import { CampaignsListComponent } from '../campaign-list/campaign-list.component';
 import { CampaignFormComponent } from '../campaign-form/campaign-form.component';
 import { CampaignWithFunnel } from '@app/models/campaign-with-funnel.model';
+import { CompanyUser } from '@app/models/companies_user_view';
+import { User as UserAuthModel } from '../../../models/auth.model';
 
 @Component({
   selector: 'app-campaign-management',
@@ -34,9 +35,14 @@ export class CampaignManagementComponent {
   deletingId: number | null = null;
   isDeleting = false;
 
-  companies: Company[] = [];
+  loggedUser: UserAuthModel | null = null;
+
+
+
+  companies: CompanyUser[] = [];
 
   constructor(
+     private authService: AuthService,
     private lang: LanguageService,
     private auth: AuthorizationService,
     private alert: AlertService,
@@ -50,6 +56,9 @@ export class CampaignManagementComponent {
   isAdmin(): boolean { return true; /* o this.auth.isAdmin(); */ }
 
   async ngOnInit(): Promise<void> {
+     this.loggedUser = this.authService.getCurrentUser();
+
+
     await this.loadCompanies();
 
     const paramId = this.route.snapshot.paramMap.get('companyId');
@@ -62,7 +71,7 @@ export class CampaignManagementComponent {
   async loadCompanies(): Promise<void> {
     try {
       this.isLoading = true;
-      const r = await this.companyService.getAllCompanies();
+      const r = await this.companyService.getCompaniesByUserId(this.loggedUser?.user_id || 0);
       if (r.success && r.data) this.companies = r.data;
       else this.alert.error(this.t('company.failed_to_load'));
     } catch {
@@ -89,7 +98,7 @@ export class CampaignManagementComponent {
       }
     } catch {
       this.alert.error(this.t('campaign.failed_to_load_campaigns'));
-       this.campaigns = [];
+      this.campaigns = [];
     } finally {
       this.isLoading = false;
     }

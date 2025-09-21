@@ -1,0 +1,96 @@
+<app-main-layout>
+    <div class="space-y-6">
+        <!-- Header -->
+        <div>
+            <h1 class="text-2xl font-semibold text-[#00113f] dark:text-white">
+                Gestión de Casos
+            </h1>
+            <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">
+                Selecciona una compañía y filtra los casos según su estado.
+            </p>
+        </div>
+
+        <!-- Filtros -->
+        <div class="bg-white dark:bg-gray-800 p-4 shadow rounded-lg flex gap-4">
+            <!-- Compañía -->
+
+            <div class="flex-1">
+                <select [(ngModel)]="selectedCompany" (ngModelChange)="filterCases()" class="block w-full sm:w-80 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
+               focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f]
+               dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <option [ngValue]="null">{{ t('cases.select_company_placeholder') }}</option>
+                    <option *ngFor="let c of companies" [ngValue]="c.company_id">{{ c.company_name }}</option>
+                </select>
+            </div>
+
+            <!-- Campaña -->
+            @if (selectedCompany) {
+            <div class="flex-1">
+                <select [(ngModel)]="selectedFunnelObject" (ngModelChange)="campaignSelected()" class="block w-full sm:w-80 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
+               focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f]
+               dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <option [ngValue]="null">{{ t('cases.select_campaign_placeholder') }}</option>
+                    <option *ngFor="let c of campaigns" [ngValue]="c">{{ c.campaign_name }}</option>
+                </select>
+            </div>
+            }
+            @if (campaignLoading && !selectedCompany) {
+            <div class="flex items-center">
+                <svg class="animate-spin h-5 w-5 text-[#00113f]" xmlns="http://www.w3.org/2000/svg" fill="none"
+                    viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                    </path>
+                </svg>
+            </div>
+            }
+
+            <!-- Estado -->
+            @if (selectedFunnel) {
+            <div class="flex-1">
+                <select [(ngModel)]="selectedFunnelStage" (ngModelChange)="stageSelected()" class="block w-full sm:w-80 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
+               focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f]
+               dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                    <option [ngValue]="null">{{ t('cases.select_funnel_placeholder') }}</option>
+                    <option *ngFor="let c of funnelStages" [ngValue]="c.id">{{ c.name }}</option>
+                </select>
+            </div>
+            }
+
+            @if (funnelStageLoading && !selectedFunnel) {
+            <div class="flex items-center">
+                <svg class="animate-spin h-5 w-5 text-[#00113f]" xmlns="http://www.w3.org/2000/svg" fill="none"
+                    viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                    </path>
+                </svg>
+            </div>
+            }
+
+        </div>
+
+
+    </div>
+
+    @if (!selectedCase){
+    <app-case-list *ngIf="selectedFunnelStage && caseList.length > 0" [cases]="caseList" [isLoading]="caseLoading"
+        (view)="onViewCase($event)" (edit)="onEditCase($event)" (remove)="onRemoveCase($event)">
+    </app-case-list>
+    <div *ngIf="selectedFunnelStage && !caseLoading && caseList.length === 0"
+        class="mt-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-700">
+        No se encontraron casos para los filtros seleccionados.
+    </div>}
+
+    @if (selectedCase){
+ 
+        <div class="case-detail">
+            <app-case-detail *ngIf="selectedCase" [caseData]="selectedCase" [client]="currentClient!"> 
+            </app-case-detail>
+        </div>
+ 
+    }
+
+</app-main-layout>
