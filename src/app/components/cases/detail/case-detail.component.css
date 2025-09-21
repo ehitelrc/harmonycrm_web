@@ -42,3 +42,9 @@
   color: #e5e7eb;
   border-color: #374151;
 }
+
+/* Panel del visor con scroll vertical propio */
+.viewer-pane .viewer-scroll {
+  /* La combinación flex-1 + min-h-0 en HTML deja que esta capa haga overflow */
+  overscroll-behavior: contain;
+}

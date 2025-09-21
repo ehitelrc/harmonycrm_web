@@ -84,13 +84,14 @@
         No se encontraron casos para los filtros seleccionados.
     </div>}
 
+
     @if (selectedCase){
- 
-        <div class="case-detail">
-            <app-case-detail *ngIf="selectedCase" [caseData]="selectedCase" [client]="currentClient!"> 
-            </app-case-detail>
-        </div>
- 
+    <div class="case-detail max-h-[80vh] overflow-y-auto">
+        <app-case-detail *ngIf="selectedCase" [caseData]="selectedCase" [client]="currentClient!"
+            (back)="goBackToList()">
+        </app-case-detail>
+    </div>
+
     }
 
 </app-main-layout>

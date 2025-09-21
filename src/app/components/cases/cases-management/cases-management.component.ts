@@ -224,6 +224,10 @@ export class CasesManagementComponent implements OnInit {
 
     goBackToList() {
         this.selectedCase = null;
+        this.currentClient = null;
+
+        this.stageSelected() ;
+         
     }
 
 
