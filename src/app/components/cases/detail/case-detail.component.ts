@@ -601,7 +601,7 @@ export class CaseDetailComponent implements OnInit {
     // Abrir modal de mover stage
     openChangeStatusModal(caseId: number) {
         this.loadCurrentStage(caseId);
-        
+    
         this.isMoveStageOpen = true;
     }
 
