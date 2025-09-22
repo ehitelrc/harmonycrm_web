@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CaseGeneralInformation } from '@app/models/case_general_information_view.model';
-import { AssignCaseToCampaignPayload, CaseService, VwCaseCurrentStage } from '@app/services/case.service';
+import { AssignCaseToCampaignPayload, CaseFunnelEntry, CaseService, VwCaseCurrentStage } from '@app/services/case.service';
 import { CaseNoteView } from '@app/models/case-notes-view.model';
 import { Client } from '@app/models/client.model';
 import { CampaignWithFunnel } from '@app/models/campaign-with-funnel.model';
@@ -20,6 +20,8 @@ import { AgentUser } from '@app/models/agent_user.models';
 import { AgentDepartmentAssignment } from '@app/models/agent_department_assignment_view';
 import { AgentUserService } from '@app/services/agent-user.service';
 import { AgentDepartmentInformation } from '@app/models/agent-department-information.model';
+import { MoveCaseStagePayload } from '@app/models/move_case_stager_payload';
+import { MoveStageModalComponent } from '@app/components/chat/stage_movement/move-stage-modal.component';
 
 @Component({
     selector: 'app-case-detail',
@@ -27,7 +29,8 @@ import { AgentDepartmentInformation } from '@app/models/agent-department-informa
     imports: [
         CommonModule,
         FormsModule,
-        ClientFormComponent
+        ClientFormComponent,
+        MoveStageModalComponent
     ],
     templateUrl: './case-detail.component.html',
     styleUrls: ['./case-detail.component.css']
@@ -86,7 +89,7 @@ export class CaseDetailComponent implements OnInit {
     isLoadingDepartments = false;
     isAssigningDepartment = false;
 
-    // ======== Estado del modal de agente ========
+
     // ======== Estado del modal de agente ========
     isAssignAgentOpen = false;
     agentSearch = '';
@@ -96,6 +99,14 @@ export class CaseDetailComponent implements OnInit {
     isLoadingAgents = false;
     isAssigningAgent = false;
     currentAgent: AgentDepartmentInformation | null = null;
+
+    // Estado para mover de stage
+    isMoveStageOpen = false;
+    currentStage: VwCaseCurrentStage | null = null;
+
+    isHistoryOpen = false;
+    isLoadingHistory = false;
+    history: CaseFunnelEntry[] = [];
 
     constructor(
         private caseService: CaseService,
@@ -570,4 +581,59 @@ export class CaseDetailComponent implements OnInit {
             this.isAssigningAgent = false;
         }
     }
+
+    ///
+    /// Change stage
+    ///
+
+    // Cargar estado actual
+    async loadCurrentStage(caseId: number) {
+        try {
+            const res = await this.caseService.getCaseFunnelCurrent(caseId);
+            this.currentStage = res.data || null;
+            this.currentCaseFunnel = res.data || null;
+        } catch {
+            this.currentStage = null;
+            this.currentCaseFunnel = null;
+        }
+    }
+
+    // Abrir modal de mover stage
+    openChangeStatusModal(caseId: number) {
+        this.loadCurrentStage(caseId);
+        
+        this.isMoveStageOpen = true;
+    }
+
+    // Confirmación desde el modal
+    async onMoveStage(payload: MoveCaseStagePayload) {
+        try {
+            payload.changed_by = this.loggedUser?.user_id;  
+            await this.caseService.moveCaseStage(payload);
+
+            this.alert.success('Etapa cambiada correctamente');
+            if (payload.case_id) {
+                await this.loadCurrentStage(payload.case_id);
+                await this.loadHistory(payload.case_id);
+            }
+
+            this.isMoveStageOpen = false;
+        } catch (err) {
+            console.error(err);
+            this.alert.error('No se pudo cambiar de etapa');
+        }
+    }
+
+    // Historial de cambios
+    async loadHistory(caseId: number) {
+        // try {
+        //     this.isLoadingHistory = true;
+        //     const res = await this.caseData.getCaseFunnelHistory(caseId);
+        //     this.history = Array.isArray(res?.data) ? res.data : [];
+        // } finally {
+        //     this.isLoadingHistory = false;
+        // }
+    }
+
+
 }

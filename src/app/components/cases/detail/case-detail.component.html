@@ -151,14 +151,14 @@
 
             <!-- Botón mover stage -->
             <div class="flex gap-2">
-              <button class="chip-btn" (click)="moveToStage(2)">Mover a Stage</button>
+              <button class="chip-btn" (click)="openChangeStatusModal(caseData.case_id)">Cambiar etapa</button>
             </div>
           </div>
 
           <div class="p-4 space-y-3">
             <!-- Pill dinámico con color desde color_hex -->
             <span class="inline-block px-3 py-1 text-sm font-medium rounded-full text-white"
-              [style.backgroundColor]="caseData?.color_hex || '#2563eb'">
+              [style.backgroundColor]="caseData.color_hex || '#2563eb'">
               {{ currentCaseFunnel?.current_stage_name || 'Sin etapa' }}
             </span>
 
@@ -584,3 +584,11 @@
   }
 
 </div>
+
+<app-move-stage-modal
+  [isOpen]="isMoveStageOpen"
+  [caseId]="caseData.case_id"
+  [current]="currentStage!"
+  (cancel)="isMoveStageOpen = false"
+  (moved)="onMoveStage($event)">
+</app-move-stage-modal>
