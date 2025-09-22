@@ -1,6 +1,6 @@
  .case-detail {
      margin-top: 22px;
-     max-height: 60vh;
+     max-height: 80vh;
      /* o calc(100vh - 200px) según tu layout */
      overflow-y: auto;
  }

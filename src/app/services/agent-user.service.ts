@@ -151,4 +151,12 @@ export class AgentUserService {
 		});
 	}
 
+	///agent-department-assignments/company/1/department/3
+	// By company and department
+	async getByCompanyAndDepartment(company_id: number, department_id: number): Promise<ApiResponse<AgentDepartmentAssignment[]>> {
+		return await this.fetchService.get<ApiResponse<AgentDepartmentAssignment[]>>({
+			API_Gateway: `${DEPARTMENT_ASSIGNMENTS_URL}/company/${company_id}/department/${department_id}`,
+		});
+	}
+
 }

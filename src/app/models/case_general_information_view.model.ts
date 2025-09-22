@@ -31,4 +31,6 @@ export interface CaseGeneralInformation {
   department_name?: string | null;
 
   agent_name?: string | null; // Nombre del agente asignado
+
+  color_hex?: string | null; // Color asociado al funnel o estado
 }

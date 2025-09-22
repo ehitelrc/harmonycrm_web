@@ -25,6 +25,18 @@ export interface AssignCaseToCampaignPayload {
   changed_by?: number; // opcional, depende del backend
 }
 
+export interface AssignCaseToCampaignPayload {
+  case_id: number;
+  campaign_id: number;
+  changed_by?: number; // opcional, depende del backend
+}
+
+export interface AssignCaseToDepartmentPayload {
+  case_id: number;
+  department_id: number;
+  changed_by?: number; // opcional, depende del backend
+}
+
 export interface CaseFunnelEntry {
   id: number;
   case_id: number;
@@ -148,6 +160,15 @@ export class CaseService {
     });
   }
 
+    async assignCaseToDepartment(
+    payload: AssignCaseToDepartmentPayload
+  ): Promise<ApiResponse<void>> {
+    return await this.fetch.post<ApiResponse<void>>({
+      API_Gateway: `${CASE_URL}/entry/assign_department`,
+      values: payload,
+    });
+  }
+
   // Estado actual del funnel para el caso
   getCaseFunnelCurrent(caseId: number) {
     return this.fetch.get<ApiResponse<VwCaseCurrentStage>>({
@@ -179,6 +200,13 @@ export class CaseService {
   async getCaseGeneralInformation(company_id: number, campaign_id: number, stage_id: number): Promise<ApiResponse<CaseGeneralInformation[]>> {
     return await this.fetch.get<ApiResponse<CaseGeneralInformation[]>>({
       API_Gateway: `${CASE_URL}/entry/case_general_info/${company_id}/${campaign_id}/${stage_id}`,
+    });
+  }
+
+  async assignCaseToAgent(case_id: number, agent_id: number, assigned_by: number): Promise<ApiResponse<void>> {
+    return await this.fetch.post<ApiResponse<void>>({
+      API_Gateway: `${CASE_URL}/entry/assign_agent`,
+      values: { case_id, agent_id, assigned_by },
     });
   }
 

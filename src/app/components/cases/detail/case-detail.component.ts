@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnInit, Output, SimpleChanges } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { CaseGeneralInformation } from '@app/models/case_general_information_view.model';
-import { CaseService, VwCaseCurrentStage } from '@app/services/case.service';
+import { AssignCaseToCampaignPayload, CaseService, VwCaseCurrentStage } from '@app/services/case.service';
 import { CaseNoteView } from '@app/models/case-notes-view.model';
 import { Client } from '@app/models/client.model';
 import { CampaignWithFunnel } from '@app/models/campaign-with-funnel.model';
@@ -13,6 +13,13 @@ import { ClientFormComponent } from '@app/components/clients/clients-form/client
 import { AlertService } from '@app/services/extras/alert.service';
 import { CaseWithChannel } from '@app/models/case-with-channel.model';
 import { ClientService } from '@app/services/client.service';
+import { CampaignService } from '@app/services/campaign.service';
+import { Department } from '@app/models/department.model';
+import { DepartmentService } from '@app/services/department.service';
+import { AgentUser } from '@app/models/agent_user.models';
+import { AgentDepartmentAssignment } from '@app/models/agent_department_assignment_view';
+import { AgentUserService } from '@app/services/agent-user.service';
+import { AgentDepartmentInformation } from '@app/models/agent-department-information.model';
 
 @Component({
     selector: 'app-case-detail',
@@ -56,9 +63,39 @@ export class CaseDetailComponent implements OnInit {
     filteredClients: Client[] = [];
     isLoadingClients = false;
 
-     // =============================================
+    // =============================================
 
 
+    // ======== Estado del modal de campaña ========
+    isAssignCampaignOpen = false;
+    campaignSearch = '';
+    campaigns: CampaignWithFunnel[] = [];
+    filteredCampaigns: CampaignWithFunnel[] = [];
+    selectedCampaignCandidate: CampaignWithFunnel | null = null;
+    isLoadingCampaigns = false;
+    isAssigningCampaign = false;
+    currentCampaign: CampaignWithFunnel | null = null;
+
+
+    // ======== Estado del modal de departamento ========
+    isAssignDepartmentOpen = false;
+    departmentSearch = '';
+    departments: Department[] = [];
+    filteredDepartments: Department[] = [];
+    selectedDepartmentCandidate: Department | null = null;
+    isLoadingDepartments = false;
+    isAssigningDepartment = false;
+
+    // ======== Estado del modal de agente ========
+    // ======== Estado del modal de agente ========
+    isAssignAgentOpen = false;
+    agentSearch = '';
+    agents: AgentDepartmentInformation[] = [];
+    filteredAgents: AgentDepartmentInformation[] = [];
+    selectedAgentCandidate: AgentDepartmentInformation | null = null;
+    isLoadingAgents = false;
+    isAssigningAgent = false;
+    currentAgent: AgentDepartmentInformation | null = null;
 
     constructor(
         private caseService: CaseService,
@@ -66,6 +103,9 @@ export class CaseDetailComponent implements OnInit {
         private alert: AlertService,
         private lang: LanguageService,
         private clientService: ClientService,
+        private campaignService: CampaignService,
+        private departmentService: DepartmentService,
+        private agentUserService: AgentUserService,
 
 
     ) {
@@ -195,7 +235,7 @@ export class CaseDetailComponent implements OnInit {
 
 
     async confirmAssignClient() {
-         if ( !this.selectedClientCandidate) return;
+        if (!this.selectedClientCandidate) return;
 
         try {
             this.isAssigningClient = true;
@@ -269,4 +309,265 @@ export class CaseDetailComponent implements OnInit {
     }
 
 
+
+
+    //////
+    ///// Campaña
+    //////
+
+
+    openAssignCampaignModal() {
+        this.isAssignCampaignOpen = true;
+        this.campaignSearch = '';
+        this.selectedCampaignCandidate = null;
+        this.loadCampaigns();          // carga inicial
+    }
+
+    closeAssignCampaignModal() {
+        this.isAssignCampaignOpen = false;
+        this.campaignSearch = '';
+        this.filteredCampaigns = [];
+        this.selectedCampaignCandidate = null;
+        this.isLoadingCampaigns = false;
+        this.isAssigningCampaign = false;
+    }
+
+    private async loadCampaigns(): Promise<void> {
+        try {
+            this.isLoadingCampaigns = true;
+
+            const res = await this.campaignService.getByCompany(this.caseData?.company_id!);
+            const data = (res as { data?: unknown })?.data;           // <- narrow local
+            const list: CampaignWithFunnel[] = Array.isArray(data) ? data as CampaignWithFunnel[] : [];
+
+            this.campaigns = list;
+            this.filteredCampaigns = list;
+        } catch {
+            this.alert.error('Error cargando campañas');
+            this.campaigns = [];
+            this.filteredCampaigns = [];
+        } finally {
+            this.isLoadingCampaigns = false;
+        }
+    }
+
+    onCampaignSearchChange(q: string) {
+        const query = (q || '').trim().toLowerCase();
+        if (!query) {
+            this.filteredCampaigns = this.campaigns;
+            return;
+        }
+        this.filteredCampaigns = this.campaigns.filter(c =>
+            (c.campaign_name || '').toLowerCase().includes(query) ||
+            (c.funnel_name || '').toLowerCase().includes(query)
+        );
+    }
+
+    selectCampaignCandidate(c: CampaignWithFunnel) {
+        this.selectedCampaignCandidate = c;
+    }
+
+    async confirmAssignCampaign() {
+        if (!this.caseData || !this.selectedCampaignCandidate) return;
+
+        try {
+            this.isAssigningCampaign = true;
+
+            // 👉 Llama a tu backend
+            // Debes implementar esto en CaseService si aún no existe:
+            // POST /cases/:caseId/campaign/:campaignId   (por ejemplo)
+
+            const payload: AssignCaseToCampaignPayload = {
+                case_id: this.caseData?.case_id || 0,
+                campaign_id: this.selectedCampaignCandidate?.campaign_id || 0,
+                changed_by: this.loggedUser?.user_id || 0,
+            };
+
+            await this.caseService.assignCaseToCampaign(payload);
+
+            // Refleja en UI
+            this.currentCampaign = this.selectedCampaignCandidate;
+
+            // Si tu selectedCase trae campaign_name, actualízalo también
+            (this.caseData as any).campaign_name = this.currentCampaign.campaign_name;
+            (this.caseData as any).campaign_id = this.currentCampaign.campaign_id;
+
+
+            this.alert.success('Campaña vinculada al caso');
+            this.closeAssignCampaignModal();
+        } catch (e) {
+            this.alert.error('No se pudo vincular la campaña');
+        } finally {
+            this.isAssigningCampaign = false;
+        }
+    }
+
+    ///////
+    ///// Departamento
+    //////
+
+    openAssignDepartmentModal() {
+        this.isAssignDepartmentOpen = true;
+        this.departmentSearch = '';
+        this.selectedDepartmentCandidate = null;
+        this.loadDepartments();
+    }
+
+    closeAssignDepartmentModal() {
+        this.isAssignDepartmentOpen = false;
+        this.departmentSearch = '';
+        this.filteredDepartments = [];
+        this.selectedDepartmentCandidate = null;
+        this.isLoadingDepartments = false;
+        this.isAssigningDepartment = false;
+    }
+
+    private async loadDepartments(): Promise<void> {
+        try {
+            this.isLoadingDepartments = true;
+            const res = await this.departmentService.getByCompany(this.caseData.company_id);
+            const data = (res as { data?: unknown })?.data;
+            const list: Department[] = Array.isArray(data) ? data as Department[] : [];
+
+            this.departments = list;
+            this.filteredDepartments = list;
+        } catch {
+            this.alert.error('Error cargando departamentos');
+            this.departments = [];
+            this.filteredDepartments = [];
+        } finally {
+            this.isLoadingDepartments = false;
+        }
+    }
+
+    onDepartmentSearchChange(q: string) {
+        const query = (q || '').trim().toLowerCase();
+        if (!query) {
+            this.filteredDepartments = this.departments;
+            return;
+        }
+        this.filteredDepartments = this.departments.filter(d =>
+            (d.description || '').toLowerCase().includes(query)
+        );
+    }
+
+    selectDepartmentCandidate(dep: Department) {
+        this.selectedDepartmentCandidate = dep;
+    }
+
+    async confirmAssignDepartment() {
+        if (!this.caseData || !this.selectedDepartmentCandidate) return;
+
+        try {
+            this.isAssigningDepartment = true;
+
+            // TODO: implementar en tu CaseService
+            await this.caseService.assignCaseToDepartment({
+                case_id: this.caseData.case_id,
+                department_id: this.selectedDepartmentCandidate.id,
+                changed_by: this.loggedUser?.user_id || 0,
+            });
+
+            // Actualizar en UI
+            (this.caseData as any).department_name = this.selectedDepartmentCandidate.description;
+            (this.caseData as any).department_id = this.selectedDepartmentCandidate.id;
+
+            this.alert.success('Departamento asignado al caso');
+            this.closeAssignDepartmentModal();
+        } catch (e) {
+            this.alert.error('No se pudo asignar el departamento');
+        } finally {
+            this.isAssigningDepartment = false;
+        }
+    }
+
+
+
+    ///////
+    ///// Agente
+    //////
+
+    openAssignAgentModal() {
+        this.isAssignAgentOpen = true;
+        this.agentSearch = '';
+        this.selectedAgentCandidate = null;
+        this.loadAgents();
+    }
+
+    closeAssignAgentModal() {
+        this.isAssignAgentOpen = false;
+        this.agentSearch = '';
+        this.filteredAgents = [];
+        this.selectedAgentCandidate = null;
+        this.isLoadingAgents = false;
+        this.isAssigningAgent = false;
+    }
+
+    private async loadAgents(): Promise<void> {
+        if (!this.caseData?.company_id || !this.caseData?.department_id) return;
+
+        try {
+            this.isLoadingAgents = true;
+
+            const res = await this.agentUserService.getByCompanyAndDepartment(
+                this.caseData.company_id,
+                this.caseData.department_id
+            );
+
+            const data = (res as { data?: unknown })?.data;
+            const list: AgentDepartmentInformation[] = Array.isArray(data) ? data : [];
+
+            this.agents = list;
+            this.filteredAgents = list;
+        } catch {
+            this.alert.error('Error cargando agentes');
+            this.agents = [];
+            this.filteredAgents = [];
+        } finally {
+            this.isLoadingAgents = false;
+        }
+    }
+
+    onAgentSearchChange(q: string) {
+        const query = (q || '').trim().toLowerCase();
+        if (!query) {
+            this.filteredAgents = this.agents;
+            return;
+        }
+        this.filteredAgents = this.agents.filter(a =>
+            (a.agent_name || '').toLowerCase().includes(query) ||
+            (a.department_name || '').toLowerCase().includes(query)
+        );
+    }
+
+    selectAgentCandidate(agent: AgentDepartmentInformation) {
+        this.selectedAgentCandidate = agent;
+    }
+
+    async confirmAssignAgent() {
+        if (!this.caseData || !this.selectedAgentCandidate) return;
+
+        try {
+            this.isAssigningAgent = true;
+
+            // 👉 Aquí deberías tener un endpoint en tu CaseService
+            await this.caseService.assignCaseToAgent(
+                this.caseData.case_id,
+                this.selectedAgentCandidate.agent_id,
+                this.loggedUser?.user_id || 0
+            );
+
+            // Reflejar en UI
+            this.currentAgent = this.selectedAgentCandidate;
+            (this.caseData as any).agent_name = this.currentAgent.agent_name;
+            (this.caseData as any).agent_id = this.currentAgent.agent_id;
+
+            this.alert.success('Agente asignado al caso');
+            this.closeAssignAgentModal();
+        } catch (e) {
+            this.alert.error('No se pudo asignar el agente');
+        } finally {
+            this.isAssigningAgent = false;
+        }
+    }
 }

@@ -11,6 +11,7 @@
         </div>
 
         <!-- Filtros -->
+        @if (!selectedCase){
         <div class="bg-white dark:bg-gray-800 p-4 shadow rounded-lg flex gap-4">
             <!-- Compañía -->
 
@@ -71,9 +72,11 @@
             }
 
         </div>
+        }
 
 
     </div>
+
 
     @if (!selectedCase){
     <app-case-list *ngIf="selectedFunnelStage && caseList.length > 0" [cases]="caseList" [isLoading]="caseLoading"
