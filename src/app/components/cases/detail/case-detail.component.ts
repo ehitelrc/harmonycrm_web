@@ -108,6 +108,16 @@ export class CaseDetailComponent implements OnInit {
     isLoadingHistory = false;
     history: CaseFunnelEntry[] = [];
 
+
+
+    isCloseCaseOpen = false;   // controla si el modal está abierto
+    closeNote = '';            // nota opcional al cerrar
+    isClosingCase = false;     // loading/disable state
+
+
+    isConfirmCloseOpen = false;
+
+
     constructor(
         private caseService: CaseService,
         private authService: AuthService,
@@ -601,14 +611,14 @@ export class CaseDetailComponent implements OnInit {
     // Abrir modal de mover stage
     openChangeStatusModal(caseId: number) {
         this.loadCurrentStage(caseId);
-    
+
         this.isMoveStageOpen = true;
     }
 
     // Confirmación desde el modal
     async onMoveStage(payload: MoveCaseStagePayload) {
         try {
-            payload.changed_by = this.loggedUser?.user_id;  
+            payload.changed_by = this.loggedUser?.user_id;
             await this.caseService.moveCaseStage(payload);
 
             this.alert.success('Etapa cambiada correctamente');
@@ -635,5 +645,52 @@ export class CaseDetailComponent implements OnInit {
         // }
     }
 
+
+    ////
+    // Cerrar caso
+    ////
+
+    openCloseCaseModal() {
+        this.isCloseCaseOpen = true;
+        this.closeNote = '';
+    }
+
+    closeCloseCaseModal() {
+        this.isCloseCaseOpen = false;
+    }
+
+    async confirmCloseCase() {
+        if (!this.caseData) return;
+
+        try {
+            this.isClosingCase = true;
+
+            const res = await this.caseService.closeCase(
+                this.caseData.case_id,
+                this.closeNote,
+                this.loggedUser?.user_id || 0,
+                this.caseData.funnel_id || 0
+            );
+
+            if (res.success) {
+                this.alert.success('Caso cerrado correctamente');
+                this.caseData.status = 'closed';
+
+                this.closeCloseCaseModal();
+
+                this.back.emit();
+            } else {
+                this.alert.error(res.message || 'No se pudo cerrar el caso');
+            }
+        } catch (err) {
+            console.error(err);
+            this.alert.error('Error al cerrar el caso');
+        } finally {
+            this.isClosingCase = false;
+        }
+    }
+
+
+    
 
 }
