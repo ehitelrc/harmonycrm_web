@@ -3,10 +3,10 @@
         <!-- Header -->
         <div>
             <h1 class="text-2xl font-semibold text-[#00113f] dark:text-white">
-                {{ t('case.title') }}
+                {{ t('report-funnel.title') }}
             </h1>
             <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">
-                {{ t('case.description') }}
+                {{ t('report-funnel.description') }}
             </p>
         </div>
 
@@ -48,7 +48,7 @@
             }
 
             <!-- Estado -->
-            @if (selectedFunnel) {
+            <!-- @if (selectedFunnel) {
             <div class="flex-1">
                 <select [(ngModel)]="selectedFunnelStage" (ngModelChange)="stageSelected()" class="block w-full sm:w-80 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
                focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f]
@@ -57,9 +57,9 @@
                     <option *ngFor="let c of funnelStages" [ngValue]="c.id">{{ c.name }}</option>
                 </select>
             </div>
-            }
+            } -->
 
-            @if (funnelStageLoading && !selectedFunnel) {
+            <!-- @if (funnelStageLoading && !selectedFunnel) {
             <div class="flex items-center">
                 <svg class="animate-spin h-5 w-5 text-[#00113f]" xmlns="http://www.w3.org/2000/svg" fill="none"
                     viewBox="0 0 24 24">
@@ -69,7 +69,7 @@
                     </path>
                 </svg>
             </div>
-            }
+            } -->
 
         </div>
         }
@@ -96,5 +96,9 @@
     </div>
 
     }
+ 
+    <!-- <app-campaign-funnel [stages]="data"></app-campaign-funnel>    -->
+
+    <app-campaign-funnel-organic [stages]="data"></app-campaign-funnel-organic>
 
 </app-main-layout>

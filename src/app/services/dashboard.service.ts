@@ -4,6 +4,9 @@ import { DashboardStats, StockAlert } from '@app/models/dashboard.model';
 import { returnCompleteURI } from '@app/utils';
 import { environment } from '@environment';
 import { FetchService } from './extras/fetch.service';
+import { DashboardCampaignPerCompany } from '@app/models/dashboard_campaign_per_company_view';
+import { DashboardGeneralByCompany } from '@app/models/dashboard_general_by_company_view';
+import { DashboardCampaignFunnelSummary } from '@app/models/campaign_funnel_summary_view';
 
 const GATEWAY = '/dashboard';
 export const DASHBOARD_URL = returnCompleteURI({
@@ -15,7 +18,7 @@ export const DASHBOARD_URL = returnCompleteURI({
   providedIn: 'root',
 })
 export class DashboardService {
-  constructor(private fetchService: FetchService) {}
+  constructor(private fetchService: FetchService) { }
 
   async getStats(): Promise<ApiResponse<DashboardStats>> {
     return await this.fetchService.get<ApiResponse<DashboardStats>>({
@@ -52,6 +55,30 @@ export class DashboardService {
       { id: '3', sku: 'SKU-55555', currentStock: 15, alertLevel: 'medium' },
     ];
   }
-}
 
+  async getCampaingsInformationByCompany(companyId: number): Promise<ApiResponse<DashboardCampaignPerCompany[]>> {
+    return await this.fetchService.get<ApiResponse<DashboardCampaignPerCompany[]>>({
+      API_Gateway: `${DASHBOARD_URL}/campaign/summary/company/${companyId}`,
+    });
+  }
+
+  async getGeneralDashboardByCompany(companyId: number): Promise<DashboardGeneralByCompany | null> {
+    const resp = await this.fetchService.get<ApiResponse<DashboardGeneralByCompany[]>>({
+      API_Gateway: `${DASHBOARD_URL}/summary/company/${companyId}`,
+    });
+
+    if (resp?.success && Array.isArray(resp.data) && resp.data.length > 0) {
+      return resp.data[0]; // devolvemos SOLO el objeto
+    }
+    return null;
+  }
+
+  // {{base_url}}/dashboard/campaign/funnel_summary/6
+  async getCampaignFunnelSummaryByCompany(companyId: number): Promise<ApiResponse<DashboardCampaignFunnelSummary[]>> {
+    return await this.fetchService.get<ApiResponse<DashboardCampaignFunnelSummary[]>>({
+      API_Gateway: `${DASHBOARD_URL}/campaign/funnel_summary/${companyId}`,
+    }); 
+  }
+
+}
 

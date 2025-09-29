@@ -52,7 +52,7 @@ export class NavigationService {
       name: 'menu.reports',
       icon: 'Folder',
       children: [
-        { type: 'item', name: 'menu.convertions', href: '/convertions', icon: 'PackageOpen', permission: 'reports.access' },
+        { type: 'item', name: 'menu.convertions', href: '/report-funnels', icon: 'PackageOpen', permission: 'reports.access' },
       ],
     }
   ];

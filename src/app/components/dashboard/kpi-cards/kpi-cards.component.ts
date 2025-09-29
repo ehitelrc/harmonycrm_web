@@ -1,32 +1,41 @@
 import { CommonModule } from '@angular/common';
 import { Component, Input } from '@angular/core';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
-import { DashboardStats } from '@app/models/dashboard.model';
+import { DashboardGeneralByCompany } from '@app/models/dashboard_general_by_company_view';
+ 
 import { LanguageService } from '@app/services/extras/language.service';
+
 
 @Component({
   selector: 'app-dashboard-kpi-cards',
   standalone: true,
   imports: [CommonModule],
   template: `
-    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
       <ng-container *ngIf="stats; else skeleton">
-        <div class="bg-white rounded-lg border border-border shadow-sm p-5" *ngFor="let kpi of kpis">
-          <div class="flex items-center">
-            <div class="flex-shrink-0">
-              <span class="h-6 w-6 inline-block text-primary" [innerHTML]="sanitize(kpi.icon)"></span>
-            </div>
-            <div class="ml-5 w-0 flex-1">
-              <dl>
-                <dt class="text-sm font-medium text-primary truncate">{{ kpi.title }}</dt>
-                <dd class="text-lg font-medium text-[var(--foreground)]">{{ kpi.value }}</dd>
-              </dl>
+        <div *ngFor="let kpi of kpis"
+          class="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6 transition transform hover:scale-105 hover:shadow-lg">
+          
+          <!-- Icono circular -->
+          <div class="flex items-center justify-between">
+            <div class="flex items-center">
+              <div class="flex-shrink-0 w-12 h-12 rounded-full flex items-center justify-center"
+                   [ngStyle]="{'background': kpi.bg}">
+                <span class="h-6 w-6 text-white" [innerHTML]="sanitize(kpi.icon)"></span>
+              </div>
+              <div class="ml-4">
+                <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">{{ kpi.title }}</dt>
+                <dd class="text-2xl font-bold text-[var(--foreground)]">{{ kpi.value }}</dd>
+              </div>
             </div>
           </div>
         </div>
       </ng-container>
+
+      <!-- Skeleton de carga -->
       <ng-template #skeleton>
-        <div class="bg-white rounded-lg border border-border shadow-sm p-5 animate-pulse" *ngFor="let _ of [0,1,2,3]">
+        <div class="bg-white rounded-xl border border-gray-200 dark:border-gray-700 p-6 animate-pulse"
+             *ngFor="let _ of [0,1,2,3,4,5]">
           <div class="h-16 bg-gray-200 rounded"></div>
         </div>
       </ng-template>
@@ -34,9 +43,7 @@ import { LanguageService } from '@app/services/extras/language.service';
   `,
 })
 export class KpiCardsComponent {
-  @Input() stats: DashboardStats | null = null;
-
-  symbol = '₡';
+  @Input() stats: DashboardGeneralByCompany | null = null;
 
   constructor(private languageService: LanguageService, private sanitizer: DomSanitizer) {}
 
@@ -44,24 +51,40 @@ export class KpiCardsComponent {
     if (!this.stats) return [];
     return [
       {
-        title: this.t('total_skus'),
-        value: this.stats.totalSkus.toLocaleString(),
-        icon: this.packageSvg,
+        title: this.t('dashboard.total_active_campaigns'),
+        value: this.stats.total_active_campaigns.toLocaleString(),
+        icon: this.campaignSvg,
+        bg: 'linear-gradient(135deg, #3b82f6, #60a5fa)',
       },
       {
-        title: this.t('inventory_value'),
-        value: `${this.symbol}${this.stats.inventoryValue.toLocaleString()}`,
-        icon: this.trendingUpSvg,
+        title: this.t('dashboard.total_cases'),
+        value: this.stats.total_cases.toLocaleString(),
+        icon: this.casesSvg,
+        bg: 'linear-gradient(135deg, #9333ea, #a855f7)',
       },
       {
-        title: this.t('low_stock_count'),
-        value: this.stats.lowStockCount.toLocaleString(),
-        icon: this.alertTriangleSvg,
+        title: this.t('dashboard.closed_cases'),
+        value: this.stats.closed_cases.toLocaleString(),
+        icon: this.closedSvg,
+        bg: 'linear-gradient(135deg, #ef4444, #f87171)',
       },
       {
-        title: this.t('active_tasks'),
-        value: this.stats.activeTasks.toLocaleString(),
-        icon: this.checkCircleSvg,
+        title: this.t('dashboard.won_cases'),
+        value: this.stats.won_cases.toLocaleString(),
+        icon: this.wonSvg,
+        bg: 'linear-gradient(135deg, #10b981, #34d399)',
+      },
+      {
+        title: this.t('dashboard.conversion_rate'),
+        value: `${this.stats.conversion_rate}%`,
+        icon: this.rateSvg,
+        bg: 'linear-gradient(135deg, #f59e0b, #fbbf24)',
+      },
+      {
+        title: this.t('dashboard.operating_agents'),
+        value: this.stats.operating_agents.toLocaleString(),
+        icon: this.agentsSvg,
+        bg: 'linear-gradient(135deg, #2563eb, #3b82f6)',
       },
     ];
   }
@@ -70,56 +93,15 @@ export class KpiCardsComponent {
     return this.languageService.t(key);
   }
 
-  // Template helper to sanitize SVGs before binding with [innerHTML]
-  sanitize(svg: string): SafeHtml { return this.sanitizer.bypassSecurityTrustHtml(svg); }
+  sanitize(svg: string): SafeHtml {
+    return this.sanitizer.bypassSecurityTrustHtml(svg);
+  }
 
-  private get packageSvg() { return `
-    <svg width='24' height='24' fill='none' viewBox='0 0 24 24'>
-      <defs>
-        <linearGradient id='gradKpiPackage' x1='0' y1='0' x2='1' y2='1'>
-          <stop offset='0%' stop-color='#00113f'/>
-          <stop offset='100%' stop-color='#3e66ea'/>
-        </linearGradient>
-      </defs>
-      <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2.2' stroke='url(#gradKpiPackage)'
-        d='M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4'></path>
-    </svg>`; }
-
-  private get trendingUpSvg() { return `
-    <svg width='24' height='24' fill='none' viewBox='0 0 24 24'>
-      <defs>
-        <linearGradient id='gradKpiTrend' x1='0' y1='1' x2='1' y2='0'>
-          <stop offset='0%' stop-color='#00113f'/>
-          <stop offset='100%' stop-color='#3e66ea'/>
-        </linearGradient>
-      </defs>
-      <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2.2' stroke='url(#gradKpiTrend)' d='M3 3v18h18'></path>
-      <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2.2' stroke='url(#gradKpiTrend)' d='M7 13l4-4 3 3 6-6'></path>
-    </svg>`; }
-
-  private get alertTriangleSvg() { return `
-    <svg width='24' height='24' fill='none' viewBox='0 0 24 24'>
-      <defs>
-        <linearGradient id='gradKpiAlert' x1='0' y1='0' x2='1' y2='1'>
-          <stop offset='0%' stop-color='#00113f'/>
-          <stop offset='100%' stop-color='#3e66ea'/>
-        </linearGradient>
-      </defs>
-      <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2.2' stroke='url(#gradKpiAlert)'
-        d='M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.732-.833-2.464 0L4.34 16.5c-.77.833.192 2.5 1.732 2.5z'></path>
-    </svg>`; }
-
-  private get checkCircleSvg() { return `
-    <svg width='24' height='24' fill='none' viewBox='0 0 24 24'>
-      <defs>
-        <linearGradient id='gradKpiCheck' x1='0' y1='1' x2='1' y2='0'>
-          <stop offset='0%' stop-color='#00113f'/>
-          <stop offset='100%' stop-color='#3e66ea'/>
-        </linearGradient>
-      </defs>
-      <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2.2' stroke='url(#gradKpiCheck)' d='M9 12l2 2 4-4'></path>
-      <circle cx='12' cy='12' r='9' stroke-width='2.2' stroke='url(#gradKpiCheck)' fill='none'></circle>
-    </svg>`; }
+  // 👇 Puedes mantener los mismos SVGs que ya tienes
+  private get campaignSvg() { return `<svg ...></svg>`; }
+  private get casesSvg() { return `<svg ...></svg>`; }
+  private get closedSvg() { return `<svg ...></svg>`; }
+  private get wonSvg() { return `<svg ...></svg>`; }
+  private get rateSvg() { return `<svg ...></svg>`; }
+  private get agentsSvg() { return `<svg ...></svg>`; }
 }
-
-

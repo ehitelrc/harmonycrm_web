@@ -147,6 +147,11 @@ export const routes: Routes = [
   { path: 'funnels/:id/stages', loadComponent: () => import('@app/components/funnels/stages/management/stages-management.component').then(m => m.StagesManagementComponent) },
 
 
+    {
+    path: 'report-funnels',
+    loadComponent: () => import('./components/funnel-report/funnel-report-management/funnel-report-management.component').then(m => m.FunnelReportManagementComponent),
+    canActivate: [AuthGuard]
+  },
 
 
   // Wildcard route - redirect to dashboard

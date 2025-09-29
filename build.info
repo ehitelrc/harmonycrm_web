@@ -1,0 +1,42 @@
+ 
+
+************************
+PARA LA MAQUINA VIRITUAL
+
+
+# Detener el contenedor
+sudo docker stop 3971b3e11a61
+
+# Eliminar el contenedor
+sudo docker rm 3971b3e11a61
+
+# Eliminar imagen
+sudo docker rmi e848bedec98a
+
+
+# Generar para producción
+npm run build -- --configuration production 
+
+
+# Generar y subir al hub
+
+docker buildx build --platform linux/amd64 \
+  -t ehitelrc/harmony_web:latest \
+  --no-cache \
+  --push .
+ 
+ 
+docker pull ehitelrc/harmony_web
+
+docker run -d --name harmony_web -p 80:80 --restart unless-stopped ehitelrc/harmony_web:latest
+
+
+
+
+
+
+
+// Por nombre
+
+  docker rm -f harmony_web
+  docker rmi -f ehitelrc/harmony_web:latest

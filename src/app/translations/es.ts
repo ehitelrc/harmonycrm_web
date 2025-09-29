@@ -57,7 +57,7 @@ export const esTranslations = {
 
 
   // Roles permissions Management
-   "permissions_management": "Gestión de Permisos",
+  "permissions_management": "Gestión de Permisos",
   "permissions_management.description": "Administra los permisos asignados a cada rol dentro del sistema.",
   "permissions_management.select_role": "Seleccione un rol",
   "permissions_management.error": "Error en la gestión de permisos",
@@ -67,7 +67,7 @@ export const esTranslations = {
   "permissions_management.permissions_saved": "Permisos guardados correctamente.",
   "permissions_management.save_changes": "Guardar cambios",
 
-  
+
 
   'menu.roles_management': 'Gestión de Roles',
 
@@ -686,13 +686,105 @@ export const esTranslations = {
   "roles_management.role_updated": "Rol actualizado con éxito",
   "role_management.role_deleted": "Éxito",
   "role_management.success": "Rol eliminado con éxito",
- 
- 
- 
- 
 
 
+  // Cases management
+  "case.detail.title": "Caso",
+  "case.detail.close_case": "Cerrar caso",
+  "case.detail.back": "Volver",
+  "case.detail.client": "Cliente",
+  "case.detail.new_client": "Nuevo cliente",
+  "case.detail.change_client": "Cambiar",
+  "case.detail.assign_client": "Asignar",
+  "case.detail.client_not_assigned": "Este caso aún no está vinculado a un cliente.",
+  "case.detail.external_id": "ID",
+  "case.detail.phone": "Teléfono",
+  "case.detail.email": "Correo electrónico",
+  "case.detail.campaign": "Campaña",
+  "case.detail.assign_campaign": "Asignar campaña",
+  "case.detail.campaign_not_assigned": "Este caso aún no tiene campaña asignada.",
+  "case.detail.notes": "Notas",
+  "case.detail.add_note_placeholder": "Añadir nota...",
+  "case.detail.add_note": "Añadir",
+  "case.detail.saving_note": "Guardando...",
+  "case.detail.stage": "Etapa actual",
+  "case.detail.change_stage": "Cambiar etapa",
+  "case.detail.stage_none": "Sin etapa",
+  "case.detail.stage_last_change_by": "Último cambio realizado por",
+  "case.detail.department": "Departamento",
+  "case.detail.assign_department": "Asignar departamento",
+  "case.detail.department_none": "Sin departamento",
 
+  "case.detail.channel": "Canal",
+
+
+  "case.detail.created": "Creado",
+  "case.detail.closing_modal_title": "Cerrar caso",
+  "case.detail.closing_modal_cancel": "Cancelar",
+  "case.detail.closing_modal_confirm": "Cerrar caso",
+  "case.detail.close_note_placeholder": "Añade una nota obligatoria…",
+  "case.detail.closing_modal_message": "Estás a punto de cerrar el caso",
+
+
+  "case.detail.search_campaign_placeholder": "Buscar campaña…",
+  "case.detail.search_client_placeholder": "Buscar por nombre…",
+  "case.detail.search_department_placeholder": "Buscar departamento…",
+
+  "case.detail.loading_campaigns": "Cargando campañas…",
+  "case.detail.no_campaigns": "Sin resultados.",
+  "case.detail.loading_clients": "Cargando clientes…",
+  "case.detail.no_clients": "Sin resultados.",
+  "case.detail.loading_departments": "Cargando departamentos…",
+  "case.detail.no_departments": "Sin resultados.",
+
+  // case detail - agents
+
+  "case.detail.search_agent_placeholder": "Buscar agente…",
+  "case.detail.assigning_agent": "Asignando…",
+  "case.detail.loading_agents": "Cargando agentes…",
+  "case.detail.no_agents": "Sin resultados.",
+
+  
+  "case.detail.agent": "Agente asignado",
+  "case.detail.assign_agent": "Asignar agente",
+  "case.detail.agent_none": "Este caso aún no tiene un agente asignado.",
+  "case.detail.agent_assigned_success": "Agente asignado al caso",
+  "case.detail.agent_assigned_error": "No se pudo asignar el agente",
+
+
+  "case.detail.assigning_campaign": "Vinculando…",
+  "case.detail.assigning_client": "Asignando…",
+  "case.detail.assigning_department": "Asignando…",
+
+  "case.detail.client_assigned_success": "Cliente asignado al caso",
+  "case.detail.client_assigned_error": "No se pudo asignar el cliente",
+  "case.detail.campaign_assigned_success": "Campaña vinculada al caso",
+  "case.detail.campaign_assigned_error": "No se pudo vincular la campaña",
+  "case.detail.department_assigned_success": "Departamento asignado al caso",
+  "case.detail.department_assigned_error": "No se pudo asignar el departamento",
+
+  "case.detail.stage_changed_success": "Etapa cambiada correctamente",
+  "case.detail.stage_changed_error": "No se pudo cambiar de etapa",
+  "case.detail.case_closed_success": "Caso cerrado correctamente",
+  "case.detail.case_closed_error": "No se pudo cerrar el caso",
+
+  "case.title": "Gestión de Casos",
+  "case.description": "Administra los casos de clientes y su progreso a través de los embudos",
+  "case.select_company_placeholder": "Selecciona una compañía",
+  "case.select_campaign_placeholder": "Selecciona una campaña",
+  "case.select_funnel_placeholder": "Selecciona un embudo",
+  "case.select_funnel_stage_placeholder": "Selecciona una etapa del embudo",
+  "case.cases_no_data": " No se encontraron casos para los filtros seleccionados.",
+
+  "case.list.id": "ID",
+  "case.list.department": "DEPARTAMENTO",
+  "case.list.client": "CLIENTE",
+  "case.list.channel": "CANAL",
+  "case.list.stage": "ETAPA",
+  "case.list.assigned_agent": "AGENTE ASIGNADO",
+  "case.list.sender": "REMITENTE",
+  "case.list.actions": "ACCIONES",
+  "case.list.placeholder": "Buscar por ID, cliente o remitente...",
 
 
   // Generic terms
@@ -722,6 +814,7 @@ export const esTranslations = {
   'price': 'Precio',
   'location': 'Ubicación',
   'quantity': 'Cantidad',
+  'closing': 'Cerrando',
 
   // File operations
   'choose_file': 'Elegir Archivo',
@@ -780,6 +873,31 @@ export const esTranslations = {
   'csv_description': 'Valores separados por comas',
   'xlsx_description': 'Hoja de cálculo de Excel',
   'confirm': 'Confirmar',
+
+
+  // Dashboard
+  'dashboard': 'Dashboard general',
+  'dashboard.description': 'Resumen y análisis general',
+  'campaigns_summary': 'Resumen de Campañas',
+  'campaigns_summary.description': 'Análisis del rendimiento de las campañas por empresa',
+  'dashboard.campaign': 'Campaña',
+  'dashboard.status': 'Estado',
+  'dashboard.start_date': 'Fecha de Inicio',
+  'dashboard.end_date': 'Fecha de Fin',
+  'dashboard.total_leads': 'Total de Prospectos',
+  'dashboard.total_cases': 'Total de Casos',
+  'dashboard.open_cases': 'Casos Abiertos',
+  'dashboard.closed_cases': 'Casos Cerrados',
+  'dashboard.won_cases': 'Casos Ganados',
+  'dashboard.conversion_rate': 'Tasa de Conversión',  
+  'dashboard.campaigns_overview': 'Resumen de Campañas',
+  'dashboard.total_active_campaigns': 'Total de Campañas Activas',
+  'dashboard.operating_agents': 'Agentes Operativos',
+
+  'report-funnel.title': 'Rendimiento del Embudo',
+  'report-funnel.description': 'Análisis detallado del rendimiento del embudo de ventas',
+  'report-funnel.funnel': 'Embudo',
+  
 
   // Inventory Management
   'no_inventory_items': 'No hay artículos de inventario',
