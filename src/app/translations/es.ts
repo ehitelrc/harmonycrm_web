@@ -103,6 +103,9 @@ export const esTranslations = {
   'menu.funnels': 'Embudos',
   'menu.cases': 'Mantenimiento de casos',
 
+  'menu.whatsapp-template': 'Plantilla de WhatsApp',
+  'menu.channels_company': 'Canales por Compañía',
+
 
 
   // Companies

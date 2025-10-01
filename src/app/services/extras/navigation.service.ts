@@ -25,6 +25,7 @@ export class NavigationService {
         { type: 'item', name: 'menu.products', href: '/products', icon: 'Package', permission: 'products.access' },
         { type: 'item', name: 'menu.customers', href: '/customers', icon: 'Users', permission: 'customers.access' },
         { type: 'item', name: 'menu.campaigns', href: '/campaigns', icon: 'LayoutDashboard', permission: 'campaigns.access' },
+        { type: 'item', name: 'menu.whatsapp-campaign-push', href: '/whatsapp-campaign-push', icon: 'UserPlus', permission: 'whatsapp-campaign-push.access' }
       ],
     },
     {
@@ -34,6 +35,8 @@ export class NavigationService {
       children: [
         { type: 'item', name: 'menu.channels', href: '/channels', icon: 'Channels', permission: 'channels.access' },
         { type: 'item', name: 'menu.funnels', href: '/funnels', icon: 'Funnel', permission: 'funnels.access' },
+        { type: 'item', name: 'menu.whatsapp-template', href: '/whatsapp-template', icon: 'Settings', permission: 'whatsapp-template.access' },
+        {  type: 'item', name: 'menu.channels_company', href: '/channel-company', icon: 'CheckCircle', permission: 'channels_company.access' },
       ],
     },
     {
@@ -45,6 +48,7 @@ export class NavigationService {
         { type: 'item', name: 'menu.agents', href: '/agents', icon: 'agent', permission: 'agents.access' },
         { type: 'item', name: 'menu.roles', href: '/roles', icon: 'roles', permission: 'roles.access' },
         { type: 'item', name: 'menu.role-permissions', href: '/role-permissions', icon: 'rol-permissions', permission: 'role-permissions.access' },
+      
       ],
     },
     {

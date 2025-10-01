@@ -48,4 +48,13 @@ export class ChannelService {
       API_Gateway: `${CHANNEL_URL}/${id}`,
     });
   }
+
+
+  // CompanyChannelTemplateView
+  getWhatsappTemplatesByCompany(company: number) {
+    return this.fetch.get<ApiResponse<any[]>>({
+      API_Gateway: `${CHANNEL_URL}/whatsapp/templates/company/${company}`,
+    });
+  }
+
 }

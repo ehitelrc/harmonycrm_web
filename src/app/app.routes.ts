@@ -152,7 +152,12 @@ export const routes: Routes = [
     loadComponent: () => import('./components/funnel-report/funnel-report-management/funnel-report-management.component').then(m => m.FunnelReportManagementComponent),
     canActivate: [AuthGuard]
   },
-
+  //push whatsapp
+  {
+    path: 'whatsapp-campaign-push',
+    loadComponent: () => import('./components/campaign-push/funnel-report/whatsapp-push-management/whatsapp-push-management.component').then(m => m.WhatsappPushManagementComponent),
+    canActivate: [AuthGuard]
+  },
 
   // Wildcard route - redirect to dashboard
   {
