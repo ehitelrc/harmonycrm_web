@@ -158,6 +158,13 @@ export const routes: Routes = [
     loadComponent: () => import('./components/campaign-push/funnel-report/whatsapp-push-management/whatsapp-push-management.component').then(m => m.WhatsappPushManagementComponent),
     canActivate: [AuthGuard]
   },
+  ///whatsapp-template
+  {
+    path: 'whatsapp-template',
+    loadComponent: () => import('./components/whatsapp-channel/whatsapp-template-management/template-management.component').then(m => m.TemplateManagementComponent),
+    canActivate: [AuthGuard]
+  },
+
 
   // Wildcard route - redirect to dashboard
   {

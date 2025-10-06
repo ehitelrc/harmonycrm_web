@@ -22,7 +22,7 @@ export class CampaignPushService {
   // Ajusta el endpoint a tu routing real si difiere
   createWhatsappPush(payload: CampaignWhatsappPushRequest) {
     return this.fetch.post<ApiResponse<{ push_id: number }>>({
-      API_Gateway: `${BASE}/campaign/push/whatsapp`,
+      API_Gateway: `${BASE}campaigns/whatsapp/push/register`,
       values: payload,
     });
   }

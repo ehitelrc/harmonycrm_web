@@ -4,6 +4,7 @@ import { environment } from '@environment';
 import { FetchService } from './extras/fetch.service';
 import { ApiResponse } from '@app/models';
 import { Channel } from '@app/models/channel.model';
+import { VWChannelIntegration } from '@app/models/vw-channel-integration.model';
 
 const GATEWAY = '/channels';
 export const CHANNEL_URL = returnCompleteURI({
@@ -56,5 +57,13 @@ export class ChannelService {
       API_Gateway: `${CHANNEL_URL}/whatsapp/templates/company/${company}`,
     });
   }
+
+  getWhatsappIntegrationsByCompany(company: number) : Promise<ApiResponse<VWChannelIntegration[]>>  {
+    return this.fetch.get<ApiResponse<VWChannelIntegration[]>>({
+      API_Gateway: `${CHANNEL_URL}/integrations/whatsapp/company/${company}`,
+    });
+  }
+
+  
 
 }

@@ -106,6 +106,7 @@ export const esTranslations = {
   'menu.whatsapp-template': 'Plantilla de WhatsApp',
   'menu.channels_company': 'Canales por Compañía',
 
+  'menu.whatsapp-campaign-push': 'Envio Masivo WhatsApp',
 
 
   // Companies
@@ -379,10 +380,56 @@ export const esTranslations = {
   "channel.confirm_delete_title": "Eliminar canal",
   "channel.confirm_delete_message": "Esta acción no se puede deshacer. ¿Eliminar el canal seleccionado?",
 
+  // Whatsapp Templates
+
+  "whatsapp_template.management_title": "Gestión de Plantillas de WhatsApp",
+  "whatsapp_template.management_description": "Administra las plantillas de WhatsApp para las compañías",
+
+  "whatsapp_template.select_template": "Seleccionar plantilla",
+  "whatsapp_template.select_company": "Seleccionar compañía",
+  "whatsapp_template.select_company_placeholder": "Seleccionar compañía...",
+  "whatsapp_template.company_required": "La compañía es requerida para gestionar plantillas",
+  "whatsapp_template.select_campaign": "Seleccionar campaña",
+  "whatsapp_template.select_campaign_placeholder": "Seleccionar campaña...",
+  "whatsapp_template.campaign_required": "La campaña es requerida para gestionar plantillas",
+  "whatsapp_template.failed_to_load_templates": "Error al cargar las plantillas de WhatsApp",
+  "whatsapp_template.description": "Descripción",
+  "whatsapp_template.description_placeholder": "Ej: Notificación de envío, Alerta de entrega, etc.",
+  "whatsapp_template.file_selection": "Selección de archivo",
+  "whatsapp_template.upload_file_title": "Cargar archivo CSV",
+  "whatsapp_template.upload_file_example": "Ejemplo:",
+  "whatsapp_template.upload_file_example_sub1": "+50660606060, Juan Pérez",
+  "whatsapp_template.upload_file_example_sub2": "+50670707070, Ana Gómez",
+  "whatsapp_template.loaded_leads": "Leads cargados: {{count}}",
+  "whatsapp_template.phone": "Teléfono",
+  "whatsapp_template.full_name": "Nombre completo",
+  "whatsapp_template.remove": "Eliminar",
+  "whatsapp_template.clear_all": "Limpiar todo",
+  "whatsapp_template.sending": "Enviando...",
+  "whatsapp_template.send_messages": "Enviar mensajes",
+  "whatsapp_template.cancel": "Cancelar",
+  "whatsapp_template.no_data": "No hay plantillas",
+  "whatsapp_template.view": "Ver",
+  "whatsapp_template.edit": "Editar",
+  "whatsapp_template.delete": "Eliminar",
+  "whatsapp_template.add_template": "Agregar plantilla",
+  "template.table_id": "Id",
+  "template.table_name": "Nombre",
+  "template.table_language": "Idioma",
+  "template.table_status": "Estado",
+  "template.table_actions": "Acciones",
+  "whatsapp_template.select_integration": "Seleccionar integración",
+  "template.no_data": "No hay plantillas",
+  "whatsapp_template.add_new_template": "Crear plantilla",
 
 
-
-
+  "whatsapp_template.edit_template": "Editar plantilla",
+  "whatsapp_template.template_name": "Nombre de la plantilla",
+  "whatsapp_template.language_code": "Idioma",
+  "common.cancel": "Cancelar",
+  "common.update": "Aceptar",
+  "whatsapp_template.active": "Activo",
+  "whatsapp_template.template_url_webhook": "Webhook de URL de plantilla",
 
 
   'articles': 'Maestro de SKUs',
@@ -747,7 +794,7 @@ export const esTranslations = {
   "case.detail.loading_agents": "Cargando agentes…",
   "case.detail.no_agents": "Sin resultados.",
 
-  
+
   "case.detail.agent": "Agente asignado",
   "case.detail.assign_agent": "Asignar agente",
   "case.detail.agent_none": "Este caso aún no tiene un agente asignado.",
@@ -892,7 +939,7 @@ export const esTranslations = {
   'dashboard.open_cases': 'Casos Abiertos',
   'dashboard.closed_cases': 'Casos Cerrados',
   'dashboard.won_cases': 'Casos Ganados',
-  'dashboard.conversion_rate': 'Tasa de Conversión',  
+  'dashboard.conversion_rate': 'Tasa de Conversión',
   'dashboard.campaigns_overview': 'Resumen de Campañas',
   'dashboard.total_active_campaigns': 'Total de Campañas Activas',
   'dashboard.operating_agents': 'Agentes Operativos',
@@ -900,7 +947,7 @@ export const esTranslations = {
   'report-funnel.title': 'Rendimiento del Embudo',
   'report-funnel.description': 'Análisis detallado del rendimiento del embudo de ventas',
   'report-funnel.funnel': 'Embudo',
-  
+
 
   // Inventory Management
   'no_inventory_items': 'No hay artículos de inventario',

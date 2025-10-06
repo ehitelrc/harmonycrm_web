@@ -35,7 +35,7 @@ import { CampaignFunnelComponent } from './campaign-funnel.component';
         CaseListComponent,
         CaseDetailComponent,
         CampaignFunnelOrganicComponent,
-        CampaignFunnelComponent
+ 
 
     ],
     templateUrl: './funnel-report-management.component.html',
