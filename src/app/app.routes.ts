@@ -3,6 +3,7 @@ import { AuthGuard } from './guards/auth.guard';
 import { NoAuthGuard } from './guards/no-auth.guard';
 import { LoginComponent } from './components/login/login.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
+import { DashboardCasesComponent } from './components/dashboard-cases/dashboard-cases.component';
 
 export const routes: Routes = [
   // Default route - redirect to dashboard if authenticated, login if not
@@ -25,6 +26,13 @@ export const routes: Routes = [
     component: DashboardComponent,
     canActivate: [AuthGuard]
   },
+
+    {
+    path: 'dashboard-cases',
+    component: DashboardCasesComponent,
+    canActivate: [AuthGuard]
+  },
+
 
   // User Management route - requires authentication
   {
@@ -56,7 +64,8 @@ export const routes: Routes = [
   },
 
   // Cases Management route - requires authentication
-  { path: 'cases',
+  {
+    path: 'cases',
     loadComponent: () => import('./components/cases/cases-management/cases-management.component').then(m => m.CasesManagementComponent),
     canActivate: [AuthGuard]
   },
@@ -147,7 +156,7 @@ export const routes: Routes = [
   { path: 'funnels/:id/stages', loadComponent: () => import('@app/components/funnels/stages/management/stages-management.component').then(m => m.StagesManagementComponent) },
 
 
-    {
+  {
     path: 'report-funnels',
     loadComponent: () => import('./components/funnel-report/funnel-report-management/funnel-report-management.component').then(m => m.FunnelReportManagementComponent),
     canActivate: [AuthGuard]
@@ -165,6 +174,16 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
 
+  {
+    path: 'customer-qr',
+    loadComponent: () => import('./components/customer-qr/customer-qr-management/customer-qr-management.component').then(m => m.CustomerQRManagementComponent),
+    canActivate: [AuthGuard]
+  },
+  {
+    path: 'policy',
+    loadComponent: () => import('./components/policy/policy.component').then(m => m.PolicyComponent),
+  
+  },
 
   // Wildcard route - redirect to dashboard
   {

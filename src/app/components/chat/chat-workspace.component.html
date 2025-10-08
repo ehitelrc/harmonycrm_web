@@ -465,6 +465,72 @@
                         </div>
                     </div>
 
+
+                    <!-- TARJETA DE ARTÍCULOS PARA EL CASO -->
+
+                    <div
+                        class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
+                        <div
+                            class="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                            <div class="text-sm font-semibold text-[#00113f] dark:text-white">
+                                Artículos del caso
+                            </div>
+                            <button class="chip-btn" (click)="openAddItemModal()">Agregar</button>
+                        </div>
+
+                        <!-- Tabla o lista -->
+                        <div class="p-4 space-y-2">
+                            <ng-container *ngIf="!isLoadingCaseItems; else loadingItems">
+                                <div *ngIf="caseItems.length > 0; else emptyItems" class="overflow-x-auto">
+                                    <table class="min-w-full text-sm text-left border-collapse">
+                                        <thead>
+                                            <tr
+                                                class="border-b border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-800">
+                                                <th class="px-3 py-2 font-medium">Artículo</th>
+                                                <th class="px-3 py-2 font-medium text-right">Cantidad</th>
+                                                <th class="px-3 py-2 font-medium text-right">Precio</th>
+                                                <th class="px-3 py-2 font-medium text-right">Total</th>
+                                                <th class="px-3 py-2 font-medium text-center">Acciones</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr *ngFor="let i of caseItems"
+                                                class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50/40 dark:hover:bg-gray-800/40">
+                                                <td class="px-3 py-2 text-[#00113f] dark:text-gray-100">{{ i.item_name
+                                                    }}</td>
+                                                <td class="px-3 py-2 text-right text-black">{{ i.quantity }}</td>
+                                                <td class="px-3 py-2 text-right text-black">{{ i.price |
+                                                    currency:'CRC':'symbol-narrow' }}</td>
+                                                <td class="px-3 py-2 text-right font-medium text-black">
+                                                    {{ i.total_amount | currency:'CRC':'symbol-narrow' }}
+                                                </td>
+                                                <td class="px-3 py-2 text-center">
+                                                    <button class="chip-btn" (click)="editItem(i)">Editar</button>
+                                                    <button class="chip-btn" (click)="openDeleteModal(i.case_item_id)">Quitar</button>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                                <ng-template #emptyItems>
+                                    <div class="text-sm text-gray-500 dark:text-gray-400">
+                                        No hay artículos vinculados a este caso.
+                                    </div>
+                                </ng-template>
+                            </ng-container>
+
+                            <ng-template #loadingItems>
+                                <div class="text-sm text-gray-500 dark:text-gray-400">
+                                    Cargando artículos…
+                                </div>
+                            </ng-template>
+                        </div>
+                    </div>
+
+
+
+
                     <!-- Notas -->
                     <div
                         class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
@@ -680,6 +746,45 @@
         </div>
 
     </section>
+
+    <!-- ========== MODAL CONFIRMAR ELIMINACIÓN ========== -->
+<div *ngIf="isDeleteModalOpen" class="fixed inset-0 z-[90]" (click)="closeDeleteModal()">
+  <!-- Fondo oscuro -->
+  <div class="absolute inset-0 bg-black/60"></div>
+
+  <!-- Contenedor modal -->
+  <div
+    class="absolute inset-0 flex items-center justify-center p-4"
+    (click)="$event.stopPropagation()"
+  >
+    <div
+      class="w-full max-w-sm bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col"
+    >
+      <!-- Header -->
+      <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-800">
+        <div class="text-sm font-semibold text-[#00113f] dark:text-white">
+          Confirmar eliminación
+        </div>
+      </div>
+
+      <!-- Body -->
+      <div class="p-4 text-sm text-gray-700 dark:text-gray-300">
+        ¿Seguro que deseas eliminar este artículo del caso?
+      </div>
+
+      <!-- Footer -->
+      <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-800 flex justify-end gap-2">
+        <button class="chip-btn" (click)="closeDeleteModal()">Cancelar</button>
+        <button
+          class="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700"
+          (click)="confirmDeleteItem()"
+        >
+          Eliminar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
 </div>
 }
 
@@ -960,7 +1065,128 @@
         </div>
     </div>
 </div>
+ 
+<!-- ========== MODAL AGREGAR / EDITAR ARTÍCULO ========== -->
+<div *ngIf="isItemModalOpen" class="fixed inset-0 z-[80]" (click)="closeItemModal()">
+  <!-- Fondo oscuro -->
+  <div class="absolute inset-0 bg-black/60"></div>
 
-<app-move-stage-modal [isOpen]="isMoveStageOpen" [caseId]="selectedCase?.case_id!" [current]="currentStage!"
+  <!-- Contenedor del modal -->
+  <div
+    class="absolute inset-0 flex items-center justify-center p-4"
+    (click)="$event.stopPropagation()"
+  >
+    <!-- Caja del modal -->
+    <div
+      class="w-full max-w-md bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col"
+    >
+      <!-- Header -->
+      <div
+        class="px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between"
+      >
+        <div class="text-sm font-semibold text-[#00113f] dark:text-white">
+          {{ editingItem ? 'Editar artículo' : 'Agregar artículo' }}
+        </div>
+        <button class="chip-btn" (click)="closeItemModal()">Cerrar</button>
+      </div>
+
+      <!-- Body -->
+      <div class="p-4 space-y-3">
+        <!-- Selección de artículo -->
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          >Artículo</label
+        >
+        <select
+          [(ngModel)]="itemForm.item_id"
+          (change)="onItemSelected()"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-[#00113f]
+                 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+        >
+          <option [ngValue]="null">Seleccione un artículo...</option>
+          <option *ngFor="let it of itemsList" [ngValue]="it.id">
+            {{ it.name }}
+          </option>
+        </select>
+
+        <!-- Precio unitario -->
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          >Precio unitario</label
+        >
+        <input
+          type="number"
+          [(ngModel)]="itemForm.price"
+          step="0.01"
+          readonly
+          class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-[#00113f]
+                 dark:bg-gray-800 dark:border-gray-700 dark:text-white bg-gray-50 dark:bg-gray-700"
+        />
+
+        <!-- Cantidad -->
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          >Cantidad</label
+        >
+        <input
+          type="number"
+          [(ngModel)]="itemForm.quantity"
+          (input)="updateTotal()"
+          min="1"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-[#00113f]
+                 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+        />
+
+        <!-- Total -->
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          >Total</label
+        >
+        <div
+          class="px-3 py-2 border border-gray-300 rounded-md text-sm text-right text-[#00113f]
+                  dark:bg-gray-800 dark:border-gray-700 dark:text-white bg-gray-50 dark:bg-gray-700"
+        >
+          {{ total | currency: 'CRC' : 'symbol-narrow' }}
+        </div>
+
+        <!-- Comprado -->
+        <div class="flex items-center gap-2 pt-2">
+          <input
+            type="checkbox"
+            id="acquired"
+            [(ngModel)]="itemForm.acquired"
+            class="w-4 h-4 text-[#00113f] border-gray-300 rounded focus:ring-[#3e66ea]"
+          />
+          <label
+            for="acquired"
+            class="text-sm text-gray-700 dark:text-gray-300"
+            >Cliente adquirió el producto</label
+          >
+        </div>
+
+        <!-- Notas -->
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          >Notas</label
+        >
+        <textarea
+          [(ngModel)]="itemForm.notes"
+          rows="3"
+          class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-[#00113f]
+                 dark:bg-gray-800 dark:border-gray-700 dark:text-white"
+        ></textarea>
+      </div>
+
+      <!-- Footer -->
+      <div
+        class="px-4 py-3 border-t border-gray-200 dark:border-gray-800 flex items-center justify-end gap-2"
+      >
+        <button
+          class="px-4 py-2 rounded-md text-sm font-medium text-white bg-[#00113f] hover:bg-[#3e66ea] disabled:opacity-50"
+          (click)="saveItem()"
+        >
+          {{ editingItem ? 'Actualizar' : 'Guardar' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<app-move-stage-modal [isOpen]="isMoveStageOpen" [caseId]="selectedCase?.case_id!" [current]="currentStage!" [funnelId]="currentCaseFunnel?.funnel_id!"
     (cancel)="isMoveStageOpen = false" (moved)="onMoveStage($event)">
 </app-move-stage-modal>

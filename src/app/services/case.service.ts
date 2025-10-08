@@ -206,8 +206,15 @@ export class CaseService {
   async assignCaseToAgent(case_id: number, agent_id: number, assigned_by: number): Promise<ApiResponse<void>> {
     return await this.fetch.post<ApiResponse<void>>({
       API_Gateway: `${CASE_URL}/entry/assign_agent`,
-      values: { case_id, agent_id, assigned_by },
+      values: { 'case_id': case_id, 'agent_id':  agent_id, 'assigned_by': assigned_by },
     });
   }
 
+  //Cases without agent assigned by company
+  getCasesWithoutAgentByCompany(companyId: number) {
+    return this.fetch.get<ApiResponse<CaseWithChannel[]>>({
+      API_Gateway: `${CASE_URL}/entry/unassigned_cases/${companyId}`,
+    });
+  }
+  
 }

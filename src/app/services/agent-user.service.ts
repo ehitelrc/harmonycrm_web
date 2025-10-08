@@ -6,6 +6,7 @@ import { environment } from '@environment';
 import { FetchService } from './extras/fetch.service';
 import { AgentUser } from '@app/models/agent_user.models';
 import { AgentDepartmentAssignment } from '@app/models/agent_department_assignment_view';
+import { AgentDepartmentInformation } from '@app/models/agent-department-information.model';
 
 const GATEWAY = '/agents';
 export const USER_URL = returnCompleteURI({
@@ -156,6 +157,20 @@ export class AgentUserService {
 	async getByCompanyAndDepartment(company_id: number, department_id: number): Promise<ApiResponse<AgentDepartmentAssignment[]>> {
 		return await this.fetchService.get<ApiResponse<AgentDepartmentAssignment[]>>({
 			API_Gateway: `${DEPARTMENT_ASSIGNMENTS_URL}/company/${company_id}/department/${department_id}`,
+		});
+	}
+
+	//r.GET("/agents/company/:company_id/agents-with-user-info"
+	async getAgentsByCompany(company_id: number): Promise<ApiResponse<AgentDepartmentInformation[]>> {
+		return await this.fetchService.get<ApiResponse<AgentDepartmentInformation[]>>({
+			API_Gateway: `${USER_URL}/company/${company_id}/agents-with-user-info`,
+		});
+	}
+
+	//r.GET("/agents/company/:company_id/department/:department_id/agents-with-user-info"
+	async getAgentsByCompanyAndDepartment(company_id: number, department_id: number): Promise<ApiResponse<AgentDepartmentInformation[]>> {
+		return await this.fetchService.get<ApiResponse<AgentDepartmentInformation[]>>({
+			API_Gateway: `${USER_URL}/company/${company_id}/department/${department_id}/agents-with-user-info`,
 		});
 	}
 

@@ -1,0 +1,116 @@
+<app-main-layout>
+  <div class="space-y-6 h-screen overflow-y-auto p-6 pb-32">
+    <!-- Header -->
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-2xl font-semibold text-primary">{{ t('dashboard-cases') }}</h1>
+        <p class="text-sm text-muted-foreground mt-1">
+          {{ t('dashboard-cases.description') }}
+        </p>
+      </div>
+
+      <!-- Selector de compañía -->
+      <div class="relative">
+        <select [(ngModel)]="selectedCompanyId" (change)="onCompanyChange()"
+          class="appearance-none border rounded-md px-3 py-1.5 pr-8 text-sm font-medium bg-white dark:bg-gray-800 text-primary shadow-sm focus:outline-none focus:ring-2 focus:ring-primary">
+          <option *ngFor="let company of companies" [value]="company.company_id">
+            {{ company.company_name }}
+          </option>
+        </select>
+        <div class="absolute inset-y-0 right-2 flex items-center pointer-events-none text-gray-400">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabla -->
+    <div class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-md mt-4">
+      <div class="p-4 border-b border-gray-200 dark:border-gray-700">
+        <h3 class="text-lg font-semibold text-primary">Casos sin agente asignado</h3>
+      </div>
+
+      <div *ngIf="loading" class="p-6 text-center text-gray-500">Cargando casos...</div>
+
+      <div *ngIf="!loading && unassignedCases.length > 0" class="overflow-y-auto max-h-[600px]">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead class="bg-gray-50 dark:bg-gray-900">
+            <tr>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campaña</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Canal</th>
+              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Último mensaje
+              </th>
+              <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
+            </tr>
+          </thead>
+
+          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+            <tr *ngFor="let c of unassignedCases">
+              <td class="px-4 py-2 text-sm">{{ c.client_name || 'Sin nombre' }}</td>
+              <td class="px-4 py-2 text-sm">{{ c.campaign_id || '-' }}</td>
+              <td class="px-4 py-2 text-sm">{{ c.channel_name || '-' }}</td>
+              <td class="px-4 py-2 text-sm text-gray-600 truncate max-w-[200px]">
+                {{ c.last_message_preview || '[Sin mensaje]' }}
+              </td>
+              <td class="px-4 py-2 text-center">
+                <button class="px-3 py-1.5 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition"
+                  (click)="assignToAgent(c)">
+                  Asignar a agente
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div *ngIf="!loading && unassignedCases.length === 0" class="p-6 text-center text-gray-500">
+        No hay casos pendientes de asignar.
+      </div>
+    </div>
+
+    <!-- Modal de asignación -->
+
+    <!-- Modal de asignación -->
+    <div *ngIf="showAssignModal" class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white dark:bg-gray-900 rounded-lg shadow-lg w-96 p-6">
+        <h3 class="text-lg font-semibold text-primary mb-4">Asignar agente</h3>
+
+        <!-- Seleccionar departamento -->
+        <label class="text-sm text-gray-600 mb-1 block">Departamento</label>
+        <select [(ngModel)]="selectedDepartmentId" (change)="onDepartmentSelected()"
+          class="w-full border rounded-md px-3 py-2 text-sm bg-white dark:bg-gray-800 text-primary mb-4 focus:outline-none focus:ring-2 focus:ring-blue-600">
+          <option [value]="null" disabled selected>Seleccione un departamento</option>
+          <option *ngFor="let d of departments" [value]="d.id">{{ d.description }}</option>
+        </select>
+
+        <!-- Seleccionar agente -->
+        <div *ngIf="selectedDepartmentId">
+          <label class="text-sm text-gray-600 mb-1 block">Agente</label>
+          <select [(ngModel)]="selectedAgentId"
+            class="w-full border rounded-md px-3 py-2 text-sm bg-white dark:bg-gray-800 text-primary focus:outline-none focus:ring-2 focus:ring-blue-600">
+            <option [value]="null" disabled selected>Seleccione un agente</option>
+            <option *ngFor="let a of agents" [value]="a.agent_id">{{ a.agent_name }}</option>
+          </select>
+        </div>
+
+        <ng-template [ngIf]="!agents.length && selectedDepartmentId">
+          <p class="text-sm text-gray-500 mt-2">No hay agentes en este departamento.</p>
+        </ng-template>
+
+        <!-- Botones -->
+        <div class="flex justify-end mt-6 space-x-2">
+          <button class="px-3 py-1.5 text-sm rounded bg-gray-300 hover:bg-gray-400" (click)="closeModal()">
+            Cancelar
+          </button>
+          <button class="px-3 py-1.5 text-sm rounded bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50"
+            [disabled]="!selectedAgentId || assigning" (click)="assignAgentToCase()">
+            {{ assigning ? 'Asignando...' : 'Asignar' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</app-main-layout>

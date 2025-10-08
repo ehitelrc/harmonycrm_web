@@ -6,6 +6,7 @@ import { NavigationItems } from '../../models/navigation.model';
 export class NavigationService {
   private fullMenu: NavigationItems = [
     { type: 'item', name: 'menu.dashboard', href: '/', icon: 'LayoutDashboard', permission: 'dashboard.access' },
+     { type: 'item', name: 'menu.dashboard-cases', href: '/dashboard-cases', icon: 'LayoutDashboard', permission: 'dashboard.access' },
     { type: 'item', name: 'menu.conversations', href: '/conversations', icon: 'MessageCircle', permission: 'conversations.access' },
 
     {
@@ -25,7 +26,8 @@ export class NavigationService {
         { type: 'item', name: 'menu.products', href: '/products', icon: 'Package', permission: 'products.access' },
         { type: 'item', name: 'menu.customers', href: '/customers', icon: 'Users', permission: 'customers.access' },
         { type: 'item', name: 'menu.campaigns', href: '/campaigns', icon: 'LayoutDashboard', permission: 'campaigns.access' },
-        { type: 'item', name: 'menu.whatsapp-campaign-push', href: '/whatsapp-campaign-push', icon: 'UserPlus', permission: 'whatsapp-campaign-push.access' }
+        { type: 'item', name: 'menu.whatsapp-campaign-push', href: '/whatsapp-campaign-push', icon: 'UserPlus', permission: 'whatsapp-campaign-push.access' },
+        { type: 'item', name: 'menu.customer-qr', href: '/customer-qr', icon: 'QR', permission: 'customer-qr.access' },
       ],
     },
     {

@@ -23,6 +23,7 @@ import { MoveCaseStagePayload } from '@app/models/move_case_stager_payload';
 export class MoveStageModalComponent {
   /** Caso y estado actual (desde vw_case_current_stage) */
   @Input() caseId!: number;
+  @Input() funnelId = 0;
   @Input() current!: VwCaseCurrentStage; // incluye funnel_id, stage actual, etc.
 
   /** Control de apertura/cierre desde el padre (opcional) */
@@ -65,7 +66,8 @@ export class MoveStageModalComponent {
       this.selectedStageId = null;
       return;
     }
-    await this.loadStages(this.current.funnel_id);
+
+    await this.loadStages(this.funnelId || this.current.funnel_id);
     // preselecciona distinto al actual si existe
     const currentId = this.current.current_stage_id ?? null;
     const firstOther = this.stages.find(s => s.id !== currentId);

@@ -1,0 +1,76 @@
+<app-main-layout>
+  <div class="scroll-wrapper">
+    <div class="scroll-content">
+      <h1 class="page-title">
+        {{ t('Generar contacto de ventas') }}
+      </h1>
+
+      <!-- PANEL EXPANDIBLE -->
+      <div class="card">
+        <div class="card-header" (click)="toggleFilters()">
+          <h2>Configuración del QR</h2>
+          <i class="fas" [class.fa-chevron-up]="filtersExpanded" [class.fa-chevron-down]="!filtersExpanded"></i>
+        </div>
+
+        <div class="card-body" *ngIf="filtersExpanded">
+          <div class="form-group">
+            <label>Compañía</label>
+            <select [(ngModel)]="selectedCompany" (change)="onCompanySelected()" class="form-control">
+              <option [ngValue]="null">Seleccione...</option>
+              <option *ngFor="let c of companies" [ngValue]="c.company_id">
+                {{ c.company_name }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Departamento</label>
+            <select [(ngModel)]="selectedDepartment" (change)="onDepartmentSelected()" class="form-control">
+              <option [ngValue]="null">Seleccione...</option>
+              <option *ngFor="let dept of departments" [ngValue]="dept.id">
+                {{ dept.name }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Campaña</label>
+            <select [(ngModel)]="selectedCampaign" class="form-control">
+              <option [ngValue]="null">Seleccione...</option>
+              <option *ngFor="let camp of campaigns" [ngValue]="camp">
+                {{ camp.campaign_name }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Número de WhatsApp</label>
+            <input type="text" [(ngModel)]="phoneNumber" placeholder="+50688887777" class="form-control" />
+          </div>
+
+          <div class="flex justify-end mt-4">
+            <button class="btn-primary" (click)="generateQR()">
+              Generar QR
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RESULTADO -->
+      <div *ngIf="generated" class="card mt-6">
+        <div class="card-body text-center">
+          <h3 class="text-lg font-semibold mb-4">QR generado</h3>
+
+          <img [src]="qrImageSrc" alt="QR WhatsApp" width="220" height="220" class="mx-auto mb-4 rounded" />
+
+          <div class="button-bar">
+            <button class="btn-success" (click)="copyLink()">Copiar enlace</button>
+            <a class="btn-blue" [href]="waLink" target="_blank" rel="noopener noreferrer">
+              Probar enlace
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</app-main-layout>

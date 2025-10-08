@@ -20,6 +20,11 @@ import { CampaignService } from '@app/services/campaign.service';
 import { MoveStageModalComponent } from './stage_movement/move-stage-modal.component';
 import { MoveCaseStagePayload } from '@app/models/move_case_stager_payload';
 import { ThisReceiver } from '@angular/compiler';
+import { VwCaseItemsDetail } from '@app/models/vw-case-items-detail.model';
+import { CaseItemService } from '@app/services/case-items.service';
+import { CaseItemRequest } from '@app/models/case-item.model';
+import { ItemService } from '@app/services/item.service';
+import { Item } from '@app/models/item.model';
 
 @Component({
   selector: 'app-chat-workspace',
@@ -115,15 +120,40 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
 
   authData: any;
 
+  caseItems: VwCaseItemsDetail[] = [];
+  isLoadingCaseItems = false;
+  isItemModalOpen = false;
+  editingItem: VwCaseItemsDetail | null = null;
+
+  itemForm: CaseItemRequest = {
+    id: null,
+    case_id: 0,
+    item_id: 0,
+    price: 0,
+    quantity: 1,
+    notes: '',
+    acquired: true,
+  };
+
+  itemsList: Item[] = [];
+  total = 0;
+
+  isDeleteModalOpen = false;
+  itemToDelete: number | null = null;
+
+
+
+
   constructor(
     private lang: LanguageService,
     private chatService: CaseService,
     private alert: AlertService,
-
+    private caseItemService: CaseItemService,
     private ws: WsService,
     private clientService: ClientService,
     private authService: AuthService,
     private campaignService: CampaignService,
+    private itemService: ItemService,
 
   ) { }
 
@@ -760,6 +790,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
 
   viewCase() {
     this.loadNotes();
+    this.loadCaseItems(); // ✅ nuevo
     this.isCaseMode = true;
 
   }
@@ -947,7 +978,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
         this.isCaseMode = false;
         this.loadCases();
         this.selectedCase = null;
- 
+
         this.closeCloseCaseModal();
       } else {
         this.alert.error(res.message || 'No se pudo cerrar el caso');
@@ -960,4 +991,130 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
     }
   }
 
+  async loadCaseItems() {
+    if (!this.selectedCase?.case_id) return;
+    try {
+      this.isLoadingCaseItems = true;
+      const res = await this.caseItemService.getByCaseId(this.selectedCase.case_id);
+      this.caseItems = Array.isArray(res?.data) ? res.data : [];
+    } catch {
+      this.alert.error('Error cargando artículos del caso');
+    } finally {
+      this.isLoadingCaseItems = false;
+    }
+  }
+
+
+
+
+  editItem(i: VwCaseItemsDetail) {
+    this.itemForm = {
+      id: i.case_item_id,
+      case_id: i.case_id,
+      item_id: i.item_id,
+      price: i.price,
+      quantity: i.quantity,
+      notes: i.notes || '',
+      acquired: i.acquired,
+    };
+    this.editingItem = i;
+    this.isItemModalOpen = true;
+  }
+
+  closeItemModal() {
+    this.isItemModalOpen = false;
+    this.editingItem = null;
+  }
+
+  async saveItem() {
+    try {
+      const payload = { ...this.itemForm };
+      if (!this.selectedCase) return;
+      payload.case_id = this.selectedCase.case_id;
+
+      if (this.editingItem) {
+        payload.id = this.editingItem.case_item_id;
+        await this.caseItemService.update(payload);
+        this.alert.success('Artículo actualizado');
+      } else {
+        await this.caseItemService.create(payload);
+        this.alert.success('Artículo agregado');
+      }
+
+      this.closeItemModal();
+      await this.loadCaseItems();
+    } catch {
+      this.alert.error('No se pudo guardar el artículo');
+    }
+  }
+
+  async deleteItem(id: number) {
+    if (!confirm('¿Deseas eliminar este artículo?')) return;
+    try {
+      await this.caseItemService.delete(id);
+      this.alert.success('Artículo eliminado');
+      await this.loadCaseItems();
+    } catch {
+      this.alert.error('Error al eliminar el artículo');
+    }
+  }
+
+  // Cargar artículos por compañía al abrir modal
+  async openAddItemModal() {
+    if (!this.selectedCase) return;
+
+    this.itemForm = {
+      id: null,
+      case_id: this.selectedCase.case_id,
+      item_id: 0,
+      price: 0,
+      quantity: 1,
+      notes: '',
+      acquired: false,
+    };
+    this.total = 0;
+    this.isItemModalOpen = true;
+
+    const companyId = this.selectedCase.company_id;
+    // 🔹 carga artículos de la compañía
+    const res = await this.itemService.getByCompany(companyId!);
+    this.itemsList = res.success ? res.data : [];
+  }
+
+  // Evento al seleccionar un artículo
+  onItemSelected() {
+    const selected = this.itemsList.find(it => it.id === this.itemForm.item_id);
+    if (selected) {
+      this.itemForm.price = selected.item_price ?? 0; // Usa el precio del item o 0 si no existe
+    }
+    this.updateTotal();
+  }
+  // Actualiza el total automáticamente
+  updateTotal() {
+    this.total = (this.itemForm.price || 0) * (this.itemForm.quantity || 0);
+  }
+
+  openDeleteModal(id: number) {
+    this.itemToDelete = id;
+    this.isDeleteModalOpen = true;
+  }
+
+  closeDeleteModal() {
+    this.isDeleteModalOpen = false;
+    this.itemToDelete = null;
+  }
+
+  async confirmDeleteItem() {
+    if (!this.itemToDelete) return;
+
+    try {
+      await this.caseItemService.delete(this.itemToDelete);
+      this.alert.success('Artículo eliminado');
+      await this.loadCaseItems();
+    } catch {
+      this.alert.error('Error al eliminar el artículo');
+    } finally {
+      this.closeDeleteModal();
+    }
+  }
 }

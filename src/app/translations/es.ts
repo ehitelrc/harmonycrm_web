@@ -108,6 +108,12 @@ export const esTranslations = {
 
   'menu.whatsapp-campaign-push': 'Envio Masivo WhatsApp',
 
+  'menu.customer-qr': 'QR de Cliente',
+  'menu.dashboard-cases': 'Tablero de Casos',
+
+  // Dashboard cases
+  "dashboard-cases": "Tablero de Casos",
+  "dashboard-cases.description": "Visualiza las métricas clave y el rendimiento de tus campañas por compañía.",
 
   // Companies
 
@@ -238,6 +244,9 @@ export const esTranslations = {
   "client.confirm_delete_title": "Eliminar cliente",
   "client.confirm_delete_message": "¿Seguro que deseas eliminar este cliente?",
   "client.deleting": "Eliminando...",
+  "client.general_info": "Información general",
+  "client.location_info": "Información de ubicación",
+  "client.additional_info": "Otra información",
 
 
   // Items
