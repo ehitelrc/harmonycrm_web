@@ -13,11 +13,18 @@ import { ApiResponse } from '@app/models';
 import { AgentDepartmentInformation } from '@app/models/agent-department-information.model';
 import { Department } from '@app/models/department.model'; // ⚠️ Asegúrate de tener este modelo
 import { DepartmentService } from '@app/services/department.service';
+import { ClientService } from '@app/services/client.service';
+import { Client } from '@app/models/client.model';
+
 
 @Component({
   selector: 'app-dashboard-cases',
   standalone: true,
-  imports: [CommonModule, FormsModule, MainLayoutComponent],
+  imports: [
+    CommonModule,
+    FormsModule,
+
+    MainLayoutComponent],
   templateUrl: './dashboard-cases.component.html',
   styleUrls: ['./dashboard-cases.component.css']
 })
@@ -39,14 +46,28 @@ export class DashboardCasesComponent implements OnInit {
   departments: Department[] = [];
   agents: AgentDepartmentInformation[] = [];
 
+  // Modal de cliente
+  showClientAssignModal = false;
+  showNewClientModal = false;
+  selectedClientId: number | null = null;
+  clients: Client[] = [];
+  creatingClient = false;
+  assigningClient = false;
+
+  clientSearchTerm = '';
+  searchingClients = false;
+  clientResults:  Client[] = [];
+  selectedClient: Client | null = null;
+
   constructor(
     private authService: AuthService,
     private companyService: CompanyService,
     private departmentService: DepartmentService,
     private caseService: CaseService,
     private agentUserService: AgentUserService,
-    private languageService: LanguageService
-  ) {}
+    private languageService: LanguageService,
+    private clienteService: ClientService
+  ) { }
 
   async ngOnInit(): Promise<void> {
     this.user = this.authService.getCurrentUser();
@@ -128,7 +149,7 @@ export class DashboardCasesComponent implements OnInit {
   async assignAgentToCase(): Promise<void> {
     if (!this.selectedAgentId || !this.selectedCaseId || !this.user) return;
     this.assigning = true;
- 
+
 
     let agentID = Number(this.selectedAgentId);
 
@@ -154,6 +175,101 @@ export class DashboardCasesComponent implements OnInit {
 
   closeModal(): void {
     this.showAssignModal = false;
+  }
+
+  async openAssignClientModal(c: CaseWithChannel): Promise<void> {
+    this.selectedCaseId = c.case_id;
+    this.showClientAssignModal = true;
+    this.selectedClientId = null;
+    await this.loadClients();
+  }
+
+  async loadClients(): Promise<void> {
+    try {
+      const res = await this.clienteService.getAll();
+      if (res.success && res.data) {
+        this.clients = res.data;
+      }
+    } catch (err) {
+      console.error('Error loading clients', err);
+    }
+  }
+
+  async assignClientToCase(): Promise<void> {
+    if (!this.selectedClientId || !this.selectedCaseId) return;
+    this.assigningClient = true;
+
+    try {
+      const res = await this.caseService.assignCaseToClient(
+        this.selectedCaseId!,
+        this.selectedClientId!
+      );
+
+      if (res.success) {
+        alert('Cliente asignado correctamente');
+        this.showClientAssignModal = false;
+        await this.loadUnassignedCases();
+      } else {
+        alert('Error al asignar cliente');
+      }
+    } catch (error) {
+      console.error('Error assigning client', error);
+    } finally {
+      this.assigningClient = false;
+    }
+  }
+
+  // Crear nuevo cliente
+  openNewClientModal(): void {
+    this.showClientAssignModal = false;
+    this.showNewClientModal = true;
+  }
+
+  async createClient(newClientData: any): Promise<void> {
+    this.creatingClient = true;
+    try {
+      const res = await this.clienteService.create(newClientData);
+      if (res.success) {
+        alert('Cliente creado exitosamente');
+        this.showNewClientModal = false;
+        await this.loadUnassignedCases();
+      }
+    } catch (err) {
+      console.error('Error creating client', err);
+    } finally {
+      this.creatingClient = false;
+    }
+  }
+
+
+  async searchClients(): Promise<void> {
+    if (!this.clientSearchTerm || this.clientSearchTerm.length < 2) {
+      this.clientResults = [];
+      return;
+    }
+
+    this.searchingClients = true;
+
+    try {
+      // Aseguramos que la lista de clientes esté cargada
+      if (!this.clients || this.clients.length === 0) {
+        await this.loadClients();
+      }
+
+      const term = this.clientSearchTerm.toLowerCase();
+
+      // Filtrado local (por nombre, correo o teléfono si lo tienes)
+      this.clientResults = this.clients.filter(c =>
+        (c.full_name && c.full_name.toLowerCase().includes(term)) ||
+        (c.email && c.email.toLowerCase().includes(term)) ||
+        (c.phone && c.phone.toLowerCase().includes(term))
+      );
+
+    } catch (err) {
+      console.error('Error searching clients locally', err);
+    } finally {
+      this.searchingClients = false;
+    }
   }
 
   t(key: string): string {
