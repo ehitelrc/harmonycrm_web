@@ -15,6 +15,7 @@ import { Department } from '@app/models/department.model'; // ⚠️ Asegúrate 
 import { DepartmentService } from '@app/services/department.service';
 import { ClientService } from '@app/services/client.service';
 import { Client } from '@app/models/client.model';
+import { AlertService } from '@app/services/extras/alert.service';
 
 
 @Component({
@@ -59,6 +60,8 @@ export class DashboardCasesComponent implements OnInit {
   clientResults:  Client[] = [];
   selectedClient: Client | null = null;
 
+  caseSelected: CaseWithChannel | null = null;
+
   constructor(
     private authService: AuthService,
     private companyService: CompanyService,
@@ -66,7 +69,8 @@ export class DashboardCasesComponent implements OnInit {
     private caseService: CaseService,
     private agentUserService: AgentUserService,
     private languageService: LanguageService,
-    private clienteService: ClientService
+    private clienteService: ClientService,
+    private alertService: AlertService
   ) { }
 
   async ngOnInit(): Promise<void> {
@@ -160,14 +164,14 @@ export class DashboardCasesComponent implements OnInit {
         this.user.user_id
       );
       if (res.success) {
-        alert('Caso asignado correctamente');
-        this.showAssignModal = false;
+        this.alertService.success('Case assigned successfully');
         await this.loadUnassignedCases();
       } else {
-        alert('Error al asignar el caso');
+        this.alertService.error('Error assigning case to agent');
       }
     } catch (error) {
-      console.error('Error assigning case:', error);
+      
+      this.alertService.error('Error assigning case to agent');
     } finally {
       this.assigning = false;
     }
@@ -178,6 +182,8 @@ export class DashboardCasesComponent implements OnInit {
   }
 
   async openAssignClientModal(c: CaseWithChannel): Promise<void> {
+
+    this.caseSelected = c;
     this.selectedCaseId = c.case_id;
     this.showClientAssignModal = true;
     this.selectedClientId = null;
@@ -196,7 +202,7 @@ export class DashboardCasesComponent implements OnInit {
   }
 
   async assignClientToCase(): Promise<void> {
-    if (!this.selectedClientId || !this.selectedCaseId) return;
+    if (!this.selectedClientId || !this.caseSelected) return;
     this.assigningClient = true;
 
     try {
@@ -206,14 +212,14 @@ export class DashboardCasesComponent implements OnInit {
       );
 
       if (res.success) {
-        alert('Cliente asignado correctamente');
+        this.alertService.success('Client assigned to case successfully');
         this.showClientAssignModal = false;
         await this.loadUnassignedCases();
       } else {
-        alert('Error al asignar cliente');
+        this.alertService.error('Error assigning client to case');
       }
     } catch (error) {
-      console.error('Error assigning client', error);
+      this.alertService.error('Error assigning client to case');
     } finally {
       this.assigningClient = false;
     }
