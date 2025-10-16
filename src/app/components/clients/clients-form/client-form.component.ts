@@ -17,6 +17,7 @@ import { GeoService } from '@app/services/geo.service';
 })
 export class ClientFormComponent implements OnInit, OnChanges {
   @Input() client: Client | null = null;
+  @Input() phoneNumber: string | null = null; // para prellenar el teléfono al crear
   @Output() success = new EventEmitter<Client>(); // emitimos el objeto -> tendrás el id
   @Output() cancel = new EventEmitter<void>();
 
@@ -79,6 +80,9 @@ export class ClientFormComponent implements OnInit, OnChanges {
     if (!this.client) {
       this.isEditing = false;
       this.form.reset();
+      if (this.phoneNumber) {
+        this.form.patchValue({ phone: this.phoneNumber });
+      }
       return;
     }
 
@@ -98,6 +102,7 @@ export class ClientFormComponent implements OnInit, OnChanges {
       postal_code: this.client.postal_code || '',
     });
 
+  
     // Carga jerárquica dinámica según los IDs
     if (this.client.country_id) {
       await this.loadProvinces(this.client.country_id);

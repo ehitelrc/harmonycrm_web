@@ -3,6 +3,9 @@ import { CommonModule } from '@angular/common';
 import { SidebarComponent } from './sidebar/sidebar.component';
 import { TopbarComponent } from './topbar/topbar.component';
 import { AlertComponent } from '../shared/extras/alert/alert.component';
+import { User } from '@app/models/auth.model';
+import { AuthService } from '@app/services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-main-layout',
@@ -35,5 +38,21 @@ import { AlertComponent } from '../shared/extras/alert/alert.component';
   styles: []
 })
 export class MainLayoutComponent {
-  constructor() {}
+    user: User | null = null;
+    
+  constructor(
+     private authService: AuthService,
+     private router: Router
+  ) {}
+
+   async ngOnInit(): Promise<void> {
+    this.user = this.authService.getCurrentUser();
+
+    if (!this.user) {
+      this.router.navigate(['/login']);
+      return;
+    }
+ 
+  }
+
 }

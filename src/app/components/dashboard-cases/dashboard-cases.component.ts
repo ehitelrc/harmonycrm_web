@@ -16,6 +16,10 @@ import { DepartmentService } from '@app/services/department.service';
 import { ClientService } from '@app/services/client.service';
 import { Client } from '@app/models/client.model';
 import { AlertService } from '@app/services/extras/alert.service';
+import { ClientFormComponent } from '../clients/clients-form/client-form.component';
+import { DashboardStats } from '@app/models/dashboard-stats.model';
+import { CaseDashboardService } from '@app/services/case-dashboard.service';
+
 
 
 @Component({
@@ -24,7 +28,7 @@ import { AlertService } from '@app/services/extras/alert.service';
   imports: [
     CommonModule,
     FormsModule,
-
+    ClientFormComponent,
     MainLayoutComponent],
   templateUrl: './dashboard-cases.component.html',
   styleUrls: ['./dashboard-cases.component.css']
@@ -36,6 +40,10 @@ export class DashboardCasesComponent implements OnInit {
 
   unassignedCases: CaseWithChannel[] = [];
   loading = false;
+
+  // 
+  dashboard: DashboardStats | null = null;
+
 
   // Modal
   showAssignModal = false;
@@ -57,7 +65,7 @@ export class DashboardCasesComponent implements OnInit {
 
   clientSearchTerm = '';
   searchingClients = false;
-  clientResults:  Client[] = [];
+  clientResults: Client[] = [];
   selectedClient: Client | null = null;
 
   caseSelected: CaseWithChannel | null = null;
@@ -70,13 +78,15 @@ export class DashboardCasesComponent implements OnInit {
     private agentUserService: AgentUserService,
     private languageService: LanguageService,
     private clienteService: ClientService,
-    private alertService: AlertService
+    private alertService: AlertService,
+    private caseDashboardService: CaseDashboardService
   ) { }
 
   async ngOnInit(): Promise<void> {
     this.user = this.authService.getCurrentUser();
     if (!this.user) return;
     await this.loadCompanies();
+
   }
 
   async loadCompanies(): Promise<void> {
@@ -86,9 +96,43 @@ export class DashboardCasesComponent implements OnInit {
         this.companies = response.data;
         this.selectedCompanyId = this.companies[0].company_id;
         await this.loadUnassignedCases();
+        await this.loadDashboardStats();
       }
     } catch (error) {
       console.error('Error loading companies:', error);
+    }
+  }
+
+  async loadDashboardStats(): Promise<void> {
+    if (!this.selectedCompanyId) return;
+    try {
+      const res = await this.caseDashboardService.getByCompanyID(this.selectedCompanyId);
+      if (res.success && res.data) {
+        const data = res.data;
+
+        // 🔧 Normaliza valores nulos
+        data.cases_by_channel = data.cases_by_channel || [];
+        data.cases_by_agent = data.cases_by_agent || [];
+        data.oldest_open_cases = data.oldest_open_cases || [];
+
+        this.dashboard = {
+          ...res.data,
+          open_cases: res.data.open_cases ?? 0,
+          closed_cases: res.data.closed_cases ?? 0,
+          closed_today: res.data.closed_today ?? 0,
+          opened_today: res.data.opened_today ?? 0,
+          unassigned_agents: res.data.unassigned_agents ?? 0,
+          unassigned_clients: res.data.unassigned_clients ?? 0,
+          cases_by_channel: res.data.cases_by_channel || [],
+          cases_by_agent: res.data.cases_by_agent || [],
+          oldest_open_cases: res.data.oldest_open_cases || []
+        };
+
+
+        console.log('✅ Dashboard stats loaded:', this.dashboard);
+      }
+    } catch (err) {
+      console.error('Error loading dashboard stats', err);
     }
   }
 
@@ -110,6 +154,7 @@ export class DashboardCasesComponent implements OnInit {
 
   async onCompanyChange(): Promise<void> {
     await this.loadUnassignedCases();
+    await this.loadDashboardStats();
   }
 
   async assignToAgent(data: any): Promise<void> {
@@ -119,6 +164,7 @@ export class DashboardCasesComponent implements OnInit {
     this.selectedDepartmentId = null;
     this.agents = [];
     await this.loadDepartments();
+  
   }
 
   async loadDepartments(): Promise<void> {
@@ -166,11 +212,13 @@ export class DashboardCasesComponent implements OnInit {
       if (res.success) {
         this.alertService.success('Case assigned successfully');
         await this.loadUnassignedCases();
+        await this.loadDashboardStats();
+        this.showAssignModal = false;
       } else {
         this.alertService.error('Error assigning case to agent');
       }
     } catch (error) {
-      
+
       this.alertService.error('Error assigning case to agent');
     } finally {
       this.assigning = false;
@@ -179,6 +227,7 @@ export class DashboardCasesComponent implements OnInit {
 
   closeModal(): void {
     this.showAssignModal = false;
+    this.showClientAssignModal = false;
   }
 
   async openAssignClientModal(c: CaseWithChannel): Promise<void> {
@@ -215,6 +264,7 @@ export class DashboardCasesComponent implements OnInit {
         this.alertService.success('Client assigned to case successfully');
         this.showClientAssignModal = false;
         await this.loadUnassignedCases();
+        await this.loadDashboardStats();
       } else {
         this.alertService.error('Error assigning client to case');
       }
@@ -276,6 +326,25 @@ export class DashboardCasesComponent implements OnInit {
     } finally {
       this.searchingClients = false;
     }
+  }
+
+  onClientCreated(newClient: Client): void {
+    // Cerrar modal y volver al de asignación
+    this.showNewClientModal = false;
+    this.showClientAssignModal = true;
+
+    // Actualizar lista y seleccionar automáticamente el nuevo cliente
+    this.clients.push(newClient);
+    this.selectedClient = newClient;
+    this.selectedClientId = newClient.id;
+    this.clientSearchTerm = newClient.full_name!;
+
+    alert('Cliente creado exitosamente.');
+  }
+
+  onClientCancel(): void {
+    this.showNewClientModal = false;
+    this.showClientAssignModal = true;
   }
 
   t(key: string): string {
