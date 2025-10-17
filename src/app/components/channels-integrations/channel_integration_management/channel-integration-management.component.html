@@ -1,0 +1,84 @@
+<app-main-layout>
+  <!-- Contenedor con scroll vertical -->
+  <div class="h-full overflow-y-auto">
+    <div class="space-y-6 pb-8">
+
+      <!-- Header -->
+      <div class="flex justify-between items-center">
+        <div>
+          <h1 class="text-2xl font-semibold text-[#00113f] dark:text-white">
+            {{ t('integration.management_title') }}
+          </h1>
+          <p class="mt-2 text-sm text-gray-700 dark:text-gray-300">
+            {{ t('integration.management_description') }}
+          </p>
+        </div>
+      </div>
+
+      <!-- Company & Channel Selectors -->
+      <div
+        class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-4
+               flex flex-col sm:flex-row sm:items-end sm:gap-6">
+        <!-- Company -->
+        <div class="flex-1">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            {{ t('company.select_company') }}
+          </label>
+          <select
+            [(ngModel)]="selectedCompanyId"
+            (ngModelChange)="onCompanyChange()"
+            class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
+                   focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f]
+                   dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            <option [ngValue]="null">{{ t('company.select_company_placeholder') }}</option>
+            <option *ngFor="let c of companies" [ngValue]="c.id">{{ c.name }}</option>
+          </select>
+          <p *ngIf="!selectedCompanyId" class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+            {{ t('item.select_company_to_load_items') }}
+          </p>
+        </div>
+
+        <!-- Channel -->
+        <div class="flex-1">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            {{ t('channel.select_channel') }}
+          </label>
+          <select
+            [(ngModel)]="selectedChannelId"
+            (ngModelChange)="onChannelChange()"
+            class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
+                   focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f]
+                   dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            <option [ngValue]="null">{{ t('channel.select_channel_placeholder') }}</option>
+            <option *ngFor="let ch of channels" [ngValue]="ch.id">{{ ch.name }}</option>
+          </select>
+          <p *ngIf="!selectedChannelId" class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+            {{ t('item.select_channel_to_load_items') }}
+          </p>
+        </div>
+      </div>
+
+      @if (selectedCompanyId && selectedChannelId) {
+        <!-- Integrations List -->
+        <app-channel-integrations-list
+          [integrations]="integrations"
+          [isLoading]="isLoading"
+          (add)="openIntegrationForm()"
+          (edit)="onEditIntegration($event)"
+          (remove)="onDeleteIntegration($event)">
+        </app-channel-integrations-list>
+      }
+
+    </div>
+
+    @if (selectedCompanyId && selectedChannelId && isFormOpen) {
+      <app-channel-integration-form
+        [integration]="selectedIntegration"
+        [companyId]="selectedCompanyId"
+        [channelId]="selectedChannelId"
+        (success)="onIntegrationSaved($event)"
+        (cancel)="closeForm()">
+      </app-channel-integration-form>
+    }
+  </div>
+</app-main-layout>

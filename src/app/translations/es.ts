@@ -388,6 +388,40 @@ export const esTranslations = {
 
   "channel.confirm_delete_title": "Eliminar canal",
   "channel.confirm_delete_message": "Esta acción no se puede deshacer. ¿Eliminar el canal seleccionado?",
+  "channel.select_channel": "Seleccionar canal",
+  "channel.select_channel_placeholder": "Seleccionar canal...",
+  "channel.channel_required": "El canal es requerido para gestionar integraciones",
+
+
+  "integration.management_title": "Gestión de Integraciones",
+  "integration.management_description": "Administra las integraciones de canales por compañía",
+  "integration.add_integration": "Nueva integración",
+  "integration.search_placeholder": "Buscar integración",
+  "integration.webhook_url": "URL del webhook",
+  "integration.api_key": "Clave API",
+  "integration.app_identifier": "Identificador de la app",
+  "integration.access_token": "Token de acceso",
+  "integration.status": "Estado",
+  "integration.actions": "Acciones",
+  "integration.no_data": "No hay integraciones",
+  "integration.add_new": "Nueva integración",
+  "integration.cancel": "Cancelar",
+  "integration.create": "Crear",
+  "integration.update": "Actualizar",
+  "integration.saving": "Guardando...",
+  "integration.active_status": "Integración activa",
+  "item.select_channel_to_load_items": "Selecciona un canal para cargar las integraciones",
+  "integration.active": "Activa",
+  "integration.inactive": "Inactiva",
+  "integration.edit": "Editar",
+  "integration.edit_title": "Editar integración",
+  "integration.create_title": "Crear integración",
+  "integration.confirm_delete_title": "Eliminar integración",
+  "integration.saved_successfully": "Integración guardada correctamente",
+  "integration.save_failed": "No se pudo guardar la integración",
+  "integration.confirm_delete_message": "¿Seguro que deseas eliminar esta integración?",
+  "integration.deleting": "Eliminando...",
+
 
   // Whatsapp Templates
 

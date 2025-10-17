@@ -6,7 +6,7 @@ import { WhatsAppTemplate } from '@app/models/whatsapp-template.model';
 
 import { AlertService } from '@app/services/extras/alert.service';
 import { LanguageService } from '@app/services/extras/language.service';
-import { ChannelIntegration } from '@app/models/channel-integration.model';
+import { ChannelIntegrationShort } from '@app/models/channel-integration-short.model';
 import { WhatsAppTemplateService } from '@app/services/whatsapp-template.service';
 
 @Component({
@@ -24,7 +24,7 @@ export class TemplateFormComponent implements OnInit {
   form!: FormGroup;
   isEditing = false;
   isSubmitting = false;
-  channels: ChannelIntegration[] = [];
+  channels: ChannelIntegrationShort[] = [];
 
   constructor(
     private fb: FormBuilder,

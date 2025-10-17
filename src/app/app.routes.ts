@@ -184,6 +184,11 @@ export const routes: Routes = [
     loadComponent: () => import('./components/policy/policy.component').then(m => m.PolicyComponent),
   
   },
+  {
+    path: 'channel-company',
+    loadComponent: () => import('./components/channels-integrations/channel_integration_management/channel-integration-management.component').then(m => m.ChannelIntegrationManagementComponent),
+    canActivate: [AuthGuard]
+  },
 
   // Wildcard route - redirect to dashboard
   {

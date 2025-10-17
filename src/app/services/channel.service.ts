@@ -5,6 +5,7 @@ import { FetchService } from './extras/fetch.service';
 import { ApiResponse } from '@app/models';
 import { Channel } from '@app/models/channel.model';
 import { VWChannelIntegration } from '@app/models/vw-channel-integration.model';
+import { ChannelIntegration } from '@app/models/channel-integration.model';
 
 const GATEWAY = '/channels';
 export const CHANNEL_URL = returnCompleteURI({
@@ -64,6 +65,33 @@ export class ChannelService {
     });
   }
 
+  // Get intgrations by company and channel
+  getIntegrationsByCompanyAndChannel(companyId: number, channelId: number) : Promise<ApiResponse<ChannelIntegration[]>>  {
+    return this.fetch.get<ApiResponse<ChannelIntegration[]>>({
+      API_Gateway: `${CHANNEL_URL}/integrations/company/${companyId}/channel/${channelId}`,
+    });
+  }
   
+
+  UpdateIntegration(id: number, data: Partial<ChannelIntegration>) {
+    const payload = { ...data, "id": id };
+    return this.fetch.put<ApiResponse<ChannelIntegration>>({
+      API_Gateway: `${environment.API.BASE}/channels/integrations`,
+      values: payload,
+    });
+  }
+
+  CreateIntegration(data: Partial<ChannelIntegration>) {
+      return this.fetch.post<ApiResponse<ChannelIntegration>>({
+        API_Gateway: `${environment.API.BASE}/channels/integrations`,
+      values: data,
+    });
+  }
+
+  DeleteIntegration(id: number) {
+    return this.fetch.delete<ApiResponse<void>>({
+      API_Gateway: `${environment.API.BASE}/channels/integrations/${id}`,
+    });
+  }
 
 }

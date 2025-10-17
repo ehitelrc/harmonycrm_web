@@ -4,7 +4,7 @@ import { FetchService } from './extras/fetch.service';
 import { environment } from '@environment';
 import { returnCompleteURI } from '@app/utils';
 import { WhatsAppTemplate } from '@app/models/whatsapp-template.model';
-import { ChannelIntegration } from '@app/models/channel-integration.model';
+import { ChannelIntegrationShort } from '@app/models/channel-integration-short.model';
 
 const GATEWAY = '/channels';
 export const TEMPLATE_URL = returnCompleteURI({
@@ -43,8 +43,8 @@ export class WhatsAppTemplateService {
     return await this.fetch.delete<ApiResponse<void>>({ API_Gateway: `${TEMPLATE_URL}/${id}` });
   }
 
-  async getChannels(): Promise<ApiResponse<ChannelIntegration[]>> {
-    return await this.fetch.get<ApiResponse<ChannelIntegration[]>>({
+  async getChannels(): Promise<ApiResponse<ChannelIntegrationShort[]>> {
+    return await this.fetch.get<ApiResponse<ChannelIntegrationShort[]>>({
       API_Gateway: `${environment.API.BASE}/channels`,
     });
   }

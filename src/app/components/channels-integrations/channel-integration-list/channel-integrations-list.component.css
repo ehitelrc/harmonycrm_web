@@ -1,0 +1,22 @@
+/* Evita que el contenedor limite el crecimiento del contenido */
+.bg-white,
+.dark\:bg-gray-800 {
+  overflow: visible !important;
+}
+
+/* Asegura que la tabla se adapte al contenido */
+table {
+  width: 100%;
+  table-layout: auto;
+}
+
+/* Permite expansión y evita truncar datos */
+tbody {
+  max-height: none !important;
+  overflow: visible !important;
+}
+
+.container, .main, .content-area {
+  min-height: 0;
+  overflow: visible;
+}
