@@ -7,5 +7,5 @@ export const environment = {
   },
   TESTING: true,
   production: false,
-  appVersion: 'v1.0.0',
+  appVersion: 'v2.0.0',
 };

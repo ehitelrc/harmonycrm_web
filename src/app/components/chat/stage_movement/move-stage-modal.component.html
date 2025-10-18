@@ -9,16 +9,16 @@
       (click)="$event.stopPropagation()">
 
       <!-- Header -->
-      <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-gray-200 dark:border-gray-700">
+      <div
+        class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-gray-200 dark:border-gray-700">
         <div class="flex items-center justify-between">
           <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
             {{ t('case.move_stage_title') || 'Cambiar estado del caso' }}
           </h3>
           <button type="button" (click)="close()"
-                  class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none">
+            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none">
             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M6 18L18 6M6 6l12 12"/>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
@@ -32,18 +32,18 @@
             {{ t('case.current_stage') || 'Estado actual' }}
           </div>
           <div class="text-sm text-[#00113f] dark:text-gray-100">
-            <div class="font-medium">
+            <div *ngIf="current">
               {{ current.current_stage_name || (current.action === 'assign' ? 'NA' : '—') }}
             </div>
-            <div class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+            <div  class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
               {{ t('case.funnel') || 'Embudo' }}:
-              {{ current.funnel_name || '—' }}
+              {{ current?.funnel_name || '-' }}
               <span class="mx-1">·</span>
               {{ t('updated_at') || 'Actualizado' }}:
-              {{ current.last_changed_at | date:'medium' }}
+              {{ current?.last_changed_at | date:'medium' }}
               <span *ngIf="current?.last_changed_by_label" class="mx-1">·</span>
               <span *ngIf="current?.last_changed_by_label">
-                {{ t('by') || 'por' }} {{ current.last_changed_by_label }}
+                {{ t('by') || 'por' }} {{ current?.last_changed_by_label }}
               </span>
             </div>
           </div>
@@ -55,10 +55,8 @@
             {{ t('case.new_stage') || 'Nuevo estado' }} *
           </label>
 
-          <select
-            [(ngModel)]="selectedStageId"
-            name="to_stage_id"
-            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
+ 
+          <select [(ngModel)]="selectedStageId" name="to_stage_id" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
                    focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea]
                    text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white">
             <option [ngValue]="null" disabled>
@@ -81,11 +79,7 @@
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
             {{ t('case.note') || 'Nota (opcional)' }}
           </label>
-          <textarea
-            [(ngModel)]="note"
-            name="note"
-            rows="3"
-            class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
+          <textarea [(ngModel)]="note" name="note" rows="3" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
                    focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea]
                    text-sm text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
             placeholder="{{ t('case.note_placeholder') || 'Motivo del cambio, contexto, etc.' }}"></textarea>
@@ -94,20 +88,13 @@
 
       <!-- Footer -->
       <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-        <button
-          type="button"
-          (click)="submit()"
-          [disabled]="isSubmitting || !canSubmit()"
-          class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2
+        <button type="button" (click)="submit()" [disabled]="isSubmitting  " class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2
                  bg-[#3e66ea] text-white hover:bg-[#2d5bd9] sm:ml-3 sm:w-auto sm:text-sm
                  disabled:opacity-50 disabled:cursor-not-allowed">
           {{ isSubmitting ? (t('saving') || 'Guardando…') : (t('case.apply_change') || 'Aplicar cambio') }}
         </button>
 
-        <button
-          type="button"
-          (click)="close()"
-          class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2
+        <button type="button" (click)="close()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2
                  bg-white text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm
                  dark:bg-gray-800 dark:text-white dark:border-gray-600">
           {{ t('cancel') || 'Cancelar' }}

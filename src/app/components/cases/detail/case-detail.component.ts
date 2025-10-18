@@ -150,6 +150,7 @@ export class CaseDetailComponent implements OnInit {
         if (this.caseData?.case_id) {
 
             this.loadCaseDetails();
+            this.loadCurrenteCampaign();
         }
     }
 
@@ -420,6 +421,16 @@ export class CaseDetailComponent implements OnInit {
             this.alert.error('No se pudo vincular la campaña');
         } finally {
             this.isAssigningCampaign = false;
+        }
+    }
+
+    loadCurrenteCampaign() {
+        if (this.caseData?.campaign_id) {
+            this.campaignService.getById(this.caseData.campaign_id).then(res => {
+                if (res?.data) {
+                    this.currentCampaign = res.data as CampaignWithFunnel;
+                }
+            });
         }
     }
 

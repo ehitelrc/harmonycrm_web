@@ -630,6 +630,6 @@
 
 </div>
 
-<app-move-stage-modal [isOpen]="isMoveStageOpen" [caseId]="caseData.case_id" [current]="currentStage!"
-  (cancel)="isMoveStageOpen = false" (moved)="onMoveStage($event)">
+<app-move-stage-modal [isOpen]="isMoveStageOpen" [caseId]="caseData.case_id" [current]="currentStage!"  [funnelId]="currentCampaign?.funnel_id!"
+  (cancel)="isMoveStageOpen = false" (moved)="onMoveStage($event)"> 
 </app-move-stage-modal>

@@ -3,11 +3,11 @@ export const environment = {
     versionBD: '4.20.0.0',
     API: {
       // BASE: 'http://localhost:8080/api',
-      //BASE: 'http://20.81.232.132:8098/api',
-      BASE: 'https://harmony.ngrok.dev/api',
+      BASE: 'http://20.81.232.132:8098/api',
+      //BASE: 'https://harmony.ngrok.dev/api',
     },
     TESTING: true,
     production: false,
-    appVersion: 'v1.0.0',
+    appVersion: 'v2.0.0',
   };
   

@@ -25,6 +25,7 @@ import { CaseItemService } from '@app/services/case-items.service';
 import { CaseItemRequest } from '@app/models/case-item.model';
 import { ItemService } from '@app/services/item.service';
 import { Item } from '@app/models/item.model';
+import { environment } from '@environment';
 
 @Component({
   selector: 'app-chat-workspace',
@@ -187,7 +188,35 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
 
     if (!this.agent_id) return;
 
+
     await this.loadCases();
+
+    // // Construir la URL del WebSocket
+    // let wsBase = environment.API.BASE
+    //   .replace('http', 'ws')
+    //   .replace('/api', '')
+    //   .replace('https', 'wss');
+
+    // // wscat -c "wss://harmony.ngrok.dev/ws?agent_id=23"
+    // const wsUrl = `${wsBase}/ws?case=${this.ca}`;
+    // console.log('Conectando a WebSocket en:', wsUrl);
+    // // Suscribirse al WebSocket general
+    // this.wsSub = this.ws.connect(wsUrl).subscribe({
+    //   next: (msg) => {
+    //     console.log('🔔 Mensaje WebSocket recibido:', msg);
+
+    //     // Ejemplo: notificar si llega un nuevo mensaje global
+    //     if (msg.type === 'new_message') {
+    //       const targetCase = this.cases.find(c => c.case_id === msg.case_id);
+    //       if (targetCase) {
+    //         targetCase.unread_count = (targetCase.unread_count || 0) + 1;
+    //         targetCase.last_message_preview = '[Nuevo mensaje]';
+    //         this.applyContactFilter();
+    //       }
+    //     }
+    //   },
+    //   error: (err) => console.error('Error en WebSocket:', err),
+    // });
   }
 
   async loadCases() {
@@ -267,8 +296,13 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
       }
 
       // 2) Conexión WS por caso
-      const WS_BASE = (window as any).__WS_URL__ || 'ws://localhost:8098/ws';
-      const url = `${WS_BASE}?case_id=${encodeURIComponent(String(c.case_id))}`;
+      let wsBase = environment.API.BASE
+        .replace('http', 'ws')
+        .replace('/api', '')
+        .replace('https', 'wss');
+
+      const url = `${wsBase}/ws?case_id=${c.case_id}`;
+      console.log('Conectando a WebSocket en:', url);
 
       this.wsSub = this.ws.connect(url).subscribe((evt: WSMessage) => {
         if (!this.selectedCase || evt.case_id !== this.selectedCase.case_id) return;
@@ -1116,5 +1150,18 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
     } finally {
       this.closeDeleteModal();
     }
+  }
+
+  parseUrls(text: string): string {
+    if (!text) return '';
+
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+
+    return text.replace(urlRegex, url => {
+      // Escapa comillas para evitar errores HTML
+      const safeUrl = url.replace(/"/g, '&quot;');
+      return `<a href="${safeUrl}" target="_blank" rel="noopener noreferrer"
+              class="text-[#3e66ea] hover:underline break-words">${url}</a>`;
+    });
   }
 }
