@@ -59,6 +59,7 @@ export class UserFormComponent implements OnInit, OnChanges {
       email: ['', [Validators.required, Validators.email]],
       first_name: ['', [Validators.required]],
       password: [''],
+      is_super_user: [false, [Validators.required]], // ✅
       is_active: [true, [Validators.required]]
     });
 
@@ -78,7 +79,8 @@ export class UserFormComponent implements OnInit, OnChanges {
 
       password: '', // Always empty for editing
       role: this.initialData.role,
-      is_active: this.initialData.is_active
+      is_active: this.initialData.is_active,
+        is_super_user: this.initialData.is_super_user // ✅
 
     });
 
@@ -143,7 +145,8 @@ export class UserFormComponent implements OnInit, OnChanges {
         full_name: formData.first_name,
         is_active: formData.is_active,
         email: formData.email,
-        profile_image_url: this.imagePreview
+        profile_image_url: this.imagePreview,
+        is_super_user: formData.is_super_user // ✅
       }
 
 

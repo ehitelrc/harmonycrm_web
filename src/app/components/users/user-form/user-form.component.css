@@ -70,3 +70,13 @@
 .centered-button {
   @apply w-full flex justify-center mt-6;
 }
+
+#is_super_user{
+  padding-right: 16px!important;
+  margin-left: 16px!important;
+}
+
+#super_user_label{
+  margin-right: 16px!important;
+  margin-left: 16px!important;
+}

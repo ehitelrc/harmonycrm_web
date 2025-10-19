@@ -61,7 +61,7 @@
 </div>
 
 <!-- Logout Confirmation Dialog -->
-<app-confirmation-dialog [isOpen]="isLogoutDialogOpen" [title]="t('confirm') || 'Confirmar'"
+<app-confirmation-dialog [isOpen]="isLogoutDialogOpen" [title]="t('confirm') || 'Confirmar'" [asset]="'../../../assets/bye.jpeg'"
   [message]="t('auth.logout_confirm') || '¿Deseas cerrar sesión?'"
   [confirmText]="t('auth.logout') || t('confirm') || 'Confirmar'" (confirmed)="handleLogout()"
   (cancelled)="isLogoutDialogOpen = false"></app-confirmation-dialog>

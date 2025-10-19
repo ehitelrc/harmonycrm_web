@@ -128,22 +128,40 @@ export class UserListComponent implements OnInit {
 
     console.log('Loading companies for user:', this.viewingUser.id);
 
-    this.companyService.getCompaniesByUserId(this.loggedUser?.user_id!).then(response => {
-      if (response && response.data) {
-        this.companies = response.data.map(company => ({
-          company_id: company.company_id,
-          company_name: company.company_name
-        }));
+    if (!this.loggedUser?.is_super_user) {
 
-        console.log('User companies loaded:', this.companies);
-      }
+      this.companyService.getCompaniesByUserId(this.loggedUser?.user_id!).then(response => {
+        if (response && response.data) {
+          this.companies = response.data.map(company => ({
+            company_id: company.company_id,
+            company_name: company.company_name
+          }));
+
+          console.log('User companies loaded:', this.companies);
+        }
 
 
-      this.loadingCompanies = false;
-    }).catch(error => {
-      console.error('Error loading companies:', error);
-      this.loadingCompanies = false;
-    });
+        this.loadingCompanies = false;
+      }).catch(error => {
+        console.error('Error loading companies:', error);
+        this.loadingCompanies = false;
+      });
+    }else{
+      // Get all companies
+      this.companyService.getAllCompanies().then(response => {
+        if (response && response.data) {
+          this.companies = response.data.map(company => ({
+            company_id: company.id,
+            company_name: company.name
+          }));
+          console.log('All companies loaded:', this.companies);
+        }
+      }).catch(error => {
+        console.error('Error loading companies:', error);
+      });
+    }
+
+
   }
 
   onDelete(userId: number): void {

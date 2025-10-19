@@ -5,6 +5,7 @@ export interface User {
   user_name: string;
   email: string;
   role: string;
+  is_super_user?: boolean;
 }
 
 export interface LoginRequest {
@@ -31,6 +32,7 @@ export interface AuthState {
   isLoading: boolean;
   error: string | null;
   permissions?: string[];
+  is_super_user?: boolean;
 }
 
 // Form validation interfaces

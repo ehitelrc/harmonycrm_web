@@ -582,11 +582,14 @@ export class CaseDetailComponent implements OnInit {
         try {
             this.isAssigningAgent = true;
 
+              let departmentId = Number(this.caseData.department_id) || 0;
+
             // 👉 Aquí deberías tener un endpoint en tu CaseService
             await this.caseService.assignCaseToAgent(
                 this.caseData.case_id,
                 this.selectedAgentCandidate.agent_id,
-                this.loggedUser?.user_id || 0
+                this.loggedUser?.user_id || 0,
+                departmentId
             );
 
             // Reflejar en UI

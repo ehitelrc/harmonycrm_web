@@ -19,6 +19,7 @@ import { AlertService } from '@app/services/extras/alert.service';
 import { ClientFormComponent } from '../clients/clients-form/client-form.component';
 import { DashboardStats } from '@app/models/dashboard-stats.model';
 import { CaseDashboardService } from '@app/services/case-dashboard.service';
+import { interval } from 'rxjs';
 
 
 
@@ -70,6 +71,8 @@ export class DashboardCasesComponent implements OnInit {
 
   caseSelected: CaseWithChannel | null = null;
 
+  intervalId: any;
+
   constructor(
     private authService: AuthService,
     private companyService: CompanyService,
@@ -87,7 +90,19 @@ export class DashboardCasesComponent implements OnInit {
     if (!this.user) return;
     await this.loadCompanies();
 
+    // 🔄 Refresca cada 30 segundos
+    this.intervalId = setInterval(async () => {
+      if (this.selectedCompanyId) {
+        if (this.selectedCompanyId) {
+          await this.loadUnassignedCases();
+          await this.loadDashboardStats();
+        }
+      }
+    }, 30000); // 30 segundos
+
   }
+
+
 
   async loadCompanies(): Promise<void> {
     try {
@@ -164,7 +179,7 @@ export class DashboardCasesComponent implements OnInit {
     this.selectedDepartmentId = null;
     this.agents = [];
     await this.loadDepartments();
-  
+
   }
 
   async loadDepartments(): Promise<void> {
@@ -204,10 +219,13 @@ export class DashboardCasesComponent implements OnInit {
     let agentID = Number(this.selectedAgentId);
 
     try {
+        let departmentId = Number(this.selectedDepartmentId) || 0;
+
       const res = await this.caseService.assignCaseToAgent(
         this.selectedCaseId,
         agentID,
-        this.user.user_id
+        this.user.user_id,
+        departmentId
       );
       if (res.success) {
         this.alertService.success('Case assigned successfully');

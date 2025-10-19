@@ -9,6 +9,7 @@ export interface User {
 	created_at: string;
 	updated_at: string;
 	password_hash?: string;
+	is_super_user?: boolean;
 }
 
 

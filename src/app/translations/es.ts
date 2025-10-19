@@ -547,6 +547,7 @@ export const esTranslations = {
   'user_management.select_role': 'Seleccionar Rol',
   'user_management.user_id': 'ID de Usuario',
   'user_management.select_image': 'Seleccionar Imagen',
+  "user_management.is_super_user": "Es Super Usuario",
 
   'user_management.user_created': 'Usuario creado exitosamente',
   'user_management.user_updated': 'Usuario actualizado exitosamente',

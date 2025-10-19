@@ -13,7 +13,8 @@ export class ConfirmationDialogComponent {
   @Input() title = '';
   @Input() message = '';
   @Input() confirmText = '';
-  
+  @Input() asset?: string; // ✅ ← ESTA LÍNEA SOLUCIONA EL ERROR
+
   @Output() confirmed = new EventEmitter<void>();
   @Output() cancelled = new EventEmitter<void>();
 

@@ -27,7 +27,8 @@ export class AuthService {
 		isAuthenticated: false,
 		isLoading: false,
 		error: null,
-		permissions: []
+		permissions: [],
+	 
 	});
 
 	public authState$ = this.authStateSubject.asObservable();
@@ -279,7 +280,9 @@ export class AuthService {
 			user_id: authData.user_id,
 			user_name: authData.full_name,
 			email: authData.email,
-			role: 'operator' // Default role, can be adjusted based on your logic
+			role: 'operator', // Default role, can be adjusted based on your logic
+			is_super_user: authData.is_super_user
+		 
 		};
 
 

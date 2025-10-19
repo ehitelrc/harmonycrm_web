@@ -26,6 +26,9 @@ import { CaseItemRequest } from '@app/models/case-item.model';
 import { ItemService } from '@app/services/item.service';
 import { Item } from '@app/models/item.model';
 import { environment } from '@environment';
+import { Department } from '@app/models/department.model';
+import { DepartmentService } from '@app/services/department.service';
+import { User as UserAuthModel } from '../../models/auth.model' //'../../../models/auth.model';
 
 @Component({
   selector: 'app-chat-workspace',
@@ -143,6 +146,18 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
   itemToDelete: number | null = null;
 
 
+  // ======== Estado del modal de departamento ========
+  isAssignDepartmentOpen = false;
+  departmentSearch = '';
+  departments: Department[] = [];
+  filteredDepartments: Department[] = [];
+  selectedDepartmentCandidate: Department | null = null;
+  isLoadingDepartments = false;
+  isAssigningDepartment = false;
+
+  selectedDepartment: Department | null = null;
+
+  stateUser: UserAuthModel | null = null;
 
 
   constructor(
@@ -155,6 +170,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private campaignService: CampaignService,
     private itemService: ItemService,
+    private departmentService: DepartmentService
 
   ) { }
 
@@ -178,11 +194,11 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
   };
 
   async onInit() {
-    let stateUser = this.authService.getCurrentUser();
+    this.stateUser = this.authService.getCurrentUser();
 
     this.authData = this.authService.getStoredAuthData();
 
-    this.agent_id = stateUser?.user_id || null;
+    this.agent_id = this.stateUser?.user_id || null;
 
     console.log('Agent ID:', this.agent_id);
 
@@ -191,32 +207,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
 
     await this.loadCases();
 
-    // // Construir la URL del WebSocket
-    // let wsBase = environment.API.BASE
-    //   .replace('http', 'ws')
-    //   .replace('/api', '')
-    //   .replace('https', 'wss');
 
-    // // wscat -c "wss://harmony.ngrok.dev/ws?agent_id=23"
-    // const wsUrl = `${wsBase}/ws?case=${this.ca}`;
-    // console.log('Conectando a WebSocket en:', wsUrl);
-    // // Suscribirse al WebSocket general
-    // this.wsSub = this.ws.connect(wsUrl).subscribe({
-    //   next: (msg) => {
-    //     console.log('🔔 Mensaje WebSocket recibido:', msg);
-
-    //     // Ejemplo: notificar si llega un nuevo mensaje global
-    //     if (msg.type === 'new_message') {
-    //       const targetCase = this.cases.find(c => c.case_id === msg.case_id);
-    //       if (targetCase) {
-    //         targetCase.unread_count = (targetCase.unread_count || 0) + 1;
-    //         targetCase.last_message_preview = '[Nuevo mensaje]';
-    //         this.applyContactFilter();
-    //       }
-    //     }
-    //   },
-    //   error: (err) => console.error('Error en WebSocket:', err),
-    // });
   }
 
   async loadCases() {
@@ -282,6 +273,8 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
       });
 
       await this.loadCurrentCaseFunnel(c.case_id);
+
+      this.loadDepartment();
 
       await this.loadCurrentStage(c.case_id); // Nueva línea para cargar el estado actual
 
@@ -364,6 +357,45 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
     }
   }
 
+  loadDepartment() {
+    if (!this.selectedCase?.department_id) return;
+
+    this.departmentService.getById(this.selectedCase.department_id).then(res => {
+      this.selectedDepartment = res.data || null;
+    }).catch(err => {
+      this.selectedDepartment = null;
+      this.alert.error(this.t('chat.failed_to_load_department'));
+    });
+  }
+
+  
+
+
+  openAssignDepartmentModal() {
+    this.isAssignDepartmentOpen = true;
+    this.departmentSearch = '';
+    this.selectedDepartmentCandidate = null;
+    this.loadDepartments();
+
+  }
+
+  private async loadDepartments(): Promise<void> {
+        try {
+            this.isLoadingDepartments = true;
+            const res = await this.departmentService.getByCompany(this.selectedCase?.company_id || 0  );
+            const data = (res as { data?: unknown })?.data;
+            const list: Department[] = Array.isArray(data) ? data as Department[] : [];
+
+            this.departments = list;
+            this.filteredDepartments = list;
+        } catch {
+            this.alert.error('Error cargando departamentos');
+            this.departments = [];
+            this.filteredDepartments = [];
+        } finally {
+            this.isLoadingDepartments = false;
+        }
+    }
 
   // Helpers render
   isText(m: Message) { return m.message_type === 'text'; }
@@ -960,6 +992,46 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
 
   }
 
+  onDepartmentSearchChange(q: string) {
+    const query = (q || '').trim().toLowerCase();
+    if (!query) {
+      this.filteredDepartments = this.departments;
+      return;
+    }
+    this.filteredDepartments = this.departments.filter(d =>
+      (d.description || '').toLowerCase().includes(query)
+    );
+  }
+
+  selectDepartmentCandidate(dep: Department) {
+    this.selectedDepartmentCandidate = dep;
+  }
+
+  async confirmAssignDepartment() {
+    if (!this.selectCase || !this.selectedDepartmentCandidate) return;
+
+    try {
+      this.isAssigningDepartment = true;
+
+      // TODO: implementar en tu CaseService
+      await this.chatService.assignCaseToDepartment({
+        case_id: this.selectedCase?.case_id ?? 0,  // 👈 valor por defecto 0
+        department_id: this.selectedDepartmentCandidate.id,
+        changed_by: this.stateUser?.user_id ?? 0,
+      });
+
+      // Actualizar en UI
+      this.selectedDepartment = this.selectedDepartmentCandidate;
+
+      this.alert.success('Departamento asignado al caso');
+      this.closeAssignDepartmentModal();
+    } catch (e) {
+      this.alert.error('No se pudo asignar el departamento');
+    } finally {
+      this.isAssigningDepartment = false;
+    }
+  }
+
   async openMoveStage() {
     // Asegúrate de tener el estado actual (ya tienes getCaseFunnelCurrent en CaseService)
 
@@ -1038,6 +1110,15 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
     }
   }
 
+
+  closeAssignDepartmentModal() {
+    this.isAssignDepartmentOpen = false;
+    this.departmentSearch = '';
+    this.filteredDepartments = [];
+    this.selectedDepartmentCandidate = null;
+    this.isLoadingDepartments = false;
+    this.isAssigningDepartment = false;
+  }
 
 
 

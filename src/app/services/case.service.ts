@@ -191,9 +191,16 @@ export class CaseService {
   }
 
   async closeCase(caseId: number, note: string, user_id: number, funnel_id: number | null): Promise<ApiResponse<void>> {
+
+    var funnel = null;
+    
+    if (funnel_id !== 0) {
+      funnel = funnel_id;
+    }  
+     
     return await this.fetch.post<ApiResponse<void>>({
       API_Gateway: `${CASE_URL}/entry/close_case`,
-      values: { case_id: caseId, note: note, closed_by: user_id, funnel_id: funnel_id },
+      values: { case_id: caseId, note: note, closed_by: user_id, funnel_id: funnel },
     });
   }
 
@@ -203,10 +210,10 @@ export class CaseService {
     });
   }
 
-  async assignCaseToAgent(case_id: number, agent_id: number, assigned_by: number): Promise<ApiResponse<void>> {
+  async assignCaseToAgent(case_id: number, agent_id: number, assigned_by: number, department_id: number): Promise<ApiResponse<void>> {
     return await this.fetch.post<ApiResponse<void>>({
       API_Gateway: `${CASE_URL}/entry/assign_agent`,
-      values: { 'case_id': case_id, 'agent_id':  agent_id, 'assigned_by': assigned_by },
+      values: { 'case_id': case_id, 'agent_id':  agent_id, 'assigned_by': assigned_by, "department_id": department_id },
     });
   }
 

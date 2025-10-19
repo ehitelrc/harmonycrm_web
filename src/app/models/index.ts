@@ -70,6 +70,7 @@ export interface AuthData {
   company_id: number;
   company_name: string;
   token: string;
+  is_super_user: boolean;
 }
 
 
@@ -78,6 +79,7 @@ export interface User {
   user_name: string;
   email: string;
   role: string;
+  is_super_user?: boolean;
 }
 
 export interface AuthState {

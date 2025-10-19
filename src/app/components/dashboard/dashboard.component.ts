@@ -1,20 +1,16 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { MainLayoutComponent } from '../layout/main-layout.component';
 import { User } from '../../models/auth.model';
 import { DashboardService } from '../../services/dashboard.service';
-import { DashboardStats } from '../../models/dashboard.model';
 import { LanguageService } from '../../services/extras/language.service';
-import { KpiCardsComponent } from './kpi-cards/kpi-cards.component';
-import { ActivityFeedComponent } from './widgets/activity-feed/activity-feed.component';
-import { MovementChartComponent } from './widgets/movement-chart/movement-chart.component';
-import { StockAlertsWidgetComponent } from './widgets/stock-alerts/stock-alerts-widget.component';
 import { CompanyService } from '@app/services/company.service';
 import { FormsModule } from '@angular/forms';
 import { DashboardCampaignPerCompany } from '@app/models/dashboard_campaign_per_company_view';
 import { DashboardGeneralByCompany } from '@app/models/dashboard_general_by_company_view';
+import { KpiCardsComponent } from './kpi-cards/kpi-cards.component';
 
 @Component({
   selector: 'app-dashboard',
@@ -24,16 +20,11 @@ import { DashboardGeneralByCompany } from '@app/models/dashboard_general_by_comp
     FormsModule,
     MainLayoutComponent,
     KpiCardsComponent,
- 
- 
-    // ActivityFeedComponent,
-    // MovementChartComponent,
-    // StockAlertsWidgetComponent,
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css']
 })
-export class DashboardComponent implements OnInit {
+export class DashboardComponent implements OnInit, OnDestroy {
   user: User | null = null;
   stats: DashboardGeneralByCompany | null = null;
 
@@ -41,7 +32,7 @@ export class DashboardComponent implements OnInit {
   selectedCompanyId: number | null = null;
 
   campaigns: DashboardCampaignPerCompany[] = [];
-
+  private intervalId: any;
 
   constructor(
     private authService: AuthService,
@@ -53,13 +44,30 @@ export class DashboardComponent implements OnInit {
 
   async ngOnInit(): Promise<void> {
     this.user = this.authService.getCurrentUser();
+    if (!this.user) return;
 
-    if (!this.user) {
-      //this.router.navigate(['/login']);
-      return;
-    }
     await this.loadCompanies();
 
+    // 🔄 Refresca cada 30 segundos
+    this.intervalId = setInterval(async () => {
+      if (this.selectedCompanyId) {
+        await this.refreshDashboardData();
+      }
+    }, 30000); // 30 segundos
+  }
+
+  ngOnDestroy(): void {
+    // 🧹 Limpieza del intervalo
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+    }
+  }
+
+  async refreshDashboardData(): Promise<void> {
+    await Promise.all([
+      this.loadCampaignsData(this.selectedCompanyId!),
+      this.loadStats()
+    ]);
   }
 
   async loadCompanies(): Promise<void> {
@@ -67,10 +75,9 @@ export class DashboardComponent implements OnInit {
       const response = await this.companyService.getCompaniesByUserId(this.user!.user_id);
       if (response?.success && response.data) {
         this.companies = response.data;
-        this.selectedCompanyId = this.companies[0]?.company_id ?? null; // preselecciona la primera
+        this.selectedCompanyId = this.companies[0]?.company_id ?? null;
         if (this.selectedCompanyId) {
-          await this.loadCampaignsData(this.selectedCompanyId);
-          await this.loadStats();
+          await this.refreshDashboardData();
         }
       }
     } catch (error) {
@@ -78,10 +85,10 @@ export class DashboardComponent implements OnInit {
     }
   }
 
-
   onCompanyChange(event: Event): void {
-    this.loadCampaignsData(this.selectedCompanyId!);
-    this.loadStats();
+    if (this.selectedCompanyId) {
+      this.refreshDashboardData();
+    }
   }
 
   async onLogout(): Promise<void> {
@@ -89,7 +96,6 @@ export class DashboardComponent implements OnInit {
       await this.authService.logout();
     } catch (error) {
       console.error('Logout error:', error);
-      // Even if logout fails, we'll be redirected to login
     }
   }
 
@@ -107,11 +113,13 @@ export class DashboardComponent implements OnInit {
   async loadStats(): Promise<void> {
     try {
       const stats = await this.dashboardService.getGeneralDashboardByCompany(this.selectedCompanyId!);
-      this.stats = stats; // 👈 ya es DashboardGeneralByCompany | null
+      this.stats = stats;
     } catch (error) {
       console.error('Error loading dashboard stats', error);
     }
   }
 
-  t(key: string): string { return this.languageService.t(key); }
+  t(key: string): string {
+    return this.languageService.t(key);
+  }
 }
