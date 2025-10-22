@@ -40,4 +40,6 @@ export interface CaseWithChannel {
 
   last_message_preview?: string | null;   // '[Imagen]', '[Audio]', '[Archivo]' o texto
   last_message_is_media?: boolean | null; // true si image/audio/file
+
+  is_non_commercial?: boolean | null; // true si es un caso no comercial
 }

@@ -223,5 +223,11 @@ export class CaseService {
       API_Gateway: `${CASE_URL}/entry/unassigned_cases/${companyId}`,
     });
   }
+
+  getCasesByCompanyCampaignAgent(companyId: number, campaignId: number, agentId: number, channelIntegration: number ) {
+    return this.fetch.get<ApiResponse<CaseWithChannel[]>>({
+      API_Gateway: `${CASE_URL}/entry/leads/company/${companyId}/campaign/${campaignId}/agent/${agentId}/channel_integration/${channelIntegration}`,
+    });
+  }
   
 }

@@ -189,7 +189,12 @@ export const routes: Routes = [
     loadComponent: () => import('./components/channels-integrations/channel_integration_management/channel-integration-management.component').then(m => m.ChannelIntegrationManagementComponent),
     canActivate: [AuthGuard]
   },
-
+  // Leads Registration
+  {
+    path: 'leads-registration',
+    loadComponent: () => import('./components/leads-registration/leads-management/leads-management.component').then(m => m.LeadsManagementComponent),
+    canActivate: [AuthGuard]
+  },
   // Wildcard route - redirect to dashboard
   {
     path: '**',

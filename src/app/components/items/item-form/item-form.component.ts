@@ -14,7 +14,7 @@ import { AlertService } from '@app/services/extras/alert.service';
   styleUrls: ['./item-form.component.css']
 })
 export class ItemFormComponent implements OnInit, OnChanges {
-  @Input() companyId!: number | null;       
+  @Input() companyId!: number | null;
   @Input() item: Item | null = null;
   @Output() success = new EventEmitter<Item>(); // emite objeto con id
   @Output() cancel = new EventEmitter<void>();
@@ -31,7 +31,7 @@ export class ItemFormComponent implements OnInit, OnChanges {
     private service: ItemService,
     private lang: LanguageService,
     private alert: AlertService
-  ) {}
+  ) { }
 
   get t() { return this.lang.t.bind(this.lang); }
 
@@ -45,16 +45,22 @@ export class ItemFormComponent implements OnInit, OnChanges {
       name: ['', [Validators.required, Validators.maxLength(200)]],
       type: ['product', [Validators.required]],
       description: [''],
+      item_price: [0, [Validators.required, Validators.min(0)]], // ✅ nuevo campo
     });
   }
 
   private patch(): void {
-    if (!this.item) { this.isEditing = false; this.form.reset({ type: 'product' }); return; }
+    if (!this.item) {
+      this.isEditing = false;
+      this.form.reset({ type: 'product', item_price: 0 });
+      return;
+    }
     this.isEditing = true;
     this.form.patchValue({
       name: this.item.name || '',
       type: this.item.type || 'product',
       description: this.item.description || '',
+      item_price: this.item.item_price || 0, // ✅ nuevo campo
     });
   }
 

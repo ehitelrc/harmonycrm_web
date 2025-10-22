@@ -1,4 +1,27 @@
 export const esTranslations = {
+
+  // Leads reg
+  'menu.sales': 'Ventas',
+  'menu.lead-registration': 'Registar mis Leads',
+
+  "leads.new_lead_title": "Registrar nuevo lead",
+  "leads.title": "Gestión de Leads",
+  "leads.description": "Registra y administra los leads asociados a tus campañas.",
+  "leads.company": "Compañía",
+  "leads.select_company_placeholder": "Seleccione una compañía",
+  "leads.campaign": "Campaña",
+  "leads.select_campaign_placeholder": "Seleccione una campaña",
+  "leads.add_button": "Agregar Lead",
+  "leads.select_filters_message": "Seleccione una compañía y una campaña para visualizar los leads.",
+  "lead.search_placeholder": "Buscar lead por nombre o correo electrónico",
+
+   "channel.select_integration": "Seleccionar integración",
+   "item.select_integration_lead": "Selecciona una integración para cargar los leads",
+   "channel.select_channel_integration_placeholder": "Seleccionar integración...",
+
+  // Auth
+
+  
   'auth.welcome': 'Bienvenido a Harmony',
   'auth.subtitle': 'Inicia sesión para acceder a tu sistema de gestión de almacenes',
   'auth.signin': 'Iniciar Sesión',
@@ -81,12 +104,12 @@ export const esTranslations = {
   'menu.departments': 'Departamentos',
   'menu.channels': 'Canales',
 
-  'menu.commerce': 'Comercial',
+  'menu.maintenance': 'Mantenimiento',
   'menu.products': 'Productos',
   'menu.orders': 'Órdenes',
-  'menu.customers': 'Clientes',
+  'menu.customers': 'Clientes/Leads',
 
-  'menu.operation': 'Operaciones',
+  'menu.settings': 'Configuraciones',
 
   'menu.campaigns': 'Campañas',
 
@@ -211,7 +234,7 @@ export const esTranslations = {
   "client.order_desc": "Descendente",
 
   "client.table_id": "Id",
-  "client.table_external_id": "Id externo",
+  "client.table_external_id": "Identificación",
   "client.table_full_name": "Nombre completo",
   "client.table_email": "Correo",
   "client.table_phone": "Teléfono",
@@ -224,10 +247,10 @@ export const esTranslations = {
 
   "client.add_client": "Agregar cliente",
   "client.edit_client": "Editar cliente",
-  "client.external_id": "Id externo",
-  "client.full_name": "Nombre completo",
+  "client.external_id": "Identificación",
+ 
   "client.email": "Correo",
-  "client.phone": "Teléfono",
+ 
   "client.save": "Guardar",
   "client.create": "Crear",
   "client.update": "Actualizar",
@@ -270,8 +293,7 @@ export const esTranslations = {
   "item.table_actions": "Acciones",
 
   "item.view": "Ver",
-  "item.edit": "Editar",
-  "item.delete": "Eliminar",
+ 
   "item.no_data": "No hay datos",
 
   "item.add_item": "Agregar ítem",
@@ -281,9 +303,9 @@ export const esTranslations = {
   "item.type_product": "Producto",
   "item.type_service": "Servicio",
   "item.description": "Descripción",
-  "item.save": "Guardar",
+ 
   "item.create": "Crear",
-  "item.update": "Actualizar",
+ 
   "item.cancel": "Cancelar",
   "item.saving": "Guardando...",
   "item.operation_failed": "No se pudo completar la operación",
@@ -398,6 +420,7 @@ export const esTranslations = {
   "integration.add_integration": "Nueva integración",
   "integration.search_placeholder": "Buscar integración",
   "integration.webhook_url": "URL del webhook",
+  "integration.name": "Nombre de la integración",
   "integration.api_key": "Clave API",
   "integration.app_identifier": "Identificador de la app",
   "integration.access_token": "Token de acceso",
@@ -421,6 +444,10 @@ export const esTranslations = {
   "integration.save_failed": "No se pudo guardar la integración",
   "integration.confirm_delete_message": "¿Seguro que deseas eliminar esta integración?",
   "integration.deleting": "Eliminando...",
+  "integration.non_commercial" : "Número no comercial",
+  "integration.non_commercial_title": "NO COMERCIAL",
+  "integration.yes": "Sí",
+  "integration.no": "No",
 
 
   // Whatsapp Templates

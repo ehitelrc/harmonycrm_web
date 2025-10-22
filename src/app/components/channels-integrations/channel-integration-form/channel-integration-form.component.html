@@ -29,6 +29,24 @@
       <!-- Form -->
       <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
         <form (ngSubmit)="submit()" class="space-y-4">
+
+          <!-- Integration Name -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+              {{ t('integration.name') }} *
+            </label>
+            <input
+              type="text"
+              [(ngModel)]="model.integration_name"
+              name="integration_name"       
+              required       
+              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
+                     focus:ring-[#3e66ea] focus:border-[#3e66ea] text-sm text-[#00113f]
+                     dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            />
+          </div>    
+
+          <!-- Webhook URL -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               {{ t('integration.webhook_url') }} *
@@ -44,6 +62,7 @@
             />
           </div>
 
+          <!-- Access Token -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               {{ t('integration.access_token') }}
@@ -58,6 +77,7 @@
             />
           </div>
 
+          <!-- App Identifier -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               {{ t('integration.app_identifier') }}
@@ -72,18 +92,63 @@
             />
           </div>
 
-          <div class="flex items-center space-x-2">
-            <input
-              id="is_active"
-              type="checkbox"
-              [(ngModel)]="model.is_active"
-              name="is_active"
-              class="h-4 w-4 text-[#3e66ea] border-gray-300 rounded focus:ring-[#3e66ea]"
-            />
-            <label for="is_active" class="text-sm text-gray-700 dark:text-gray-300">
-              {{ t('integration.active_status') }}
+          <!-- Switches -->
+          <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pt-2">
+
+            <!-- is_active -->
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <div class="relative">
+                <input
+                  id="is_active"
+                  type="checkbox"
+                  [(ngModel)]="model.is_active"
+                  name="is_active"
+                  class="sr-only"
+                />
+                <div
+                  class="block w-10 h-5 rounded-full transition-colors duration-200"
+                  [ngClass]="model.is_active
+                    ? 'bg-[#3e66ea]'
+                    : 'bg-gray-300 dark:bg-gray-600'">
+                </div>
+                <div
+                  class="absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full transition-transform duration-200"
+                  [ngClass]="model.is_active ? 'translate-x-5' : ''">
+                </div>
+              </div>
+              <span class="text-sm text-gray-700 dark:text-gray-300">
+                {{ t('integration.active_status') }}
+              </span>
             </label>
+
+            <!-- is_non_commercial -->
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <div class="relative">
+                <input
+                  id="is_non_commercial"
+                  type="checkbox"
+                  [(ngModel)]="model.is_non_commercial"
+                  name="is_non_commercial"
+                  class="sr-only"
+                />
+                <div
+                  class="block w-10 h-5 rounded-full transition-colors duration-200"
+                  [ngClass]="model.is_non_commercial
+                    ? 'bg-[#3e66ea]'
+                    : 'bg-gray-300 dark:bg-gray-600'">
+                </div>
+                <div
+                  class="absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full transition-transform duration-200"
+                  [ngClass]="model.is_non_commercial ? 'translate-x-5' : ''">
+                </div>
+              </div>
+              <span class="text-sm text-gray-700 dark:text-gray-300">
+                {{ t('integration.non_commercial') }}
+              </span>
+            </label>
+
           </div>
+
         </form>
       </div>
 
