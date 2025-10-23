@@ -4,6 +4,7 @@
     <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
     <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
 
+    <!-- Modal principal -->
     <div
       class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full"
       (click)="$event.stopPropagation()"
@@ -37,6 +38,7 @@
           >
             {{ t('client.general_info') }}
           </button>
+
           <button
             (click)="activeTab = 'location'"
             [class.border-[#00113f]]="activeTab === 'location'"
@@ -45,6 +47,7 @@
           >
             {{ t('client.location_info') }}
           </button>
+
           <button
             (click)="activeTab = 'other'"
             [class.border-[#00113f]]="activeTab === 'other'"
@@ -52,6 +55,15 @@
             class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-300 hover:text-gray-700"
           >
             {{ t('client.additional_info') }}
+          </button>
+
+          <button
+            (click)="activeTab = 'custom'"
+            [class.border-[#00113f]]="activeTab === 'custom'"
+            [class.text-[#00113f]]="activeTab === 'custom'"
+            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-300 hover:text-gray-700"
+          >
+            {{ t('client.custom_info') }}
           </button>
         </nav>
       </div>
@@ -62,7 +74,9 @@
           <!-- TAB 1: GENERAL -->
           <div *ngIf="activeTab === 'general'" class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('client.external_id') }}</label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {{ t('client.external_id') }}
+              </label>
               <input
                 type="text"
                 formControlName="external_id"
@@ -73,7 +87,9 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('client.full_name') }} *</label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {{ t('client.full_name') }} *
+              </label>
               <input
                 type="text"
                 formControlName="full_name"
@@ -85,7 +101,9 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('client.email') }}</label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {{ t('client.email') }}
+              </label>
               <input
                 type="email"
                 formControlName="email"
@@ -97,7 +115,9 @@
             </div>
 
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">{{ t('client.phone') }}</label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                {{ t('client.phone') }}
+              </label>
               <input
                 type="text"
                 formControlName="phone"
@@ -112,7 +132,9 @@
           <div *ngIf="activeTab === 'location'" class="space-y-4">
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">País *</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                  País *
+                </label>
                 <select
                   formControlName="country_id"
                   (change)="onCountryChange()"
@@ -171,7 +193,9 @@
           <!-- TAB 3: OTHERS -->
           <div *ngIf="activeTab === 'other'" class="space-y-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Dirección detallada</label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Dirección detallada
+              </label>
               <textarea
                 formControlName="address_detail"
                 rows="2"
@@ -191,6 +215,14 @@
                        border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               />
             </div>
+          </div>
+
+          <!-- TAB 4: CUSTOM -->
+          <div *ngIf="activeTab === 'custom'" class="space-y-4">
+            <app-custom-fields-form
+              [fields]="customFields"
+              (changed)="customValues = $event"
+            ></app-custom-fields-form>
           </div>
         </form>
       </div>

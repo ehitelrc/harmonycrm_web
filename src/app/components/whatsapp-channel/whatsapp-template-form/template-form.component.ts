@@ -88,9 +88,9 @@ export class TemplateFormComponent implements OnInit {
 
       let resp;
       if (this.isEditing && this.template) {
-        resp = await this.service.update(this.template.id, payload);
+        resp = await this.service.updateWhatsappTemplate(this.template.id, payload);
       } else {
-        resp = await this.service.create(payload);
+        resp = await this.service.createWhatsappTemplate(payload);
       }
 
       if (resp.success && resp.data) {

@@ -42,4 +42,10 @@ export interface CaseWithChannel {
   last_message_is_media?: boolean | null; // true si image/audio/file
 
   is_non_commercial?: boolean | null; // true si es un caso no comercial
+
+  channel_integration_id?: number | null; // ID de la integración del canal
+
+  manual_starting_lead?: boolean | null; // true si el lead fue iniciado manualmente
+
+  client_messages?: number | null; // Número de mensajes del cliente
 }

@@ -51,7 +51,7 @@
 
     <!-- Listado -->
     <app-templates-list [templates]="templates" [isLoading]="loadingTemplates" (edit)="onEdit($event)"
-      (view)="onView($event)">
+      (view)="onView($event) " (remove)="onRemove($event)">
     </app-templates-list>
 
     <!-- Formulario (crear/editar) -->

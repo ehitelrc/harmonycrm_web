@@ -7,18 +7,21 @@ import { LanguageService } from '@app/services/extras/language.service';
 import { AlertService } from '@app/services/extras/alert.service';
 import { Canton, Country, District, Province } from '@app/models/locations.model';
 import { GeoService } from '@app/services/geo.service';
+import { CustomField } from '@app/models/custom-field.model';
+import { CustomFieldsFormComponent } from './custom-fields-form.component';
+ 
 
 @Component({
   selector: 'app-client-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule],
+  imports: [CommonModule, ReactiveFormsModule, CustomFieldsFormComponent],
   templateUrl: './client-form.component.html',
   styleUrls: ['./client-form.component.css'],
 })
 export class ClientFormComponent implements OnInit, OnChanges {
   @Input() client: Client | null = null;
   @Input() phoneNumber: string | null = null; // para prellenar el teléfono al crear
-  @Output() success = new EventEmitter<Client>(); // emitimos el objeto -> tendrás el id
+  @Output() success = new EventEmitter<Client>();
   @Output() cancel = new EventEmitter<void>();
 
   form!: FormGroup;
@@ -30,12 +33,15 @@ export class ClientFormComponent implements OnInit, OnChanges {
   cantons: Canton[] = [];
   districts: District[] = [];
 
-  activeTab: 'general' | 'location' | 'other' = 'general';
+  customFields: CustomField[] = [];
+  customValues: any = {};
+
+  activeTab: 'general' | 'location' | 'other' | 'custom' = 'general';
 
   constructor(
     private geo: GeoService,
     private fb: FormBuilder,
-    private service: ClientService,
+    private clientService: ClientService,
     private lang: LanguageService,
     private alert: AlertService
   ) {}
@@ -48,12 +54,14 @@ export class ClientFormComponent implements OnInit, OnChanges {
     this.build();
     await this.loadCountries();
     await this.patch();
+    await this.loadCustomFields();
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
     if (changes['client'] && this.form) {
       this.isEditing = !!this.client;
       await this.patch();
+      await this.loadCustomFields();
     }
   }
 
@@ -63,14 +71,10 @@ export class ClientFormComponent implements OnInit, OnChanges {
       full_name: ['', [Validators.required, Validators.maxLength(200)]],
       email: ['', [Validators.email, Validators.maxLength(200)]],
       phone: ['', [Validators.maxLength(50)]],
-
-      // 📍 Campos geográficos
       country_id: [null, Validators.required],
       province_id: [null],
       canton_id: [null],
       district_id: [null],
-
-      // 🏠 Otros datos
       address_detail: [''],
       postal_code: [''],
     });
@@ -88,7 +92,6 @@ export class ClientFormComponent implements OnInit, OnChanges {
 
     this.isEditing = true;
 
-    // Prellenamos los valores base
     this.form.patchValue({
       external_id: this.client.external_id || '',
       full_name: this.client.full_name || '',
@@ -102,8 +105,6 @@ export class ClientFormComponent implements OnInit, OnChanges {
       postal_code: this.client.postal_code || '',
     });
 
-  
-    // Carga jerárquica dinámica según los IDs
     if (this.client.country_id) {
       await this.loadProvinces(this.client.country_id);
       if (this.client.province_id) {
@@ -126,13 +127,18 @@ export class ClientFormComponent implements OnInit, OnChanges {
       return;
     }
 
+    const payload = {
+      ...this.form.value,
+      custom_fields: this.customValues, // 🔥 incluye dinámicos
+    };
+
     this.isSubmitting = true;
     try {
       let resp;
       if (this.isEditing && this.client) {
-        resp = await this.service.update(this.client.id, this.form.value);
+        resp = await this.clientService.update(this.client.id, payload);
       } else {
-        resp = await this.service.create(this.form.value);
+        resp = await this.clientService.create(payload);
       }
 
       if (resp.success && resp.data) {
@@ -152,13 +158,12 @@ export class ClientFormComponent implements OnInit, OnChanges {
     this.cancel.emit();
   }
 
-  // 🌎 Carga inicial
+  // 🌍 Carga de ubicaciones
   private async loadCountries() {
     const res = await this.geo.getCountries();
     if (res.success) this.countries = res.data;
   }
 
-  // 🔁 Métodos reutilizables para cascadas
   private async loadProvinces(countryId: number) {
     const res = await this.geo.getProvincesByCountry(countryId);
     this.provinces = res.success ? res.data : [];
@@ -174,7 +179,6 @@ export class ClientFormComponent implements OnInit, OnChanges {
     this.districts = res.success ? res.data : [];
   }
 
-  // 🔄 Eventos de cambio en selects
   async onCountryChange() {
     const countryId = this.form.get('country_id')?.value;
     if (!countryId) return;
@@ -197,5 +201,21 @@ export class ClientFormComponent implements OnInit, OnChanges {
     if (!cantonId) return;
     await this.loadDistricts(cantonId);
     this.form.patchValue({ district_id: null });
+  }
+
+  // 🧩 Llama al endpoint del backend ya existente
+  private async loadCustomFields() {
+    try {
+      const entityId = this.client?.id || 0;
+      const res = await this.clientService.getCustomFields(entityId);
+      if (res.success && Array.isArray(res.data)) {
+        this.customFields = res.data;
+      } else {
+        this.customFields = [];
+      }
+    } catch (err) {
+      console.error('Error cargando campos personalizados:', err);
+      this.customFields = [];
+    }
   }
 }

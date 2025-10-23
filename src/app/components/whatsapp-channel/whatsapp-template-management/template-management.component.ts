@@ -160,11 +160,12 @@ cancelDelete(): void {
   this.deletingId = null;
   this.isDeleteOpen = false;
 }
+
 async confirmDelete(): Promise<void> {
   if (!this.deletingId) return;
   this.isDeleting = true;
   try {
-    const r = await this.templateService.delete(this.deletingId);
+    const r = await this.templateService.deleteWhatsappTemplate(this.deletingId);
     if (r.success) {
       this.alert.success(this.t('whatsapp_template.deleted_successfully'));
       await this.loadTemplates();

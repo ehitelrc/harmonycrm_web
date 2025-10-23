@@ -33,4 +33,10 @@ export interface CaseGeneralInformation {
   agent_name?: string | null; // Nombre del agente asignado
 
   color_hex?: string | null; // Color asociado al funnel o estado
+
+  channel_integration_id?: number | null; // ID de la integración del canal
+
+  ManualStartingLead?: boolean | null; // Indica si el lead fue iniciado manualmente
+
+  client_messages ?: number | null; // Número de mensajes del cliente
 }

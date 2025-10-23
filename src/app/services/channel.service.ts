@@ -6,6 +6,8 @@ import { ApiResponse } from '@app/models';
 import { Channel } from '@app/models/channel.model';
 import { VWChannelIntegration } from '@app/models/vw-channel-integration.model';
 import { ChannelIntegration } from '@app/models/channel-integration.model';
+import { CompanyChannelTemplateView } from '@app/models/company-channel-template-view.model';
+import { ChannelWhatsAppTemplate } from '@app/models/channel-whatsapp-template.model';
 
 const GATEWAY = '/channels';
 export const CHANNEL_URL = returnCompleteURI({
@@ -93,5 +95,13 @@ export class ChannelService {
       API_Gateway: `${environment.API.BASE}/channels/integrations/${id}`,
     });
   }
+
+	///channels/whatsapp/templates/integration/:channel_integration_id
+  getWhatsappTemplatesByIntegration(integrationId: number): Promise<ApiResponse<ChannelWhatsAppTemplate[]>> {
+    return this.fetch.get<ApiResponse<ChannelWhatsAppTemplate[]>>({
+      API_Gateway: `${CHANNEL_URL}/whatsapp/templates/integration/${integrationId}`,
+    });
+  }
+
 
 }

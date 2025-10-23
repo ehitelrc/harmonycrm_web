@@ -54,4 +54,28 @@ export class WhatsAppTemplateService {
       API_Gateway: `${TEMPLATE_URL}/whatsapp/templates/integration/${integrationId}`,
     });
   } 
+
+  ///channels/whatsapp/templates
+  async createWhatsappTemplate(data: Partial<WhatsAppTemplate>): Promise<ApiResponse<WhatsAppTemplate>> {
+    return await this.fetch.post<ApiResponse<WhatsAppTemplate>>({
+      API_Gateway: `${TEMPLATE_URL}/whatsapp/templates`,
+      values: data,
+    });
+  }
+
+  //Update Whatsapp Template
+  async updateWhatsappTemplate(id: number, data: Partial<WhatsAppTemplate>): Promise<ApiResponse<WhatsAppTemplate>> {
+    data.id = id;
+    return await this.fetch.put<ApiResponse<WhatsAppTemplate>>({
+      API_Gateway: `${TEMPLATE_URL}/whatsapp/templates`,
+      values: data,
+    });
+  }
+
+  // Delete Whatsapp Template
+  async deleteWhatsappTemplate(id: number): Promise<ApiResponse<void>> {
+    return await this.fetch.delete<ApiResponse<void>>({
+      API_Gateway: `${TEMPLATE_URL}/whatsapp/templates/${id}`,
+    });
+  }
 }

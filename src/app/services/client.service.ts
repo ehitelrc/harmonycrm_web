@@ -6,6 +6,7 @@ import { returnCompleteURI } from '@app/utils';
 import { Client } from '@app/models/client.model';
 import { Lead } from '@app/models/lead.model';
 import { LeadRequest } from '@app/models/lead-request.model';
+import { CustomField } from '@app/models/custom-field.model';
 
 const GATEWAY = '/clients';
 export const CLIENT_URL = returnCompleteURI({
@@ -42,5 +43,10 @@ export class ClientService {
   async createLeadClient(data: LeadRequest): Promise<ApiResponse<void>> {
     return await this.fetch.post<ApiResponse<void>>({ API_Gateway: `${CLIENT_URL}/leads`, values: data });
   }
- 
+
+	//r.GET("/clients/custom_fields/:entity_id", ctrl.GetCustomFields)
+  // Obtiene los campos personalizados de un cliente
+  async getCustomFields(entityId: number): Promise<ApiResponse<CustomField[]>> {
+    return await this.fetch.get<ApiResponse<CustomField[]>>({ API_Gateway: `${CLIENT_URL}/custom_fields/${entityId}` });
+  }     
 }

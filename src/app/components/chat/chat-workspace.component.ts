@@ -29,6 +29,11 @@ import { environment } from '@environment';
 import { Department } from '@app/models/department.model';
 import { DepartmentService } from '@app/services/department.service';
 import { User as UserAuthModel } from '../../models/auth.model' //'../../../models/auth.model';
+import { CompanyChannelTemplateView } from '@app/models/company-channel-template-view.model';
+import { ChannelService } from '@app/services/channel.service';
+import { ChannelWhatsAppTemplate } from '@app/models/channel-whatsapp-template.model';
+import { CampaignWhatsappPushRequest } from '@app/models/campaign-whatsapp-push.model';
+import { CampaignPushService } from '@app/services/campaign-push.service';
 
 @Component({
   selector: 'app-chat-workspace',
@@ -49,6 +54,8 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
   // En tu componente padre
   isMoveStageOpen = false;
   currentStage: VwCaseCurrentStage | null = null;
+
+  templateLoading = false;
 
 
   isChangeStatusOpen = false;
@@ -159,6 +166,10 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
 
   stateUser: UserAuthModel | null = null;
 
+  selectedTemplate: number | null = null;
+  templates: ChannelWhatsAppTemplate[] = [];
+
+
 
   constructor(
     private lang: LanguageService,
@@ -170,7 +181,9 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
     private authService: AuthService,
     private campaignService: CampaignService,
     private itemService: ItemService,
-    private departmentService: DepartmentService
+    private departmentService: DepartmentService,
+    private channelService: ChannelService,
+    private pushService: CampaignPushService,
 
   ) { }
 
@@ -276,7 +289,14 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
 
       this.loadDepartment();
 
+
       await this.loadCurrentStage(c.case_id); // Nueva línea para cargar el estado actual
+
+
+      if (this.selectedCase.manual_starting_lead && this.selectedCase.client_messages == 0) {
+        this.loadTemplatesForChannelIntegration();
+      }
+
 
       if (c.client_id) {
         const clientResponse = await this.clientService.getById(c.client_id);
@@ -368,7 +388,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
     });
   }
 
-  
+
 
 
   openAssignDepartmentModal() {
@@ -380,22 +400,22 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
   }
 
   private async loadDepartments(): Promise<void> {
-        try {
-            this.isLoadingDepartments = true;
-            const res = await this.departmentService.getByCompany(this.selectedCase?.company_id || 0  );
-            const data = (res as { data?: unknown })?.data;
-            const list: Department[] = Array.isArray(data) ? data as Department[] : [];
+    try {
+      this.isLoadingDepartments = true;
+      const res = await this.departmentService.getByCompany(this.selectedCase?.company_id || 0);
+      const data = (res as { data?: unknown })?.data;
+      const list: Department[] = Array.isArray(data) ? data as Department[] : [];
 
-            this.departments = list;
-            this.filteredDepartments = list;
-        } catch {
-            this.alert.error('Error cargando departamentos');
-            this.departments = [];
-            this.filteredDepartments = [];
-        } finally {
-            this.isLoadingDepartments = false;
-        }
+      this.departments = list;
+      this.filteredDepartments = list;
+    } catch {
+      this.alert.error('Error cargando departamentos');
+      this.departments = [];
+      this.filteredDepartments = [];
+    } finally {
+      this.isLoadingDepartments = false;
     }
+  }
 
   // Helpers render
   isText(m: Message) { return m.message_type === 'text'; }
@@ -463,39 +483,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
 
   toggleRightPanel() { this.isRightPanelOpen = !this.isRightPanelOpen; }
 
-  async send() {
-    const body = this.draft.trim();
-    if (!body || !this.selectedCase) return;
 
-    // 1) Mensaje optimista con correlación
-    const clientTmpId = `tmp-${Date.now()}-${this.tmpCounter++}`;
-    const optimistic: Message = {
-      id: 0,
-      case_id: this.selectedCase.case_id,
-      sender_type: 'agent',
-      message_type: 'text',
-      text_content: body,
-      file_url: null,
-      mime_type: null,
-      channel_message_id: clientTmpId,
-      created_at: new Date().toISOString(),
-      base64_content: null,
-    };
-    this.messages = [...this.messages, optimistic];
-    this.draft = '';
-    this.scrollToBottomSoon();
-
-    try {
-      // 2) Enviar al backend (espera WS para reemplazar)
-      const payload = buildAgentTextMessage(this.selectedCase.case_id, body);
-      (payload as any).client_tmp_id = clientTmpId;
-      await this.chatService.sendText(payload);
-    } catch {
-      this.alert.error(this.t('chat.failed_to_send'));
-      // Revierte optimista si falla
-      this.messages = this.messages.filter(m => m.channel_message_id !== clientTmpId);
-    }
-  }
 
   private scrollToBottomSoon() {
     setTimeout(() => {
@@ -1245,4 +1233,113 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
               class="text-[#3e66ea] hover:underline break-words">${url}</a>`;
     });
   }
+
+
+  loadTemplatesForChannelIntegration() {
+    this.templateLoading = true;
+    this.templates = [];
+    this.channelService.getWhatsappTemplatesByIntegration(this.selectedCase?.channel_integration_id || 0)
+      .then(resp => {
+        // filtra solo los que tengan template_id
+        let data = resp?.data || [];
+
+        this.templates = (resp?.data || []).filter(t => t.id);
+      })
+      .catch(err => console.error('Error loading templates:', err))
+      .finally(() => this.templateLoading = false);
+  }
+
+  async sendTemplate() {
+
+    this.sendPush();
+
+  }
+
+  async sendPush() {
+
+
+    let leads = [
+      {
+        phone_number: this.selectedCase?.sender_id || '',
+        full_name: this.currentClient?.full_name || undefined,
+        manual_starting_lead: true,
+        client_id: this.currentClient?.id || undefined,
+        case_id: this.selectedCase?.case_id || undefined,
+
+      }
+    ];
+
+    const payload: CampaignWhatsappPushRequest = {
+      campaign_id: this.selectedCase?.campaign_id || 0,
+      description: "Push desde caso #" + this.selectedCase?.case_id,
+      template_id: this.selectedTemplate!,
+      changed_by: this.agent_id || 0, // ajusta al campo que uses como user_id
+      leads: leads,
+    };
+
+
+    try {
+      const resp = await this.pushService.createWhatsappPush(payload);
+      if (resp?.success) {
+
+        if (this.selectedCase) {
+          this.selectedCase.client_messages = 1;
+
+        }
+
+        // Si tienes la lista de casos cargada, actualiza ahí también
+        this.cases = this.cases.map(c =>
+          c.case_id === this.selectedCase?.case_id
+            ? { ...c, client_messages: 1 }
+            : c
+        );
+
+
+        this.alert.success(`Push creado (ID: ${resp.data?.push_id ?? '—'})`);
+
+      } else {
+        this.alert.error(resp?.message || 'No se pudo registrar el push.');
+      }
+    } catch (e) {
+      console.error(e);
+      this.alert.error('Error al registrar el push.');
+    } finally {
+
+    }
+  }
+
+  async send() {
+    const body = this.draft.trim();
+    if (!body || !this.selectedCase) return;
+
+    // 1) Mensaje optimista con correlación
+    const clientTmpId = `tmp-${Date.now()}-${this.tmpCounter++}`;
+    const optimistic: Message = {
+      id: 0,
+      case_id: this.selectedCase.case_id,
+      sender_type: 'agent',
+      message_type: 'text',
+      text_content: body,
+      file_url: null,
+      mime_type: null,
+      channel_message_id: clientTmpId,
+      created_at: new Date().toISOString(),
+      base64_content: null,
+    };
+    this.messages = [...this.messages, optimistic];
+    this.draft = '';
+    this.scrollToBottomSoon();
+
+    try {
+      // 2) Enviar al backend (espera WS para reemplazar)
+      const payload = buildAgentTextMessage(this.selectedCase.case_id, body);
+      (payload as any).client_tmp_id = clientTmpId;
+      await this.chatService.sendText(payload);
+    } catch {
+      this.alert.error(this.t('chat.failed_to_send'));
+      // Revierte optimista si falla
+      this.messages = this.messages.filter(m => m.channel_message_id !== clientTmpId);
+    }
+  }
+
 }

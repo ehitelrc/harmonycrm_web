@@ -1,5 +1,11 @@
 export const esTranslations = {
 
+
+  // Campaigns pushin
+  "push.management_title": "Gestión de envios masivos de WhatsApp",
+  "push.management_description": "Administra los envios masivos de WhatsApp para las compañías",
+  
+  
   // Leads reg
   'menu.sales': 'Ventas',
   'menu.lead-registration': 'Registar mis Leads',
@@ -15,13 +21,13 @@ export const esTranslations = {
   "leads.select_filters_message": "Seleccione una compañía y una campaña para visualizar los leads.",
   "lead.search_placeholder": "Buscar lead por nombre o correo electrónico",
 
-   "channel.select_integration": "Seleccionar integración",
-   "item.select_integration_lead": "Selecciona una integración para cargar los leads",
-   "channel.select_channel_integration_placeholder": "Seleccionar integración...",
+  "channel.select_integration": "Seleccionar integración",
+  "item.select_integration_lead": "Selecciona una integración para cargar los leads",
+  "channel.select_channel_integration_placeholder": "Seleccionar integración...",
 
   // Auth
 
-  
+
   'auth.welcome': 'Bienvenido a Harmony',
   'auth.subtitle': 'Inicia sesión para acceder a tu sistema de gestión de almacenes',
   'auth.signin': 'Iniciar Sesión',
@@ -248,9 +254,9 @@ export const esTranslations = {
   "client.add_client": "Agregar cliente",
   "client.edit_client": "Editar cliente",
   "client.external_id": "Identificación",
- 
+
   "client.email": "Correo",
- 
+
   "client.save": "Guardar",
   "client.create": "Crear",
   "client.update": "Actualizar",
@@ -271,6 +277,7 @@ export const esTranslations = {
   "client.location_info": "Información de ubicación",
   "client.additional_info": "Otra información",
 
+  "client.custom_info": "Más",
 
   // Items
 
@@ -293,7 +300,7 @@ export const esTranslations = {
   "item.table_actions": "Acciones",
 
   "item.view": "Ver",
- 
+
   "item.no_data": "No hay datos",
 
   "item.add_item": "Agregar ítem",
@@ -303,9 +310,9 @@ export const esTranslations = {
   "item.type_product": "Producto",
   "item.type_service": "Servicio",
   "item.description": "Descripción",
- 
+
   "item.create": "Crear",
- 
+
   "item.cancel": "Cancelar",
   "item.saving": "Guardando...",
   "item.operation_failed": "No se pudo completar la operación",
@@ -413,6 +420,7 @@ export const esTranslations = {
   "channel.select_channel": "Seleccionar canal",
   "channel.select_channel_placeholder": "Seleccionar canal...",
   "channel.channel_required": "El canal es requerido para gestionar integraciones",
+  "channel.deleting": "Eliminando...",
 
 
   "integration.management_title": "Gestión de Integraciones",
@@ -444,7 +452,7 @@ export const esTranslations = {
   "integration.save_failed": "No se pudo guardar la integración",
   "integration.confirm_delete_message": "¿Seguro que deseas eliminar esta integración?",
   "integration.deleting": "Eliminando...",
-  "integration.non_commercial" : "Número no comercial",
+  "integration.non_commercial": "Número no comercial",
   "integration.non_commercial_title": "NO COMERCIAL",
   "integration.yes": "Sí",
   "integration.no": "No",
@@ -491,13 +499,21 @@ export const esTranslations = {
   "whatsapp_template.select_integration": "Seleccionar integración",
   "template.no_data": "No hay plantillas",
   "whatsapp_template.add_new_template": "Crear plantilla",
-
+  "whatsapp_template.confirm_delete_title": "Confirmar eliminación de plantilla",
+  "whatsapp_template.confirm_delete_message": "¿Estás seguro de que deseas eliminar esta plantilla?",
+  "whatsapp_template.deleted_successfully": "Plantilla eliminada correctamente",
+  "whatsapp_template.failed_to_delete_template": "No se pudo eliminar la plantilla",
+  "whatsapp_template.created_successfully": "Plantilla creada correctamente",
 
   "whatsapp_template.edit_template": "Editar plantilla",
   "whatsapp_template.template_name": "Nombre de la plantilla",
   "whatsapp_template.language_code": "Idioma",
   "common.cancel": "Cancelar",
   "common.update": "Aceptar",
+  "common.create": "Crear",
+  "common.delete": "Eliminar",
+  "common.deleting": "Eliminando...",
+  "whatsapp_template.saving": "Guardando...",
   "whatsapp_template.active": "Activo",
   "whatsapp_template.template_url_webhook": "Webhook de URL de plantilla",
 
