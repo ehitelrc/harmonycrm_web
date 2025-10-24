@@ -180,9 +180,14 @@
         @if(selectedCase ) {
         <div
             class="h-16 px-4 border-t border-gray-200 dark:border-gray-800 flex items-center gap-2 bg-white dark:bg-gray-900">
-            <button (click)="openImageModal()" class="ml-2 p-2 rounded-md bg-blue-500 text-white hover:bg-blue-600"
+            <button (click)="openImageModal()"
+                class="ml-2 p-1 rounded-full bg-blue-500 text-white hover:bg-blue-300 flex items-center justify-center"
                 title="Enviar imagen">
-                <i class="fa fa-image"></i>
+                <svg class="w-7 h-7" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <path
+                        d="M4.5 5.25A2.25 2.25 0 0 1 6.75 3h10.5A2.25 2.25 0 0 1 19.5 5.25v13.5A2.25 2.25 0 0 1 17.25 21H6.75A2.25 2.25 0 0 1 4.5 18.75V5.25Zm11.69 5.81a.75.75 0 0 0-1.38 0l-2.03 4.87-1.08-2.58a.75.75 0 0 0-1.35-.07l-1.52 2.54a.75.75 0 0 0 .64 1.14h8.25a.75.75 0 0 0 .68-1.07l-2.91-4.83ZM9 8.25a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z" />
+                </svg>
             </button>
             <input [(ngModel)]="draft" (keydown.enter)="send()" [disabled]="!selectedCase" type="text"
                 placeholder="Escribe un mensaje…" class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400
@@ -1263,9 +1268,5 @@
     [funnelId]="currentCampaign?.funnel_id!" (cancel)="isMoveStageOpen = false" (moved)="onMoveStage($event)">
 </app-move-stage-modal>
 
-<app-send-image-modal
-  *ngIf="isImageModalOpen"
-  [isOpen]="isImageModalOpen"
-  (close)="closeImageModal()"
-  (send)="onImageSend($event)"
-></app-send-image-modal>
+<app-send-image-modal *ngIf="isImageModalOpen" [isOpen]="isImageModalOpen" (close)="closeImageModal()"
+    (send)="onImageSend($event)"></app-send-image-modal>

@@ -26,6 +26,7 @@
     "@angular/forms": "^20.1.0",
     "@angular/platform-browser": "^20.1.0",
     "@angular/router": "^20.1.0",
+    "@fortawesome/fontawesome-free": "^7.1.0",
     "@swimlane/ngx-charts": "^23.0.1",
     "angularx-qrcode": "^20.0.0",
     "apexcharts": "^5.3.5",

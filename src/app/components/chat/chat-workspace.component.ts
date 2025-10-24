@@ -43,7 +43,8 @@ import { SendImageModalComponent } from './send-image-modal/send-image-modal.com
     FormsModule,
     ClientFormComponent,
     MoveStageModalComponent,
-    SendImageModalComponent
+    SendImageModalComponent,
+ 
   ],
   templateUrl: './chat-workspace.component.html',
   styleUrls: ['./chat-workspace.component.css']
