@@ -7,6 +7,7 @@ export interface AgentMessage {
   sender_type: SenderType; // "agent" | "client"
   message_type: MessageType; // "text" | "image" | "file" | "audio"
   text_message: string;    // contenido del mensaje cuando message_type === "text"
+  base64_content?: string; // contenido en base64 cuando message_type === "image"
 }
 
 export function buildAgentTextMessage(caseId: number, body: string): AgentMessage {
@@ -15,5 +16,17 @@ export function buildAgentTextMessage(caseId: number, body: string): AgentMessag
     sender_type: 'agent',
     message_type: 'text',
     text_message: body ?? '',
+  };
+}
+
+
+export function buildAgentImageMessage(caseId: number, body: string, base64Content: string): AgentMessage {
+  return {
+    case_id: caseId,
+    sender_type: 'agent',
+    message_type: 'image',
+    text_message: body ?? '',
+    base64_content: base64Content ?? '',
+  
   };
 }

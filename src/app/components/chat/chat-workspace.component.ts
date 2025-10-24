@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { buildAgentTextMessage } from '@app/models/agent-message.model';
+import { buildAgentTextMessage,buildAgentImageMessage } from '@app/models/agent-message.model';
 import { CaseWithChannel } from '@app/models/case-with-channel.model';
 import { Client } from '@app/models/client.model';
 import { Message } from '@app/models/message.model';
@@ -34,11 +34,17 @@ import { ChannelService } from '@app/services/channel.service';
 import { ChannelWhatsAppTemplate } from '@app/models/channel-whatsapp-template.model';
 import { CampaignWhatsappPushRequest } from '@app/models/campaign-whatsapp-push.model';
 import { CampaignPushService } from '@app/services/campaign-push.service';
+import { SendImageModalComponent } from './send-image-modal/send-image-modal.component';
 
 @Component({
   selector: 'app-chat-workspace',
   standalone: true,
-  imports: [CommonModule, FormsModule, ClientFormComponent, MoveStageModalComponent],
+  imports: [CommonModule,
+    FormsModule,
+    ClientFormComponent,
+    MoveStageModalComponent,
+    SendImageModalComponent
+  ],
   templateUrl: './chat-workspace.component.html',
   styleUrls: ['./chat-workspace.component.css']
 })
@@ -168,6 +174,19 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
 
   selectedTemplate: number | null = null;
   templates: ChannelWhatsAppTemplate[] = [];
+
+  // 
+
+  isImageModalOpen = false;
+
+  openImageModal() {
+    this.isImageModalOpen = true;
+  }
+
+  closeImageModal() {
+    this.isImageModalOpen = false;
+  }
+
 
 
 
@@ -1334,11 +1353,49 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
       // 2) Enviar al backend (espera WS para reemplazar)
       const payload = buildAgentTextMessage(this.selectedCase.case_id, body);
       (payload as any).client_tmp_id = clientTmpId;
-      await this.chatService.sendText(payload);
+      await this.chatService.sendMessage(payload);
     } catch {
       this.alert.error(this.t('chat.failed_to_send'));
       // Revierte optimista si falla
       this.messages = this.messages.filter(m => m.channel_message_id !== clientTmpId);
+    }
+  }
+
+  // Cuando el usuario confirma envío
+  async onImageSend(event: { base64: string; description: string }) {
+    if (!this.selectedCase) return;
+
+    const clientTmpId = `tmp-img-${Date.now()}`;
+    const optimistic: Message = {
+      id: 0,
+      case_id: this.selectedCase.case_id,
+      sender_type: 'agent',
+      message_type: 'image',
+      text_content: event.description,
+      file_url: null,
+      mime_type: 'image/jpeg',
+      channel_message_id: clientTmpId,
+      created_at: new Date().toISOString(),
+      base64_content: event.base64,
+    };
+
+    console.log(event.base64);
+    
+
+    this.messages = [...this.messages, optimistic];
+    this.scrollToBottomSoon();
+
+    try {
+
+      const payload = buildAgentImageMessage(this.selectedCase.case_id, event.description, event.base64);
+      (payload as any).client_tmp_id = clientTmpId;
+
+      await this.chatService.sendMessage(payload);
+      this.alert.success('Imagen enviada correctamente');
+    } catch {
+      this.alert.error('Error al enviar imagen');
+    } finally {
+      this.closeImageModal();
     }
   }
 

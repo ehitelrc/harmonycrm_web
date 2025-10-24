@@ -180,6 +180,10 @@
         @if(selectedCase ) {
         <div
             class="h-16 px-4 border-t border-gray-200 dark:border-gray-800 flex items-center gap-2 bg-white dark:bg-gray-900">
+            <button (click)="openImageModal()" class="ml-2 p-2 rounded-md bg-blue-500 text-white hover:bg-blue-600"
+                title="Enviar imagen">
+                <i class="fa fa-image"></i>
+            </button>
             <input [(ngModel)]="draft" (keydown.enter)="send()" [disabled]="!selectedCase" type="text"
                 placeholder="Escribe un mensaje…" class="flex-1 px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400
                focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent
@@ -1258,3 +1262,10 @@
 <app-move-stage-modal [isOpen]="isMoveStageOpen" [caseId]="selectedCase?.case_id!" [current]="currentStage!"
     [funnelId]="currentCampaign?.funnel_id!" (cancel)="isMoveStageOpen = false" (moved)="onMoveStage($event)">
 </app-move-stage-modal>
+
+<app-send-image-modal
+  *ngIf="isImageModalOpen"
+  [isOpen]="isImageModalOpen"
+  (close)="closeImageModal()"
+  (send)="onImageSend($event)"
+></app-send-image-modal>

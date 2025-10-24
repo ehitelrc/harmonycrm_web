@@ -106,7 +106,7 @@ export class CaseService {
   }
 
   // Enviar mensaje de texto
-  sendText(message: AgentMessage) {
+  sendMessage(message: AgentMessage) {
     return this.fetch.post<ApiResponse<Message>>({
       API_Gateway: `${CASE_URL}/entry/send`,
       values: message,
