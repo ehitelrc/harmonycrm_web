@@ -925,8 +925,16 @@
 }
 
 @if (isFormOpen){
-<app-client-form [client]="currentClient" (success)="onSuccess($event)" (cancel)="closeDialog()">
-</app-client-form>
+<!-- <app-client-form [client]="currentClient" (success)="onSuccess($event)" (cancel)="closeDialog()">
+</app-client-form> -->
+
+<div *ngIf="isFormOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full p-6" (click)="$event.stopPropagation()">
+        <app-client-form [client]="currentClient" (success)="onSuccess($event)" (cancel)="closeDialog()">
+        </app-client-form>
+    </div>
+</div>
+
 }
 
 

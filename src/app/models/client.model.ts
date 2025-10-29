@@ -18,4 +18,5 @@ export interface Client {
   district?: District;
   created_at?: string;
   updated_at?: string;
+  is_citizen?: boolean | null;
 }

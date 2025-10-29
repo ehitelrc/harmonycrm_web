@@ -5,12 +5,10 @@
   <div
     class="flex items-center justify-between px-5 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
     <h3 class="text-base font-semibold text-[#00113f] dark:text-white flex items-center gap-2">
-      <svg class="w-5 h-5 text-[#3e66ea]" fill="none" stroke="currentColor" stroke-width="2"
-        viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round"
-          d="M5.121 17.804A8 8 0 1112 20a8 8 0 01-6.879-2.196z" />
+      <svg class="w-5 h-5 text-[#3e66ea]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5.121 17.804A8 8 0 1112 20a8 8 0 01-6.879-2.196z" />
       </svg>
-      Información del Cliente 
+      Información del Cliente
     </h3>
 
     <div class="flex gap-2">
@@ -49,8 +47,8 @@
     <!-- ⚠️ Cliente no asignado -->
     <ng-template #noClient>
       <div class="flex flex-col items-center justify-center py-8 space-y-4 text-gray-500 dark:text-gray-300">
-        <svg class="w-12 h-12 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor"
-          stroke-width="1.5" viewBox="0 0 24 24">
+        <svg class="w-12 h-12 text-gray-400 dark:text-gray-500" fill="none" stroke="currentColor" stroke-width="1.5"
+          viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round"
             d="M15 19l-3-3m0 0l-3 3m3-3V6m-9 6a9 9 0 1118 0 9 9 0 01-18 0z" />
         </svg>
@@ -73,16 +71,13 @@
 </div>
 
 <!-- 🌟 CARD ARTÍCULOS -->
-<div
-  class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-md overflow-hidden">
+<div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 shadow-md overflow-hidden">
   <!-- Header -->
   <div
     class="flex items-center justify-between px-5 py-3 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800">
     <h3 class="text-base font-semibold text-[#00113f] dark:text-white flex items-center gap-2">
-      <svg class="w-5 h-5 text-[#3e66ea]" fill="none" stroke="currentColor" stroke-width="2"
-        viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round"
-          d="M3 7h18M3 12h18M3 17h18" />
+      <svg class="w-5 h-5 text-[#3e66ea]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M3 7h18M3 12h18M3 17h18" />
       </svg>
       Artículos del Caso
     </h3>
@@ -90,10 +85,8 @@
     <button type="button"
       class="px-3 py-1.5 rounded-md text-xs font-medium bg-[#3e66ea] hover:bg-[#2d4fd6] text-white transition flex items-center gap-1.5 focus:outline-none"
       (click)="openAddItemModal()">
-      <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" stroke="currentColor"
-        viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M12 4v16m8-8H4" />
+      <svg xmlns="http://www.w3.org/2000/svg" class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
       </svg>
       Agregar
     </button>
@@ -167,68 +160,76 @@
 
 <!-- 🔹 MODAL ASIGNAR CLIENTE -->
 @if (isAssignClientOpen) {
-  <div class="fixed inset-0 z-[60]" (click)="closeAssignClientModal()">
-    <div class="absolute inset-0 bg-black/60"></div>
-    <div class="absolute inset-0 flex items-center justify-center p-4" (click)="$event.stopPropagation()">
-      <div
-        class="w-full max-w-3xl max-h-[85vh] bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col">
-        <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
-          <div class="text-sm font-semibold text-[#00113f] dark:text-white">Asignar cliente al caso</div>
-          <button class="chip-btn" (click)="closeAssignClientModal()">Cerrar</button>
-        </div>
+<div class="fixed inset-0 z-[60]" (click)="closeAssignClientModal()">
+  <div class="absolute inset-0 bg-black/60"></div>
+  <div class="absolute inset-0 flex items-center justify-center p-4" (click)="$event.stopPropagation()">
+    <div
+      class="w-full max-w-3xl max-h-[85vh] bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col">
+      <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
+        <div class="text-sm font-semibold text-[#00113f] dark:text-white">Asignar cliente al caso</div>
+        <button class="chip-btn" (click)="closeAssignClientModal()">Cerrar</button>
+      </div>
 
-        <div class="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-3">
-          <div class="relative">
-            <input [(ngModel)]="clientSearch" (ngModelChange)="onClientSearchChange($event)" type="text"
-              placeholder="Buscar por nombre…" class="pl-3 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
+      <div class="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-3">
+        <div class="relative">
+          <input [(ngModel)]="clientSearch" (ngModelChange)="onClientSearchChange($event)" type="text"
+            placeholder="Buscar por nombre…" class="pl-3 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
                      focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent
                      text-sm text-[#00113f] dark:bg-gray-800 dark:border-gray-700 dark:text-white" />
-          </div>
+        </div>
 
-          @if (isLoadingClients) {
-            <div class="text-sm text-gray-500 dark:text-gray-400">Cargando clientes…</div>
-          } @else if (filteredClients.length === 0) {
-            <div class="text-sm text-gray-500 dark:text-gray-400">Sin resultados.</div>
-          }
+        @if (isLoadingClients) {
+        <div class="text-sm text-gray-500 dark:text-gray-400">Cargando clientes…</div>
+        } @else if (filteredClients.length === 0) {
+        <div class="text-sm text-gray-500 dark:text-gray-400">Sin resultados.</div>
+        }
 
-          @if (filteredClients.length > 0) {
-            <div class="max-h-[50vh] overflow-y-auto rounded-md border border-gray-200 dark:border-gray-800">
-              @for (cli of filteredClients; track cli.id) {
-                <button (click)="selectClientCandidate(cli)"
-                  class="w-full text-left px-4 py-3 border-b last:border-b-0 border-gray-100 dark:border-gray-800
+        @if (filteredClients.length > 0) {
+        <div class="max-h-[50vh] overflow-y-auto rounded-md border border-gray-200 dark:border-gray-800">
+          @for (cli of filteredClients; track cli.id) {
+          <button (click)="selectClientCandidate(cli)" class="w-full text-left px-4 py-3 border-b last:border-b-0 border-gray-100 dark:border-gray-800
                          hover:bg-gray-50/60 dark:hover:bg-gray-800/60 focus:outline-none flex items-center gap-3"
-                  [ngClass]="{ 'bg-[#e8efff]': selectedClientCandidate?.id === cli.id }">
-                  <div class="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-sm font-semibold">
-                    {{ cli.full_name?.[0] || 'C' }}
-                  </div>
-                  <div class="min-w-0">
-                    <div class="text-sm font-medium text-[#00113f] dark:text-white truncate">{{ cli.full_name }}</div>
-                    <div class="text-xs text-gray-500 dark:text-gray-400 truncate">
-                      {{ cli.email || '—' }} · {{ cli.phone || '—' }}
-                    </div>
-                  </div>
-                </button>
-              }
+            [ngClass]="{ 'bg-[#e8efff]': selectedClientCandidate?.id === cli.id }">
+            <div
+              class="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-sm font-semibold">
+              {{ cli.full_name?.[0] || 'C' }}
             </div>
+            <div class="min-w-0">
+              <div class="text-sm font-medium text-[#00113f] dark:text-white truncate">{{ cli.full_name }}</div>
+              <div class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                {{ cli.email || '—' }} · {{ cli.phone || '—' }}
+              </div>
+            </div>
+          </button>
           }
         </div>
+        }
+      </div>
 
-        <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-800 flex justify-end gap-2">
-          <button
-            class="px-4 py-2 rounded-md text-sm font-medium text-white bg-[#00113f] hover:bg-[#3e66ea] disabled:opacity-50"
-            [disabled]="!selectedClientCandidate || isAssigningClient" (click)="confirmAssignClient()">
-            {{ isAssigningClient ? 'Asignando…' : 'Asignar' }}
-          </button>
-        </div>
+      <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-800 flex justify-end gap-2">
+        <button
+          class="px-4 py-2 rounded-md text-sm font-medium text-white bg-[#00113f] hover:bg-[#3e66ea] disabled:opacity-50"
+          [disabled]="!selectedClientCandidate || isAssigningClient" (click)="confirmAssignClient()">
+          {{ isAssigningClient ? 'Asignando…' : 'Asignar' }}
+        </button>
       </div>
     </div>
   </div>
+</div>
 }
 
 <!-- 🔹 MODAL FORMULARIO CLIENTE -->
 @if (isFormOpen){
-  <app-client-form [client]="currentClient" (success)="onSuccess($event)" (cancel)="closeDialog()">
-  </app-client-form>
+<!-- <app-client-form [client]="currentClient" (success)="onSuccess($event)" (cancel)="closeDialog()">
+  </app-client-form> -->
+<!-- Modal -->
+<div *ngIf="isFormOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50"
+  (click)="$event.stopPropagation(); ">
+  <!-- Contenedor del formulario -->
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full p-6" (click)="onFormClick($event)">
+    <app-client-form [client]="currentClient" (success)="onSuccess($event)" (cancel)="closeDialog()"></app-client-form>
+  </div>
+</div>
 }
 
 <!-- 🔹 MODAL AGREGAR / EDITAR ARTÍCULO -->

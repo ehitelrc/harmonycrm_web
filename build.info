@@ -34,5 +34,5 @@ docker run -d --name harmony_web -p 80:80 --restart unless-stopped ehitelrc/harm
 
 // Por nombre
 
-  docker rm -f harmony_web
-  docker rmi -f ehitelrc/harmony_web:latest
+docker rm -f harmony_web
+docker rmi -f ehitelrc/harmony_web:latest

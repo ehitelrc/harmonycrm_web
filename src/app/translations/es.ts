@@ -227,9 +227,12 @@ export const esTranslations = {
 
   // Clients
 
+  "client.full_name": "Nombre completo",
+  "client.enter_identification": "Ingrese la identificación",
   "client.management_title": "Gestión de Clientes",
   "client.management_description": "Administra los clientes y sus datos",
   "client.add_new_client": "Nuevo cliente",
+  "item.item_price": "Precio del ítem",
 
   "client.search_client": "Buscar cliente",
   "client.sort_by_id": "Id",
@@ -285,6 +288,8 @@ export const esTranslations = {
   "item.management_description": "Administra productos y servicios de la compañía",
   "item.back_to_companies": "Volver a compañías",
   "item.add_new_item": "Nuevo ítem",
+  "item.update_item": "Actualizar ítem",
+  "item.update": "Actualizar",
 
   "item.search_item": "Buscar ítem",
   "item.sort_by_id": "Id",

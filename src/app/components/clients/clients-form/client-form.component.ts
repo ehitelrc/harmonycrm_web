@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges } from '@angular/core';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Client } from '@app/models/client.model';
 import { ClientService } from '@app/services/client.service';
 import { LanguageService } from '@app/services/extras/language.service';
@@ -9,12 +9,12 @@ import { Canton, Country, District, Province } from '@app/models/locations.model
 import { GeoService } from '@app/services/geo.service';
 import { CustomField } from '@app/models/custom-field.model';
 import { CustomFieldsFormComponent } from './custom-fields-form.component';
- 
+
 
 @Component({
   selector: 'app-client-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CustomFieldsFormComponent],
+  imports: [CommonModule, ReactiveFormsModule, CustomFieldsFormComponent, FormsModule],
   templateUrl: './client-form.component.html',
   styleUrls: ['./client-form.component.css'],
 })
@@ -23,6 +23,9 @@ export class ClientFormComponent implements OnInit, OnChanges {
   @Input() phoneNumber: string | null = null; // para prellenar el teléfono al crear
   @Output() success = new EventEmitter<Client>();
   @Output() cancel = new EventEmitter<void>();
+  @Output() click = new EventEmitter<void>();
+
+  idType: 'national' | 'other' = 'national';
 
   form!: FormGroup;
   isEditing = false;
@@ -44,7 +47,7 @@ export class ClientFormComponent implements OnInit, OnChanges {
     private clientService: ClientService,
     private lang: LanguageService,
     private alert: AlertService
-  ) {}
+  ) { }
 
   get t() {
     return this.lang.t.bind(this.lang);
@@ -55,6 +58,12 @@ export class ClientFormComponent implements OnInit, OnChanges {
     await this.loadCountries();
     await this.patch();
     await this.loadCustomFields();
+
+    // 🟢 Si es nuevo registro, seleccionar Nacional por defecto
+    if (!this.isEditing) {
+      this.idType = 'national';
+      this.onIdTypeChange();
+    }
   }
 
   async ngOnChanges(changes: SimpleChanges): Promise<void> {
@@ -64,10 +73,10 @@ export class ClientFormComponent implements OnInit, OnChanges {
       await this.loadCustomFields();
     }
   }
-
+ 
   private build(): void {
     this.form = this.fb.group({
-      external_id: [''],
+      external_id: ['', [Validators.maxLength(20)]],
       full_name: ['', [Validators.required, Validators.maxLength(200)]],
       email: ['', [Validators.email, Validators.maxLength(200)]],
       phone: ['', [Validators.maxLength(50)]],
@@ -77,45 +86,70 @@ export class ClientFormComponent implements OnInit, OnChanges {
       district_id: [null],
       address_detail: [''],
       postal_code: [''],
+      is_citizen: [false],
     });
   }
-
+ 
   private async patch(): Promise<void> {
-    if (!this.client) {
-      this.isEditing = false;
-      this.form.reset();
-      if (this.phoneNumber) {
-        this.form.patchValue({ phone: this.phoneNumber });
-      }
-      return;
+  if (!this.client) {
+    this.isEditing = false;
+    this.form.reset();
+    if (this.phoneNumber) {
+      this.form.patchValue({ phone: this.phoneNumber });
     }
 
-    this.isEditing = true;
+    // 🟢 Nuevo cliente → nacional por defecto
+    this.idType = 'national';
+    // ⚡ Esperar cambio en ngModel y aplicar validadores
+    setTimeout(() => this.onIdTypeChange());
+    return;
+  }
 
-    this.form.patchValue({
-      external_id: this.client.external_id || '',
-      full_name: this.client.full_name || '',
-      email: this.client.email || '',
-      phone: this.client.phone || '',
-      country_id: this.client.country_id || null,
-      province_id: this.client.province_id || null,
-      canton_id: this.client.canton_id || null,
-      district_id: this.client.district_id || null,
-      address_detail: this.client.address_detail || '',
-      postal_code: this.client.postal_code || '',
-    });
+  this.isEditing = true;
 
-    if (this.client.country_id) {
-      await this.loadProvinces(this.client.country_id);
-      if (this.client.province_id) {
-        await this.loadCantons(this.client.province_id);
-        if (this.client.canton_id) {
-          await this.loadDistricts(this.client.canton_id);
-        }
+  this.form.patchValue({
+    external_id: this.client.external_id || '',
+    full_name: this.client.full_name || '',
+    email: this.client.email || '',
+    phone: this.client.phone || '',
+    country_id: this.client.country_id || null,
+    province_id: this.client.province_id || null,
+    canton_id: this.client.canton_id || null,
+    district_id: this.client.district_id || null,
+    address_detail: this.client.address_detail || '',
+    postal_code: this.client.postal_code || '',
+    is_citizen: this.client.is_citizen ?? null,
+  });
+
+  // 🧠 Determinar tipo de ID según is_citizen o formato
+  const rawId = (this.client.external_id || '').replace(/\D/g, '');
+
+  if (this.client.is_citizen === true || rawId.length === 9) {
+    this.idType = 'national';
+    if (rawId.length === 9) {
+      const formatted = `${rawId.slice(0, 1)} ${rawId.slice(1, 5)} ${rawId.slice(5, 9)}`;
+      this.form.patchValue({ external_id: formatted });
+    }
+  } else {
+    this.idType = 'other';
+  }
+
+  // ⚡ Forzar refresco de validadores tras aplicar el ngModel
+  setTimeout(() => this.onIdTypeChange());
+
+  // 🌍 Cargar ubicaciones
+  if (this.client.country_id) {
+    await this.loadProvinces(this.client.country_id);
+    if (this.client.province_id) {
+      await this.loadCantons(this.client.province_id);
+      if (this.client.canton_id) {
+        await this.loadDistricts(this.client.canton_id);
       }
     }
   }
+}
 
+  
   isInvalid(ctrl: string): boolean {
     const c = this.form.get(ctrl);
     return !!(c && c.invalid && (c.dirty || c.touched));
@@ -130,6 +164,7 @@ export class ClientFormComponent implements OnInit, OnChanges {
     const payload = {
       ...this.form.value,
       custom_fields: this.customValues, // 🔥 incluye dinámicos
+      is_citizen: this.idType === 'national' ? true : false,
     };
 
     this.isSubmitting = true;
@@ -218,4 +253,39 @@ export class ClientFormComponent implements OnInit, OnChanges {
       this.customFields = [];
     }
   }
+
+onIdTypeChange() {
+  const idControl = this.form.get('external_id');
+  if (!idControl) return;
+
+  idControl.clearValidators();
+
+  if (this.idType === 'national') {
+    idControl.setValidators([
+      Validators.pattern(/^\d{1}\s\d{4}\s\d{4}$/),
+    ]);
+  }
+
+  idControl.updateValueAndValidity();
+}
+
+onExternalIdInput(event: Event) {
+  const input = event.target as HTMLInputElement;
+  let value = input.value;
+
+  if (this.idType === 'national') {
+    value = value.replace(/\D/g, '');
+    if (value.length > 9) value = value.slice(0, 9);
+
+    if (value.length > 1 && value.length <= 5) {
+      value = `${value.slice(0, 1)} ${value.slice(1)}`;
+    } else if (value.length > 5) {
+      value = `${value.slice(0, 1)} ${value.slice(1, 5)} ${value.slice(5, 9)}`;
+    }
+  }
+
+  input.value = value.trim();
+  this.form.get('external_id')?.setValue(value.trim());
+  this.form.get('external_id')?.updateValueAndValidity({ emitEvent: false });
+}
 }

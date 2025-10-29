@@ -1,5 +1,5 @@
 <!-- Modal básico -->
-<div class="fixed inset-0 z-50 overflow-y-auto" (click)="onCancel()">
+<div class="fixed inset-0 z-50 overflow-y-auto"  >
   <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
     <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
     <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
@@ -7,20 +7,15 @@
     <!-- Modal principal -->
     <div
       class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full"
-      (click)="$event.stopPropagation()"
-    >
+      (click)="$event.stopPropagation()">
       <!-- Header -->
       <div
-        class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between"
-      >
+        class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
         <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-white">
           {{ isEditing ? t('client.edit_client') : t('client.add_client') }}
         </h3>
-        <button
-          type="button"
-          (click)="onCancel()"
-          class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none"
-        >
+        <button type="button" (click)="onCancel()"
+          class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none">
           <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
@@ -30,39 +25,27 @@
       <!-- Tabs header -->
       <div class="px-4 border-b border-gray-200 dark:border-gray-700">
         <nav class="-mb-px flex space-x-6" aria-label="Tabs">
-          <button
-            (click)="activeTab = 'general'"
-            [class.border-[#00113f]]="activeTab === 'general'"
+          <button (click)="activeTab = 'general'" [class.border-[#00113f]]="activeTab === 'general'"
             [class.text-[#00113f]]="activeTab === 'general'"
-            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-300 hover:text-gray-700"
-          >
+            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-300 hover:text-gray-700">
             {{ t('client.general_info') }}
           </button>
 
-          <button
-            (click)="activeTab = 'location'"
-            [class.border-[#00113f]]="activeTab === 'location'"
+          <button (click)="activeTab = 'location'" [class.border-[#00113f]]="activeTab === 'location'"
             [class.text-[#00113f]]="activeTab === 'location'"
-            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-300 hover:text-gray-700"
-          >
+            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-300 hover:text-gray-700">
             {{ t('client.location_info') }}
           </button>
 
-          <button
-            (click)="activeTab = 'other'"
-            [class.border-[#00113f]]="activeTab === 'other'"
+          <button (click)="activeTab = 'other'" [class.border-[#00113f]]="activeTab === 'other'"
             [class.text-[#00113f]]="activeTab === 'other'"
-            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-300 hover:text-gray-700"
-          >
+            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-300 hover:text-gray-700">
             {{ t('client.additional_info') }}
           </button>
 
-          <button
-            (click)="activeTab = 'custom'"
-            [class.border-[#00113f]]="activeTab === 'custom'"
+          <button (click)="activeTab = 'custom'" [class.border-[#00113f]]="activeTab === 'custom'"
             [class.text-[#00113f]]="activeTab === 'custom'"
-            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-300 hover:text-gray-700"
-          >
+            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-300 hover:text-gray-700">
             {{ t('client.custom_info') }}
           </button>
         </nav>
@@ -73,58 +56,72 @@
         <form [formGroup]="form" (ngSubmit)="submit()" class="space-y-4">
           <!-- TAB 1: GENERAL -->
           <div *ngIf="activeTab === 'general'" class="space-y-4">
+            <!-- Tipo de identificación -->
             <div>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
+                Tipo de identificación
+              </label>
+
+              <div class="flex space-x-4 mt-2">
+                <label class="inline-flex items-center">
+                  <input type="radio" name="idType" value="national" [(ngModel)]="idType"
+                    [ngModelOptions]="{standalone: true}" (change)="onIdTypeChange()"
+                    class="text-[#00113f] focus:ring-[#3e66ea]" />
+                  <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Nacional</span>
+                  
+                </label>
+
+                <label class="inline-flex items-center">
+                  <input type="radio" name="idType" value="other" [(ngModel)]="idType"
+                    [ngModelOptions]="{standalone: true}" (change)="onIdTypeChange()"
+                    class="text-[#00113f] focus:ring-[#3e66ea]" />
+                  <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Otro</span>
+                  
+                </label>
+              </div>
+            </div>
+
+            <!-- Identificación -->
+            <div class="mt-3">
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {{ t('client.external_id') }}
               </label>
-              <input
-                type="text"
-                formControlName="external_id"
-                class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm text-sm text-[#00113f]
-                       focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea]
-                       border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-              />
+              <input type="text" formControlName="external_id"
+                [placeholder]="idType === 'national' ? '0 0000 0000' : t('client.enter_identification')"
+                (input)="onExternalIdInput($event)" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm text-sm text-[#00113f]
+           focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea]
+           border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+              <small *ngIf="idType === 'national'" class="text-gray-500 dark:text-gray-400 text-xs">
+                Formato requerido: 0 0000 0000
+              </small>
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {{ t('client.full_name') }} *
               </label>
-              <input
-                type="text"
-                formControlName="full_name"
-                [class.border-red-500]="isInvalid('full_name')"
-                class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm text-sm text-[#00113f]
+              <input type="text" formControlName="full_name" [class.border-red-500]="isInvalid('full_name')"
+                style="text-transform: uppercase;" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm text-sm text-[#00113f]
                        focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea]
-                       border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-              />
+                       border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {{ t('client.email') }}
               </label>
-              <input
-                type="email"
-                formControlName="email"
-                [class.border-red-500]="isInvalid('email')"
-                class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm text-sm text-[#00113f]
+              <input type="email" formControlName="email" [class.border-red-500]="isInvalid('email')" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm text-sm text-[#00113f]
                        focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea]
-                       border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-              />
+                       border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {{ t('client.phone') }}
               </label>
-              <input
-                type="text"
-                formControlName="phone"
-                class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm text-sm text-[#00113f]
+              <input type="text" formControlName="phone" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm text-sm text-[#00113f]
                        focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea]
-                       border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-              />
+                       border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
             </div>
           </div>
 
@@ -135,13 +132,9 @@
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                   País *
                 </label>
-                <select
-                  formControlName="country_id"
-                  (change)="onCountryChange()"
-                  class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm text-sm text-[#00113f]
+                <select formControlName="country_id" (change)="onCountryChange()" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm text-sm text-[#00113f]
                          focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea]
-                         border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                >
+                         border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                   <option [ngValue]="null">Seleccione país</option>
                   <option *ngFor="let c of countries" [ngValue]="c.id">{{ c.name }}</option>
                 </select>
@@ -149,13 +142,9 @@
 
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Provincia</label>
-                <select
-                  formControlName="province_id"
-                  (change)="onProvinceChange()"
-                  class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm text-sm text-[#00113f]
+                <select formControlName="province_id" (change)="onProvinceChange()" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm text-sm text-[#00113f]
                          focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea]
-                         border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                >
+                         border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                   <option [ngValue]="null">Seleccione provincia</option>
                   <option *ngFor="let p of provinces" [ngValue]="p.id">{{ p.name }}</option>
                 </select>
@@ -163,13 +152,9 @@
 
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Cantón</label>
-                <select
-                  formControlName="canton_id"
-                  (change)="onCantonChange()"
-                  class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm text-sm text-[#00113f]
+                <select formControlName="canton_id" (change)="onCantonChange()" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm text-sm text-[#00113f]
                          focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea]
-                         border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                >
+                         border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                   <option [ngValue]="null">Seleccione cantón</option>
                   <option *ngFor="let c of cantons" [ngValue]="c.id">{{ c.name }}</option>
                 </select>
@@ -177,12 +162,9 @@
 
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Distrito</label>
-                <select
-                  formControlName="district_id"
-                  class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm text-sm text-[#00113f]
+                <select formControlName="district_id" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm text-sm text-[#00113f]
                          focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea]
-                         border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                >
+                         border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                   <option [ngValue]="null">Seleccione distrito</option>
                   <option *ngFor="let d of districts" [ngValue]="d.id">{{ d.name }}</option>
                 </select>
@@ -196,66 +178,40 @@
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 Dirección detallada
               </label>
-              <textarea
-                formControlName="address_detail"
-                rows="2"
-                class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm text-sm text-[#00113f]
+              <textarea formControlName="address_detail" rows="2" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm text-sm text-[#00113f]
                        focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea]
-                       border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-              ></textarea>
+                       border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
             </div>
 
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Código postal</label>
-              <input
-                type="text"
-                formControlName="postal_code"
-                class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm text-sm text-[#00113f]
+              <input type="text" formControlName="postal_code" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm text-sm text-[#00113f]
                        focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea]
-                       border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-              />
+                       border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
             </div>
           </div>
 
           <!-- TAB 4: CUSTOM -->
           <div *ngIf="activeTab === 'custom'" class="space-y-4">
-            <app-custom-fields-form
-              [fields]="customFields"
-              (changed)="customValues = $event"
-            ></app-custom-fields-form>
+            <app-custom-fields-form [fields]="customFields" (changed)="customValues = $event"></app-custom-fields-form>
           </div>
         </form>
       </div>
 
       <!-- Footer -->
       <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-        <button
-          type="button"
-          (click)="submit()"
-          [disabled]="isSubmitting || form.invalid"
-          class="w-full inline-flex justify-center rounded-md shadow-sm px-4 py-2 bg-[#00113f] text-white hover:bg-[#3e66ea] sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
-        >
-          <svg
-            *ngIf="isSubmitting"
-            class="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
-            fill="none"
-            viewBox="0 0 24 24"
-          >
+        <button type="button" (click)="submit()" [disabled]="isSubmitting || form.invalid"
+          class="w-full inline-flex justify-center rounded-md shadow-sm px-4 py-2 bg-[#00113f] text-white hover:bg-[#3e66ea] sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50">
+          <svg *ngIf="isSubmitting" class="animate-spin -ml-1 mr-3 h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
             <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" />
-            <path
-              class="opacity-75"
-              fill="currentColor"
-              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-            />
+            <path class="opacity-75" fill="currentColor"
+              d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
           </svg>
           {{ isSubmitting ? t('client.saving') : (isEditing ? t('client.update') : t('client.create')) }}
         </button>
 
-        <button
-          type="button"
-          (click)="onCancel()"
-          class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 px-4 py-2 bg-white text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600"
-        >
+        <button type="button" (click)="onCancel()"
+          class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 px-4 py-2 bg-white text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600">
           {{ t('client.cancel') }}
         </button>
       </div>

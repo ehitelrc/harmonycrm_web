@@ -409,4 +409,8 @@ export class LeadFormComponent implements OnInit {
 
   }
 
+  onFormClick(event: MouseEvent) {
+    event.stopPropagation();
+  }
+
 }
