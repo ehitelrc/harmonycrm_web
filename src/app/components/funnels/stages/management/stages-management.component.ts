@@ -79,6 +79,10 @@ export class StagesManagementComponent {
   /** Cargar stages del funnel */
   async loadStages(): Promise<void> {
     try {
+
+
+      if (!this.funnelId) return;
+
       this.isLoading = true;
       const res = await this.funnelService.getStages(this.funnelId); // GET /funnels/:id/stages
       if (res?.success && Array.isArray(res.data)) {

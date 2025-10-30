@@ -14,11 +14,18 @@ import { LeadFormComponent } from '../leads-form/leads-form.component';
 import { ChannelIntegration } from '@app/models/channel-integration.model';
 import { ChannelService } from '@app/services/channel.service';
 import { Channel } from '@app/models/channel.model';
+import { ConfirmationDialogComponent } from '@app/components/shared/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-leads-management',
   standalone: true,
-  imports: [CommonModule, FormsModule, MainLayoutComponent, LeadsListComponent, LeadFormComponent],
+  imports: [CommonModule,
+    FormsModule,
+    MainLayoutComponent,
+    LeadsListComponent,
+    LeadFormComponent,
+    ConfirmationDialogComponent
+  ],
   templateUrl: './leads-management.component.html',
   styleUrls: ['./leads-management.component.css'],
 })
@@ -43,6 +50,9 @@ export class LeadsManagementComponent implements OnInit {
 
   isLoading = false;
 
+  // ⚠️ Diálogo de confirmación
+  isConfirmDialogOpen = false;
+  leadToRemove: CaseWithChannel | null = null;
 
   constructor(
     private auth: AuthService,
@@ -89,7 +99,7 @@ export class LeadsManagementComponent implements OnInit {
   }
 
   onCampaignChange() {
- 
+
   }
 
   onAddLead() {
@@ -112,9 +122,32 @@ export class LeadsManagementComponent implements OnInit {
 
 
   onRemoveLead(c: CaseWithChannel) {
-    console.log('Eliminar lead', c);
+    this.leadToRemove = c;
+    this.isConfirmDialogOpen = true; // 🔔 abrir el diálogo
   }
+  
+  onConfirmRemove() {
+  if (!this.leadToRemove) return;
 
+  // 🧹 Aquí haces el borrado real
+  this.caseService
+    .cancelCase(this.leadToRemove.case_id!)
+    .then((res) => {
+      if (res.success) {
+        this.leads = this.leads.filter(l => l.case_id !== this.leadToRemove?.case_id);
+      }
+    })
+    .catch(err => console.error('Error deleting lead:', err))
+    .finally(() => {
+      this.isConfirmDialogOpen = false;
+      this.leadToRemove = null;
+    });
+}
+
+onCancelRemove() {
+  this.isConfirmDialogOpen = false;
+  this.leadToRemove = null;
+}
   onViewLead(c: CaseWithChannel) {
     console.log('Ver lead', c);
   }
@@ -134,7 +167,7 @@ export class LeadsManagementComponent implements OnInit {
 
   onCreateLead() {
     this.isFormOpen = false;
-    this.loadLeads(); 
+    this.loadLeads();
 
   }
 
@@ -145,7 +178,7 @@ export class LeadsManagementComponent implements OnInit {
 
 
   async onIntegrationChange() {
-     if (this.selectedCompany && this.selectedCampaign && this.selectedIntegration) {
+    if (this.selectedCompany && this.selectedCampaign && this.selectedIntegration) {
       this.loadLeads();
     }
   }

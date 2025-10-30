@@ -126,6 +126,15 @@ export class CaseService {
     });
   }
 
+  // Cancel case
+	//api.POST("/entry/cancel_case/:case_id", controller.CancelCase)
+
+  async cancelCase(caseId: number): Promise<ApiResponse<void>> {
+    return await this.fetch.post<ApiResponse<void>>({
+      API_Gateway: `${CASE_URL}/entry/cancel_case/${caseId}`,
+    });
+  }
+
   // GET /case-notes/by-case/:caseId
   async getByCase(caseId: number): Promise<ApiResponse<CaseNoteView[]>> {
     return await this.fetch.get<ApiResponse<CaseNoteView[]>>({
@@ -204,9 +213,9 @@ export class CaseService {
     });
   }
 
-  async getCaseGeneralInformation(company_id: number, campaign_id: number, stage_id: number): Promise<ApiResponse<CaseGeneralInformation[]>> {
+  async getCaseGeneralInformation(company_id: number, campaign_id: number): Promise<ApiResponse<CaseGeneralInformation[]>> {
     return await this.fetch.get<ApiResponse<CaseGeneralInformation[]>>({
-      API_Gateway: `${CASE_URL}/entry/case_general_info/${company_id}/${campaign_id}/${stage_id}`,
+      API_Gateway: `${CASE_URL}/entry/case_general_info/${company_id}/${campaign_id}`,
     });
   }
 

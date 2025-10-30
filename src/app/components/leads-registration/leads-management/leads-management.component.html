@@ -118,9 +118,8 @@
         <!-- Contenido (formulario) -->
         <div class="p-6">
           <app-lead-form [leadData]="editingLead" [companyId]="selectedCompany" [campaign_id]="selectedCampaign"
-            [user_id]="loggedUser.user_id" [channelId]="selectedChannelId" 
-            [integrationId]="selectedIntegration"
-            (save)="onCreateLead()" (cancel)="onFormClose()"></app-lead-form>
+            [user_id]="loggedUser.user_id" [channelId]="selectedChannelId" [case_id]="editingLead?.case_id!"
+            [integrationId]="selectedIntegration" (save)="onCreateLead()" (cancel)="onFormClose()"></app-lead-form>
         </div>
       </div>
     </div>
@@ -132,4 +131,11 @@
       {{ t('leads.select_filters_message') || 'Seleccione una compañía y una campaña para visualizar los leads.' }}
     </div>
   </div>
+
+  <!-- 🗑️ Diálogo de confirmación de eliminación -->
+  <app-confirmation-dialog [isOpen]="isConfirmDialogOpen"
+    [title]="t('leads.confirm_delete_title') || 'Confirmar eliminación'"
+    [message]="t('leads.confirm_delete_message') || '¿Está seguro de que desea eliminar este lead? Esta acción no se puede deshacer.'"
+    [confirmText]="t('common.delete') || 'Eliminar'" (confirmed)="onConfirmRemove()" (cancelled)="onCancelRemove()">
+  </app-confirmation-dialog>
 </app-main-layout>

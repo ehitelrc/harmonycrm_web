@@ -24,6 +24,8 @@ export const esTranslations = {
   "channel.select_integration": "Seleccionar integración",
   "item.select_integration_lead": "Selecciona una integración para cargar los leads",
   "channel.select_channel_integration_placeholder": "Seleccionar integración...",
+  "leads.confirm_delete_title" : "Confirmar eliminación",
+  "leads.confirm_delete_message": "¿Está seguro de que desea eliminar este lead? Esta acción no se puede deshacer.",
 
   // Auth
 
@@ -113,7 +115,7 @@ export const esTranslations = {
   'menu.maintenance': 'Mantenimiento',
   'menu.products': 'Productos',
   'menu.orders': 'Órdenes',
-  'menu.customers': 'Clientes/Leads',
+  'menu.customers': 'Catálogo de Clientes',
 
   'menu.settings': 'Configuraciones',
 
@@ -226,7 +228,7 @@ export const esTranslations = {
 
 
   // Clients
-
+  "client.phone": "Teléfono",
   "client.full_name": "Nombre completo",
   "client.enter_identification": "Ingrese la identificación",
   "client.management_title": "Gestión de Clientes",
@@ -696,6 +698,7 @@ export const esTranslations = {
   "funnel.sort_by_active": "Ordenar por estado",
   "funnel.active_yes": "Activo",
   "funnel.active_no": "Inactivo",
+  "funnel.failed_to_load_stages": "Error al cargar las etapas",
 
   // 
 
@@ -741,7 +744,9 @@ export const esTranslations = {
   "case.note": "Nota",
   "case.note_placeholder": "Agrega una nota sobre el cambio de etapa (opcional)",
   "case.apply_change": "Aplicar cambio",
-
+  "cases.no_data": "No hay casos disponibles.",
+  "case.detail.no_stage": "Sin etapa",
+ 
 
   // Agents
 

@@ -9,6 +9,7 @@ export class NavigationService {
     { type: 'item', name: 'menu.dashboard-cases', href: '/dashboard-cases', icon: 'LayoutDashboard', permission: 'dashboard.access' },
     { type: 'item', name: 'menu.conversations', href: '/conversations', icon: 'MessageCircle', permission: 'conversations.access' },
     { type: 'item', name: 'menu.whatsapp-campaign-push', href: '/whatsapp-campaign-push', icon: 'UserPlus', permission: 'whatsapp-campaign-push.access' },
+    { type: 'item', name: 'menu.cases', href: '/cases', icon: 'Package', permission: 'cases.access' },
     {
       type: 'group',
       name: 'menu.sales',
@@ -16,10 +17,9 @@ export class NavigationService {
       children: [
 
 
-        { type: 'item', name: 'menu.cases', href: '/cases', icon: 'Package', permission: 'cases.access' },
+        
         { type: 'item', name: 'menu.lead-registration', href: '/leads-registration', icon: 'Person', permission: 'cases.lead-registration' },
-        { type: 'item', name: 'menu.campaigns', href: '/campaigns', icon: 'LayoutDashboard', permission: 'campaigns.access' },
-
+        
         { type: 'item', name: 'menu.customer-qr', href: '/customer-qr', icon: 'QR', permission: 'customer-qr.access' },
         { type: 'item', name: 'menu.customers', href: '/customers', icon: 'Users', permission: 'customers.access' },
 
@@ -35,6 +35,8 @@ export class NavigationService {
 
         { type: 'item', name: 'menu.products', href: '/products', icon: 'Package', permission: 'products.access' },
         { type: 'item', name: 'menu.companies', href: '/companies', icon: 'Building', permission: 'companies.access' },
+        { type: 'item', name: 'menu.campaigns', href: '/campaigns', icon: 'LayoutDashboard', permission: 'campaigns.access' },
+
       ],
     },
     {

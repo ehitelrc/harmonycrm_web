@@ -37,13 +37,13 @@
             </div>
             <div  class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
               {{ t('case.funnel') || 'Embudo' }}:
-              {{ current?.funnel_name || '-' }}
+              {{ current.funnel_name || '-' }}
               <span class="mx-1">·</span>
               {{ t('updated_at') || 'Actualizado' }}:
-              {{ current?.last_changed_at | date:'medium' }}
+              {{ current.last_changed_at | date:'medium' }}
               <span *ngIf="current?.last_changed_by_label" class="mx-1">·</span>
               <span *ngIf="current?.last_changed_by_label">
-                {{ t('by') || 'por' }} {{ current?.last_changed_by_label }}
+                {{ t('by') || 'por' }} {{ current.last_changed_by_label }}
               </span>
             </div>
           </div>

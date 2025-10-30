@@ -63,6 +63,7 @@ export class ClientFormComponent implements OnInit, OnChanges {
     if (!this.isEditing) {
       this.idType = 'national';
       this.onIdTypeChange();
+      this.form.patchValue({ phone: '506' });
     }
   }
 

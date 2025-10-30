@@ -48,7 +48,7 @@
             }
 
             <!-- Estado -->
-            @if (selectedFunnel) {
+            <!-- @if (selectedFunnel) {
             <div class="flex-1">
                 <select [(ngModel)]="selectedFunnelStage" (ngModelChange)="stageSelected()" class="block w-full sm:w-80 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
                focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f]
@@ -57,7 +57,7 @@
                     <option *ngFor="let c of funnelStages" [ngValue]="c.id">{{ c.name }}</option>
                 </select>
             </div>
-            }
+            } -->
 
             @if (funnelStageLoading && !selectedFunnel) {
             <div class="flex items-center">
@@ -79,7 +79,7 @@
 
 
     @if (!selectedCase){
-    <app-case-list *ngIf="selectedFunnelStage && caseList.length > 0" [cases]="caseList" [isLoading]="caseLoading"
+    <app-case-list *ngIf=" caseList.length > 0" [cases]="caseList" [isLoading]="caseLoading"
         (view)="onViewCase($event)" (edit)="onEditCase($event)" (remove)="onRemoveCase($event)">
     </app-case-list>
     <div *ngIf="selectedFunnelStage && !caseLoading && caseList.length === 0"

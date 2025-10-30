@@ -189,9 +189,13 @@ export class FunnelReportManagementComponent implements OnInit {
     }
 
     loadFunnelStagesForCampaign(funnelId: number) {
+
+        if (!funnelId) return;
+        
         this.funnelStages = [];
         this.funnelStageLoading = true;
         this.caseList = [];
+        
 
         this.funnelService.getStages(funnelId).then(response => {
             if (response && response.data) {

@@ -8,6 +8,7 @@ import { Client } from '@app/models/client.model';
 import { Item } from '@app/models/item.model';
 import { LeadRequest } from '@app/models/lead-request.model';
 import { VwCaseItemsDetail } from '@app/models/vw-case-items-detail.model';
+import { CaseItemService } from '@app/services/case-items.service';
 import { ClientService } from '@app/services/client.service';
 import { AlertService } from '@app/services/extras/alert.service';
 import { LanguageService } from '@app/services/extras/language.service';
@@ -45,6 +46,7 @@ export class LeadFormComponent implements OnInit {
   @Input() integrationId: number | null = null;
   @Input() campaign_id: number | null = null;
   @Input() user_id: number | null = null;
+  @Input() case_id: number | null = null;
 
   /** Eventos emitidos */
   @Output() assignExisting = new EventEmitter<void>(); // abrir modal de seleccionar cliente
@@ -102,6 +104,7 @@ export class LeadFormComponent implements OnInit {
   constructor(private lang: LanguageService,
     private alert: AlertService,
     private clientService: ClientService,
+    private caseItemService: CaseItemService,
     private itemService: ItemService,
 
   ) { }
@@ -117,6 +120,8 @@ export class LeadFormComponent implements OnInit {
 
     } else {
       this.loadClient(this.leadData?.client_id ? this.leadData.client_id : 0);
+      this.loadCaseItems();
+    
     }
   }
 
@@ -132,6 +137,36 @@ export class LeadFormComponent implements OnInit {
 
   }
 
+
+  loadCaseItems() {
+  if (!this.leadData) return;
+
+  this.isLoadingCaseItems = true;
+
+  this.caseItemService.getByCaseId(this.leadData.case_id)
+    .then(res => {
+      this.caseItems = res.success ? res.data : [];
+
+      // 🔹 Convertir caseItems (VwCaseItemsDetail[]) en ItemSelection[]
+      this.items = this.caseItems.map(ci => ({
+        item_id: ci.item_id,
+        item_name: ci.item_name,
+        quantity: ci.quantity || 1,
+        item_price: ci.price || 0,
+        notes: ci.notes || ''
+      }));
+
+      // 🔹 Calcular total (si aplica)
+      this.total = this.items.reduce((acc, i) => acc + (i.item_price * i.quantity), 0);
+    })
+    .catch(err => {
+      console.error('Error loading case items:', err);
+      this.alert.error('Error cargando artículos del caso');
+    })
+    .finally(() => {
+      this.isLoadingCaseItems = false;
+    });
+}
 
   // Abre/cierra modal
   openAssignClientModal() {

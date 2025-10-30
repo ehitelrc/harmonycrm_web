@@ -47,8 +47,6 @@ export class CasesManagementComponent implements OnInit {
     selectedCase: CaseGeneralInformation | null = null;
 
 
-
-
     statuses = [
         { id: 'open', name: 'Abierto' },
         { id: 'in_progress', name: 'En Progreso' },
@@ -132,6 +130,10 @@ export class CasesManagementComponent implements OnInit {
     }
 
     loadCampaignsForCompany(companyId: number) {
+
+        if (!companyId) return;
+
+
         this.caseList = [];
         this.campaignLoading = true;
         this.campaigns = [];
@@ -154,7 +156,9 @@ export class CasesManagementComponent implements OnInit {
         this.caseList = [];
         this.selectedFunnel = this.selectedFunnelObject?.funnel_id || null;
         this.selectedCampaign = this.selectedFunnelObject?.campaign_id || null;
-        this.loadFunnelStagesForCampaign(this.selectedFunnel!);
+        //this.loadFunnelStagesForCampaign(this.selectedFunnel!);
+
+        this.loadCases();
 
     }
 
@@ -181,7 +185,21 @@ export class CasesManagementComponent implements OnInit {
 
         this.caseList = [];
         this.caseLoading = true;
-        this.caseService.getCaseGeneralInformation(this.selectedCompany, this.selectedCampaign, this.selectedFunnelStage)
+        this.caseService.getCaseGeneralInformation(this.selectedCompany, this.selectedCampaign)
+            .then(res => {
+                this.caseList = res.data || [];
+            })
+            .catch(err => {
+                console.error('Error loading cases:', err);
+                this.caseList = [];
+            })
+            .finally(() => this.caseLoading = false);
+    }
+
+    loadCases() {
+         this.caseList = [];
+        this.caseLoading = true;
+        this.caseService.getCaseGeneralInformation(this.selectedCompany!, this.selectedCampaign!)
             .then(res => {
                 this.caseList = res.data || [];
             })

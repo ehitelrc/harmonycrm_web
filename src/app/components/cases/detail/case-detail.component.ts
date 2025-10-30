@@ -543,7 +543,7 @@ export class CaseDetailComponent implements OnInit {
 
             const res = await this.agentUserService.getByCompanyAndDepartment(
                 this.caseData.company_id,
-                this.caseData.department_id
+                this.caseData.department_id!
             );
 
             const data = (res as { data?: unknown })?.data;

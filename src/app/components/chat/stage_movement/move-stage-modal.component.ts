@@ -66,8 +66,10 @@ export class MoveStageModalComponent {
       this.selectedStageId = null;
     }
 
-    await this.loadStages(this.funnelId);
-    // preselecciona distinto al actual si existe
+    if (this.funnelId) {
+      await this.loadStages(this.funnelId);
+      // preselecciona distinto al actual si existe}
+    }
 
     if (!this.current?.current_stage_id) {
       this.selectedStageId = null;
@@ -83,6 +85,9 @@ export class MoveStageModalComponent {
 
   private async loadStages(funnelId: number) {
     try {
+
+      if (!funnelId) return;
+
       this.isLoadingStages = true;
 
       // puede venir ApiResponse<FunnelStage[]> o FunnelStage[]
