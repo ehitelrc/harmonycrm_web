@@ -4,12 +4,13 @@ import { NoAuthGuard } from './guards/no-auth.guard';
 import { LoginComponent } from './components/login/login.component';
 import { DashboardComponent } from './components/dashboard/dashboard.component';
 import { DashboardCasesComponent } from './components/dashboard-cases/dashboard-cases.component';
+import { MainEmptyDashboardComponent } from './components/main-empty-dashboard/main-empy-dashboard.component';
 
 export const routes: Routes = [
   // Default route - redirect to dashboard if authenticated, login if not
   {
     path: '',
-    redirectTo: '/dashboard',
+    redirectTo: '/main-empty-dashboard',
     pathMatch: 'full'
   },
 
@@ -26,8 +27,13 @@ export const routes: Routes = [
     component: DashboardComponent,
     canActivate: [AuthGuard]
   },
+  {
+    path: 'main-empty-dashboard',
+    component: MainEmptyDashboardComponent,
+    canActivate: [AuthGuard]
+  },
 
-    {
+  {
     path: 'dashboard-cases',
     component: DashboardCasesComponent,
     canActivate: [AuthGuard]
@@ -182,7 +188,7 @@ export const routes: Routes = [
   {
     path: 'policy',
     loadComponent: () => import('./components/policy/policy.component').then(m => m.PolicyComponent),
-  
+
   },
   {
     path: 'channel-company',

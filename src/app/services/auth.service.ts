@@ -298,7 +298,7 @@ export class AuthService {
 		this.loadUserPermissions(authData.user_id, authData.company_id);
 
 		// Navigate to dashboard or home
-		this.router.navigate(['/dashboard']);
+		this.router.navigate(['/main-empty-dashboard']);
 	}
 
 	/**

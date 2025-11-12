@@ -1,39 +1,59 @@
+
+/* ============================================
+ * 🇨🇷 COUNTRY
+ * ============================================ */
 export interface Country {
   id: number;
   name: string;
-  iso_code?: string | null;
-  phone_code?: string | null;
-  currency_code?: string | null;
+  iso_code: string;
+  phone_code?: string;
+  currency_code?: string;
+  provinces?: Province[];
   created_at?: string;
   updated_at?: string;
 }
 
+/* ============================================
+ * 🏞️ PROVINCE
+ * ============================================ */
 export interface Province {
   id: number;
+  country_code: string;
+  code: string;
   name: string;
-  country_id: number;
-  country?: Country;
+  province_number: number;
+  cantons?: Canton[];
   created_at?: string;
   updated_at?: string;
 }
 
+/* ============================================
+ * 🏘️ CANTON
+ * ============================================ */
 export interface Canton {
   id: number;
+  country_code: string;
+  province_code: string;
+  code: string;
   name: string;
-  province_id: number;
-  province?: Province;
+  canton_number: number;
+  districts?: District[];
   created_at?: string;
   updated_at?: string;
 }
 
+/* ============================================
+ * 🏡 DISTRICT
+ * ============================================ */
 export interface District {
   id: number;
+  country_code: string;
+  canton_code: string;
+  code: string;
   name: string;
-  canton_id: number;
-  canton?: Canton;
-  latitude?: number | null;
-  longitude?: number | null;
-  postal_code?: string | null;
+  latitude?: number;
+  longitude?: number;
+  postal_code?: string;
   created_at?: string;
   updated_at?: string;
 }

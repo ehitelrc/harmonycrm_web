@@ -1,5 +1,5 @@
 <!-- Modal básico -->
-<div class="fixed inset-0 z-50 overflow-y-auto"  >
+<div class="fixed inset-0 z-50 overflow-y-auto">
   <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
     <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity"></div>
     <span class="hidden sm:inline-block sm:align-middle sm:h-screen">&#8203;</span>
@@ -23,30 +23,25 @@
       </div>
 
       <!-- Tabs header -->
+      <!-- Tabs header -->
       <div class="px-4 border-b border-gray-200 dark:border-gray-700">
         <nav class="-mb-px flex space-x-6" aria-label="Tabs">
           <button (click)="activeTab = 'general'" [class.border-[#00113f]]="activeTab === 'general'"
             [class.text-[#00113f]]="activeTab === 'general'"
-            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-300 hover:text-gray-700">
+            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-300">
             {{ t('client.general_info') }}
           </button>
 
           <button (click)="activeTab = 'location'" [class.border-[#00113f]]="activeTab === 'location'"
             [class.text-[#00113f]]="activeTab === 'location'"
-            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-300 hover:text-gray-700">
+            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-300">
             {{ t('client.location_info') }}
           </button>
 
           <button (click)="activeTab = 'other'" [class.border-[#00113f]]="activeTab === 'other'"
             [class.text-[#00113f]]="activeTab === 'other'"
-            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-300 hover:text-gray-700">
+            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-300">
             {{ t('client.additional_info') }}
-          </button>
-
-          <button (click)="activeTab = 'custom'" [class.border-[#00113f]]="activeTab === 'custom'"
-            [class.text-[#00113f]]="activeTab === 'custom'"
-            class="whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm text-gray-500 dark:text-gray-300 hover:text-gray-700">
-            {{ t('client.custom_info') }}
           </button>
         </nav>
       </div>
@@ -68,7 +63,7 @@
                     [ngModelOptions]="{standalone: true}" (change)="onIdTypeChange()"
                     class="text-[#00113f] focus:ring-[#3e66ea]" />
                   <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Nacional</span>
-                  
+
                 </label>
 
                 <label class="inline-flex items-center">
@@ -76,7 +71,7 @@
                     [ngModelOptions]="{standalone: true}" (change)="onIdTypeChange()"
                     class="text-[#00113f] focus:ring-[#3e66ea]" />
                   <span class="ml-2 text-sm text-gray-700 dark:text-gray-300">Otro</span>
-                  
+
                 </label>
               </div>
             </div>
@@ -127,74 +122,85 @@
 
           <!-- TAB 2: LOCATION -->
           <div *ngIf="activeTab === 'location'" class="space-y-4">
+
+            <!-- Ubicación geográfica -->
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- País -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                  País *
-                </label>
-                <select formControlName="country_id" (change)="onCountryChange()" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm text-sm text-[#00113f]
-                         focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea]
-                         border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">País *</label>
+                <select [(ngModel)]="countrySelected" name="countrySelected"
+                  (ngModelChange)="onCountrySelectedChange($event)" [ngModelOptions]="{standalone: true}" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm text-sm text-[#00113f]
+                     focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea]
+                     border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                   <option [ngValue]="null">Seleccione país</option>
-                  <option *ngFor="let c of countries" [ngValue]="c.id">{{ c.name }}</option>
+                  <option *ngFor="let c of countries" [ngValue]="c">{{ c.name }}</option>
                 </select>
               </div>
 
+              <!-- Provincia -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Provincia</label>
-                <select formControlName="province_id" (change)="onProvinceChange()" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm text-sm text-[#00113f]
-                         focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea]
-                         border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                <select [(ngModel)]="provinceSelected" name="provinceSelected"
+                  (ngModelChange)="onProvinceSelectedChange($event)" [ngModelOptions]="{standalone: true}" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm text-sm text-[#00113f]
+                     focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea]
+                     border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                   <option [ngValue]="null">Seleccione provincia</option>
-                  <option *ngFor="let p of provinces" [ngValue]="p.id">{{ p.name }}</option>
+                  <option *ngFor="let p of provinces" [ngValue]="p">{{ p.name }}</option>
                 </select>
               </div>
 
+              <!-- Cantón -->
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Cantón</label>
-                <select formControlName="canton_id" (change)="onCantonChange()" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm text-sm text-[#00113f]
-                         focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea]
-                         border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                <select [(ngModel)]="cantonSelected" name="cantonSelected"
+                  (ngModelChange)="onCantonSelectedChange($event)" [ngModelOptions]="{standalone: true}" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm text-sm text-[#00113f]
+                     focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea]
+                     border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                   <option [ngValue]="null">Seleccione cantón</option>
-                  <option *ngFor="let c of cantons" [ngValue]="c.id">{{ c.name }}</option>
+                  <option *ngFor="let c of cantons" [ngValue]="c">{{ c.name }}</option>
                 </select>
               </div>
 
+              <!-- Distrito --> 
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Distrito</label>
-                <select formControlName="district_id" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm text-sm text-[#00113f]
-                         focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea]
-                         border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                <select [(ngModel)]="districtSelected" name="districtSelected"
+                  (ngModelChange)="onDistrictSelectedChange($event)" [ngModelOptions]="{standalone: true}" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm text-sm text-[#00113f]
+                 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea]
+                 border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+
                   <option [ngValue]="null">Seleccione distrito</option>
-                  <option *ngFor="let d of districts" [ngValue]="d.id">{{ d.name }}</option>
+                  <option *ngFor="let d of districts" [ngValue]="d">{{ d.name }}</option>
+
                 </select>
               </div>
             </div>
-          </div>
 
-          <!-- TAB 3: OTHERS -->
-          <div *ngIf="activeTab === 'other'" class="space-y-4">
+            <!-- Dirección detallada -->
             <div>
-              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Dirección detallada
-              </label>
+              <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Dirección detallada</label>
               <textarea formControlName="address_detail" rows="2" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm text-sm text-[#00113f]
-                       focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea]
-                       border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
+                     focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea]
+                     border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
             </div>
 
+            <!-- Código postal -->
             <div>
               <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Código postal</label>
               <input type="text" formControlName="postal_code" class="mt-1 block w-full px-3 py-2 border rounded-md shadow-sm text-sm text-[#00113f]
-                       focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea]
-                       border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                  focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea]
+                  border-gray-300 dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
             </div>
+
           </div>
 
-          <!-- TAB 4: CUSTOM -->
-          <div *ngIf="activeTab === 'custom'" class="space-y-4">
-            <app-custom-fields-form [fields]="customFields" (changed)="customValues = $event"></app-custom-fields-form>
+          <!-- TAB 3: OTHER (antes CUSTOM) -->
+          <div *ngIf="activeTab === 'other'" class="space-y-4">
+            <app-custom-fields-form [fields]="customFields" (changed)="customValues = $event">
+            </app-custom-fields-form>
           </div>
+
+
         </form>
       </div>
 

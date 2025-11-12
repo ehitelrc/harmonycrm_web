@@ -51,9 +51,10 @@ export class GeoService {
   }
 
  
-  async getProvincesByCountry(countryId: number): Promise<ApiResponse<Province[]>> {
+  async getProvincesByCountry(iso_code: string): Promise<ApiResponse<Province[]>> {
+    // /provinces/country/code/:country_iso
     return await this.fetch.get<ApiResponse<Province[]>>({
-      API_Gateway: `${GEO_URL}/provinces/country/${countryId}`,
+      API_Gateway: `${GEO_URL}/provinces/country/code/${iso_code}`,
     });
   }
 
@@ -85,9 +86,9 @@ export class GeoService {
     });
   }
 
-  async getCantonsByProvince(provinceId: number): Promise<ApiResponse<Canton[]>> {
+  async getCantonsByProvince(country_iso: string, province_code: string): Promise<ApiResponse<Canton[]>> {
     return await this.fetch.get<ApiResponse<Canton[]>>({
-      API_Gateway: `${GEO_URL}/cantons/province/${provinceId}`,
+      API_Gateway: `${GEO_URL}/cantons/country/${country_iso}/province/${province_code}`,
     });
   }
 
@@ -119,9 +120,9 @@ export class GeoService {
     });
   }
 
-  async getDistrictsByCanton(cantonId: number): Promise<ApiResponse<District[]>> {
+  async getDistrictsByCanton(country_iso: string, canton_code: string): Promise<ApiResponse<District[]>> {
     return await this.fetch.get<ApiResponse<District[]>>({
-      API_Gateway: `${GEO_URL}/districts/canton/${cantonId}`,
+      API_Gateway: `${GEO_URL}/districts/country/${country_iso}/canton/${canton_code}`,
     });
   }
 
