@@ -13,6 +13,7 @@ export interface DashboardStats {
   cases_by_channel: CaseChannelStat[];
   cases_by_agent: CaseAgentStat[];
   oldest_open_cases: OldestOpenCase[];
+  department_id?: number | null;
 }
 
 export interface CaseChannelStat {

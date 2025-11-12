@@ -1,7 +1,9 @@
 <app-main-layout>
   <div class="space-y-6 h-screen p-6 pb-32">
     <!-- Header -->
+
     <div class="flex items-center justify-between">
+      <!-- Título a la izquierda -->
       <div>
         <h1 class="text-2xl font-semibold text-primary">{{ t('dashboard-cases') }}</h1>
         <p class="text-sm text-muted-foreground mt-1">
@@ -9,22 +11,40 @@
         </p>
       </div>
 
+      <!-- Selectores alineados a la derecha -->
+      <div class="flex items-center gap-4 justify-end">
+        <!-- Selector de compañía -->
+        <div class="relative">
+          <select [(ngModel)]="selectedCompanyId" (change)="onCompanyChange()" class="dashboard-select">
+            <option *ngFor="let company of companies" [value]="company.company_id">
+              {{ company.company_name }}
+            </option>
+          </select>
+          <div class="select-icon">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+        </div>
 
-      <!-- Selector de compañía -->
-      <div class="relative">
-        <select [(ngModel)]="selectedCompanyId" (change)="onCompanyChange()"
-          class="appearance-none border rounded-md px-3 py-1.5 pr-8 text-sm font-medium bg-white dark:bg-gray-800 text-primary shadow-sm focus:outline-none focus:ring-2 focus:ring-primary">
-          <option *ngFor="let company of companies" [value]="company.company_id">
-            {{ company.company_name }}
-          </option>
-        </select>
-        <div class="absolute inset-y-0 right-2 flex items-center pointer-events-none text-gray-400">
-          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-          </svg>
+        <!-- Selector de departamento -->
+        <div class="relative" *ngIf="showDepartments.length > 0">
+          <select [(ngModel)]="selectedShowDepartmentId" (change)="onShowDepartmentSelected()" class="dashboard-select">
+            <option *ngFor="let department of showDepartments" [value]="department.id">
+              {{ department.description }}
+            </option>
+          </select>
+          <div class="select-icon">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
         </div>
       </div>
     </div>
+
+
+
 
     <!-- 📊 Dashboard Stats -->
     <div class="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in-up">
@@ -139,7 +159,7 @@
 
     </div>
 
-     <!-- 🕓 Casos más antiguos abiertos -->
+    <!-- 🕓 Casos más antiguos abiertos -->
     <div class="mt-10 dashboard-card">
       <h4 class="text-lg font-semibold text-primary mb-4">Casos Abiertos Más Antiguos</h4>
       <table class="min-w-full text-sm text-left text-gray-600">
@@ -225,7 +245,7 @@
       </div>
     </div>
 
-   
+
 
 
 

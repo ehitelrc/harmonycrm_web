@@ -5,22 +5,18 @@
 
     <div
       class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full"
-      (click)="$event.stopPropagation()"
-    >
+      (click)="$event.stopPropagation()">
       <!-- Header -->
-      <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-gray-200 dark:border-gray-700">
+      <div
+        class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4 border-b border-gray-200 dark:border-gray-700">
         <div class="flex items-center justify-between">
           <h3 class="text-lg font-medium text-gray-900 dark:text-white">
             {{ integration ? t('integration.edit_title') : t('integration.create_title') }}
           </h3>
-          <button
-            type="button"
-            (click)="onCancel()"
-            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none"
-          >
+          <button type="button" (click)="onCancel()"
+            class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 focus:outline-none">
             <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M6 18L18 6M6 6l12 12" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
         </div>
@@ -35,31 +31,36 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               {{ t('integration.name') }} *
             </label>
-            <input
-              type="text"
-              [(ngModel)]="model.integration_name"
-              name="integration_name"       
-              required       
-              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
+            <input type="text" [(ngModel)]="model.integration_name" name="integration_name" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
                      focus:ring-[#3e66ea] focus:border-[#3e66ea] text-sm text-[#00113f]
-                     dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            />
-          </div>    
+                     dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+          </div>
+
+
+          <!-- Select departamentos -->
+          <!-- Select departamentos -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+              {{ t('integration.department_selected') }}
+            </label>
+            <select [(ngModel)]="selectedDepartmentId" name="department_id" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
+           focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea]
+           text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+              <option [ngValue]="null">{{ t('select') }}</option>
+              <option *ngFor="let department of departments" [ngValue]="department.id">
+                {{ department.name }}
+              </option>
+            </select>
+          </div>
 
           <!-- Webhook URL -->
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               {{ t('integration.webhook_url') }} *
             </label>
-            <input
-              type="text"
-              [(ngModel)]="model.webhook_url"
-              name="webhook_url"
-              required
-              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
+            <input type="text" [(ngModel)]="model.webhook_url" name="webhook_url" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
                      focus:ring-[#3e66ea] focus:border-[#3e66ea] text-sm text-[#00113f]
-                     dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            />
+                     dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
           </div>
 
           <!-- Access Token -->
@@ -67,14 +68,9 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               {{ t('integration.access_token') }}
             </label>
-            <input
-              type="text"
-              [(ngModel)]="model.access_token"
-              name="access_token"
-              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
+            <input type="text" [(ngModel)]="model.access_token" name="access_token" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
                      focus:ring-[#3e66ea] focus:border-[#3e66ea] text-sm text-[#00113f]
-                     dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            />
+                     dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
           </div>
 
           <!-- App Identifier -->
@@ -82,14 +78,9 @@
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">
               {{ t('integration.app_identifier') }}
             </label>
-            <input
-              type="text"
-              [(ngModel)]="model.app_identifier"
-              name="app_identifier"
-              class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
+            <input type="text" [(ngModel)]="model.app_identifier" name="app_identifier" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
                      focus:ring-[#3e66ea] focus:border-[#3e66ea] text-sm text-[#00113f]
-                     dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            />
+                     dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
           </div>
 
           <!-- Switches -->
@@ -98,21 +89,12 @@
             <!-- is_active -->
             <label class="flex items-center space-x-2 cursor-pointer">
               <div class="relative">
-                <input
-                  id="is_active"
-                  type="checkbox"
-                  [(ngModel)]="model.is_active"
-                  name="is_active"
-                  class="sr-only"
-                />
-                <div
-                  class="block w-10 h-5 rounded-full transition-colors duration-200"
-                  [ngClass]="model.is_active
+                <input id="is_active" type="checkbox" [(ngModel)]="model.is_active" name="is_active" class="sr-only" />
+                <div class="block w-10 h-5 rounded-full transition-colors duration-200" [ngClass]="model.is_active
                     ? 'bg-[#3e66ea]'
                     : 'bg-gray-300 dark:bg-gray-600'">
                 </div>
-                <div
-                  class="absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full transition-transform duration-200"
+                <div class="absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full transition-transform duration-200"
                   [ngClass]="model.is_active ? 'translate-x-5' : ''">
                 </div>
               </div>
@@ -124,21 +106,13 @@
             <!-- is_non_commercial -->
             <label class="flex items-center space-x-2 cursor-pointer">
               <div class="relative">
-                <input
-                  id="is_non_commercial"
-                  type="checkbox"
-                  [(ngModel)]="model.is_non_commercial"
-                  name="is_non_commercial"
-                  class="sr-only"
-                />
-                <div
-                  class="block w-10 h-5 rounded-full transition-colors duration-200"
-                  [ngClass]="model.is_non_commercial
+                <input id="is_non_commercial" type="checkbox" [(ngModel)]="model.is_non_commercial"
+                  name="is_non_commercial" class="sr-only" />
+                <div class="block w-10 h-5 rounded-full transition-colors duration-200" [ngClass]="model.is_non_commercial
                     ? 'bg-[#3e66ea]'
                     : 'bg-gray-300 dark:bg-gray-600'">
                 </div>
-                <div
-                  class="absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full transition-transform duration-200"
+                <div class="absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full transition-transform duration-200"
                   [ngClass]="model.is_non_commercial ? 'translate-x-5' : ''">
                 </div>
               </div>
@@ -154,23 +128,14 @@
 
       <!-- Footer -->
       <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
-        <button
-          type="button"
-          (click)="submit()"
-          [disabled]="isSubmitting || !model.webhook_url"
-          class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2
-                 bg-[#3e66ea] text-white hover:bg-[#2d5bd9] sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50"
-        >
+        <button type="button" (click)="submit()" [disabled]="isSubmitting || !model.webhook_url" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2
+                 bg-[#3e66ea] text-white hover:bg-[#2d5bd9] sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50">
           {{ isSubmitting ? t('integration.saving') :
-             (integration ? t('integration.update') : t('integration.create')) }}
+          (integration ? t('integration.update') : t('integration.create')) }}
         </button>
-        <button
-          type="button"
-          (click)="onCancel()"
-          class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 px-4 py-2
+        <button type="button" (click)="onCancel()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 px-4 py-2
                  bg-white text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm
-                 dark:bg-gray-800 dark:text-white dark:border-gray-600"
-        >
+                 dark:bg-gray-800 dark:text-white dark:border-gray-600">
           {{ t('integration.cancel') }}
         </button>
       </div>

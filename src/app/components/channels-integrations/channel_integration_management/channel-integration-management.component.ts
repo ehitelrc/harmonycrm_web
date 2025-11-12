@@ -7,7 +7,7 @@ import { AuthorizationService } from '@app/services/extras/authorization.service
 
 import { CompanyService } from '@app/services/company.service';
 import { ChannelService } from '@app/services/channel.service';
-import { ChannelIntegration } from '@app/models/channel-integration.model';
+import { ChannelIntegration, ChannelIntegrationDTO } from '@app/models/channel-integration.model';
 import { Company } from '@app/models/company.model';
 import { Channel } from '@app/models/channel.model';
 
@@ -30,13 +30,13 @@ import { ChannelIntegrationFormComponent } from '../channel-integration-form/cha
 export class ChannelIntegrationManagementComponent {
     companies: Company[] = [];
     channels: Channel[] = [];
-    integrations: ChannelIntegration[] = [];
+    integrations: ChannelIntegrationDTO[] = [];
 
     selectedCompanyId: number | null = null;
     selectedChannelId: number | null = null;
 
     isFormOpen = false;
-    selectedIntegration: ChannelIntegration | null = null;
+    selectedIntegration: ChannelIntegrationDTO | null = null;
 
     isLoading = false;
  
@@ -83,7 +83,7 @@ export class ChannelIntegrationManagementComponent {
     openForm() { this.isFormOpen = true; this.selectedIntegration = null; }
     
 
-    onEdit(i: ChannelIntegration) { this.selectedIntegration = i; this.isFormOpen = true; }
+    onEdit(i: ChannelIntegrationDTO) { this.selectedIntegration = i; this.isFormOpen = true; }
 
     async onSuccess() {
         this.closeForm();
@@ -106,7 +106,7 @@ export class ChannelIntegrationManagementComponent {
     }
 
 
-    openIntegrationForm(integration?: ChannelIntegration) {
+    openIntegrationForm(integration?: ChannelIntegrationDTO) {
         this.selectedIntegration = integration ?? null;
         this.isFormOpen = true;
     }
@@ -116,11 +116,11 @@ export class ChannelIntegrationManagementComponent {
         this.selectedIntegration = null;
     }
 
-    async onIntegrationSaved(saved: ChannelIntegration) {
+    async onIntegrationSaved(saved: ChannelIntegrationDTO) {
         this.closeForm();
         await this.loadIntegrations();
     }
  
-    onEditIntegration(i: ChannelIntegration) { this.openIntegrationForm(i); }
-    onDeleteIntegration(i: ChannelIntegration) { /* abre confirmación y llama a delete */ }
+    onEditIntegration(i: ChannelIntegrationDTO) { this.openIntegrationForm(i); }
+    onDeleteIntegration(i: ChannelIntegrationDTO) { /* abre confirmación y llama a delete */ }
 }

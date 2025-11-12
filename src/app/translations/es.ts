@@ -430,6 +430,8 @@ export const esTranslations = {
   "channel.deleting": "Eliminando...",
 
 
+  "integration.department_selected": "Seleccionar departemento",
+  "integration.department": "Departamento",
   "integration.management_title": "Gestión de Integraciones",
   "integration.management_description": "Administra las integraciones de canales por compañía",
   "integration.add_integration": "Nueva integración",

@@ -17,9 +17,9 @@ export class NavigationService {
       children: [
 
 
-        
+
         { type: 'item', name: 'menu.lead-registration', href: '/leads-registration', icon: 'Person', permission: 'cases.lead-registration' },
-        
+
         { type: 'item', name: 'menu.customer-qr', href: '/customer-qr', icon: 'QR', permission: 'customer-qr.access' },
         { type: 'item', name: 'menu.customers', href: '/customers', icon: 'Users', permission: 'customers.access' },
 
@@ -36,6 +36,7 @@ export class NavigationService {
         { type: 'item', name: 'menu.products', href: '/products', icon: 'Package', permission: 'products.access' },
         { type: 'item', name: 'menu.companies', href: '/companies', icon: 'Building', permission: 'companies.access' },
         { type: 'item', name: 'menu.campaigns', href: '/campaigns', icon: 'LayoutDashboard', permission: 'campaigns.access' },
+        { type: 'item', name: 'menu.funnels', href: '/funnels', icon: 'Funnel', permission: 'funnels.access' },
 
       ],
     },
@@ -45,7 +46,7 @@ export class NavigationService {
       icon: 'Folder',
       children: [
         { type: 'item', name: 'menu.channels', href: '/channels', icon: 'Channels', permission: 'channels.access' },
-        { type: 'item', name: 'menu.funnels', href: '/funnels', icon: 'Funnel', permission: 'funnels.access' },
+
         { type: 'item', name: 'menu.whatsapp-template', href: '/whatsapp-template', icon: 'Settings', permission: 'whatsapp-template.access' },
         { type: 'item', name: 'menu.channels_company', href: '/channel-company', icon: 'CheckCircle', permission: 'channels_company.access' },
       ],

@@ -26,6 +26,14 @@ export class CaseDashboardService {
       API_Gateway: `${DASHBOARD_URL}/company/${companyId}`,
     });
   }
+
+  async getByCompanyAndDepartmentID(companyId: number, departmentId: number): Promise<ApiResponse<DashboardStats>> {
+    return await this.fetchService.get<ApiResponse<DashboardStats>>({
+      API_Gateway: `${DASHBOARD_URL}/company/${companyId}/department/${departmentId}`,
+    });
+  }
+ 
+ 
  
 }
 

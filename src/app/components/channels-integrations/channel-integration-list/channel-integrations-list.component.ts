@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ChannelIntegration } from '@app/models/channel-integration.model';
+import { ChannelIntegration, ChannelIntegrationDTO } from '@app/models/channel-integration.model';
 import { LanguageService } from '@app/services';
 
 @Component({
@@ -12,12 +12,12 @@ import { LanguageService } from '@app/services';
   styleUrls: ['./channel-integrations-list.component.css']
 })
 export class ChannelIntegrationsListComponent {
-  @Input() integrations: ChannelIntegration[] = [];
+  @Input() integrations: ChannelIntegrationDTO[] = [];
   @Input() isLoading = false;
 
   @Output() add = new EventEmitter<void>();
-  @Output() edit = new EventEmitter<ChannelIntegration>();
-  @Output() remove = new EventEmitter<ChannelIntegration>();
+  @Output() edit = new EventEmitter<ChannelIntegrationDTO>();
+  @Output() remove = new EventEmitter<ChannelIntegrationDTO>();
 
   searchTerm = '';
 
@@ -31,7 +31,7 @@ export class ChannelIntegrationsListComponent {
 
   }
 
-  get filtered(): ChannelIntegration[] {
+  get filtered(): ChannelIntegrationDTO[] {
     const q = this.searchTerm;
     if (!q) return this.integrations;
 
@@ -43,6 +43,6 @@ export class ChannelIntegrationsListComponent {
   }
 
   onAdd() { this.add.emit(); }
-  onEdit(integration: ChannelIntegration) { this.edit.emit(integration); }
-  onRemove(integration: ChannelIntegration) { this.remove.emit(integration); }
+  onEdit(integration: ChannelIntegrationDTO) { this.edit.emit(integration); }
+  onRemove(integration: ChannelIntegrationDTO) { this.remove.emit(integration); }
 }

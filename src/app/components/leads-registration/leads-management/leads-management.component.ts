@@ -11,7 +11,7 @@ import { CompanyUser } from '@app/models/companies_user_view';
 import { CampaignWithFunnel } from '@app/models/campaign-with-funnel.model';
 import { CaseWithChannel } from '@app/models/case-with-channel.model';
 import { LeadFormComponent } from '../leads-form/leads-form.component';
-import { ChannelIntegration } from '@app/models/channel-integration.model';
+import { ChannelIntegration, ChannelIntegrationDTO } from '@app/models/channel-integration.model';
 import { ChannelService } from '@app/services/channel.service';
 import { Channel } from '@app/models/channel.model';
 import { ConfirmationDialogComponent } from '@app/components/shared/confirmation-dialog/confirmation-dialog.component';
@@ -45,7 +45,7 @@ export class LeadsManagementComponent implements OnInit {
 
   isFormOpen = false;
 
-  integrations: ChannelIntegration[] = [];
+  integrations: ChannelIntegrationDTO[] = [];
 
 
   isLoading = false;

@@ -26,6 +26,13 @@ export class DepartmentService {
     });
   }
 
+
+  async getByCompanyAndUser(companyId: number, user_id: number): Promise<ApiResponse<Department[]>> {
+    return await this.fetchService.get<ApiResponse<Department[]>>({
+      API_Gateway: `${DEPARTMENT_URL}/company/${companyId}/user/${user_id}`,
+    });
+  }
+
   /**
    * @description (Opcional) Obtener un departamento por ID
    */

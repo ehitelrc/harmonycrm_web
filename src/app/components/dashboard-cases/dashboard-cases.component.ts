@@ -53,8 +53,12 @@ export class DashboardCasesComponent implements OnInit {
   selectedAgentId: number | null = null;
   assigning = false;
 
+  selectedShowDepartmentId: number | null = null;
+
   departments: Department[] = [];
   agents: AgentDepartmentInformation[] = [];
+
+  showDepartments: Department[] = [];
 
   // Modal de cliente
   showClientAssignModal = false;
@@ -91,14 +95,14 @@ export class DashboardCasesComponent implements OnInit {
     await this.loadCompanies();
 
     // 🔄 Refresca cada 30 segundos
-    this.intervalId = setInterval(async () => {
-      if (this.selectedCompanyId) {
-        if (this.selectedCompanyId) {
-          await this.loadUnassignedCases();
-          await this.loadDashboardStats();
-        }
-      }
-    }, 30000); // 30 segundos
+    // this.intervalId = setInterval(async () => {
+    //   if (this.selectedCompanyId) {
+    //     if (this.selectedCompanyId) {
+    //       await this.loadUnassignedCases();
+    //       await this.loadDashboardStats();
+    //     }
+    //   }
+    // }, 30000); // 30 segundos
 
   }
 
@@ -110,18 +114,34 @@ export class DashboardCasesComponent implements OnInit {
       if (response?.success && response.data?.length) {
         this.companies = response.data;
         this.selectedCompanyId = this.companies[0].company_id;
-        await this.loadUnassignedCases();
-        await this.loadDashboardStats();
+
+        await this.loadDepartmentsForDisplay();
+
+        // await this.loadUnassignedCases();
+        // await this.loadDashboardStats();
       }
     } catch (error) {
       console.error('Error loading companies:', error);
     }
   }
 
+  async loadDepartmentsForDisplay(): Promise<void> {
+    if (!this.selectedCompanyId) return;
+    try {
+      const res = await this.departmentService.getByCompanyAndUser(this.selectedCompanyId, this.user!.user_id);
+      if (res.success && res.data) {
+        this.showDepartments = res.data;
+        this.selectedShowDepartmentId = this.showDepartments[0]?.id || null;
+      }
+    } catch (err) {
+      console.error('Error loading departments for display', err);
+    }
+  }
+
   async loadDashboardStats(): Promise<void> {
     if (!this.selectedCompanyId) return;
     try {
-      const res = await this.caseDashboardService.getByCompanyID(this.selectedCompanyId);
+      const res = await this.caseDashboardService.getByCompanyAndDepartmentID(this.selectedCompanyId, this.selectedShowDepartmentId!);
       if (res.success && res.data) {
         const data = res.data;
 
@@ -156,7 +176,7 @@ export class DashboardCasesComponent implements OnInit {
     this.loading = true;
     try {
       const response: ApiResponse<CaseWithChannel[]> =
-        await this.caseService.getCasesWithoutAgentByCompany(this.selectedCompanyId);
+        await this.caseService.getCasesWithoutAgentByCompanyAndDepartment(this.selectedCompanyId, this.selectedShowDepartmentId!);
       if (response.success && response.data) {
         this.unassignedCases = response.data;
       }
@@ -168,8 +188,9 @@ export class DashboardCasesComponent implements OnInit {
   }
 
   async onCompanyChange(): Promise<void> {
-    await this.loadUnassignedCases();
-    await this.loadDashboardStats();
+    await this.loadDepartmentsForDisplay();
+    // await this.loadUnassignedCases();
+    // await this.loadDashboardStats();
   }
 
   async assignToAgent(data: any): Promise<void> {
@@ -219,7 +240,7 @@ export class DashboardCasesComponent implements OnInit {
     let agentID = Number(this.selectedAgentId);
 
     try {
-        let departmentId = Number(this.selectedDepartmentId) || 0;
+      let departmentId = Number(this.selectedDepartmentId) || 0;
 
       const res = await this.caseService.assignCaseToAgent(
         this.selectedCaseId,
@@ -363,6 +384,12 @@ export class DashboardCasesComponent implements OnInit {
   onClientCancel(): void {
     this.showNewClientModal = false;
     this.showClientAssignModal = true;
+  }
+
+  onShowDepartmentSelected(): void {
+    this.loadDashboardStats();
+    this.loadUnassignedCases();
+
   }
 
   t(key: string): string {
