@@ -1,0 +1,46 @@
+<div class="fixed inset-0 z-50 overflow-y-auto" (click)="close()">
+  <div class="flex items-center justify-center min-h-screen px-4" (click)="$event.stopPropagation()">
+
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
+
+      <h2 class="text-lg font-semibold text-black dark:text-white mb-4">
+        {{ isEditing ? t('dynamic_lists.edit_value') : t('dynamic_lists.new_value') }}
+      </h2>
+
+      <form [formGroup]="form" class="space-y-4" (ngSubmit)="onSubmit()">
+
+        <div>
+          <label class="block text-sm font-medium text-black">{{ list.code_label || 'Código' }}</label>
+          <input 
+            formControlName="code_value"
+            class="w-full border rounded px-3 py-2 dark:bg-gray-700 dark:text-white text-black"
+          />
+        </div>
+
+        <div>
+          <label class="block text-sm font-medium text-black">{{ list.description_label || 'Descripción' }} *</label>
+          <input 
+            formControlName="description_value"
+            class="w-full border rounded px-3 py-2 dark:bg-gray-700 dark:text-white text-black"
+          />
+        </div>
+
+        <div class="flex justify-end gap-2 mt-4">
+          <button (click)="close()" type="button"
+                  class="px-4 py-2 bg-gray-300 dark:bg-gray-700 rounded">
+            {{ t('cancel') }}
+          </button>
+
+          <button 
+            class="px-4 py-2 bg-[#00113f] text-white rounded hover:bg-[#3e66ea]"
+            [disabled]="isSubmitting || form.invalid">
+            {{ isEditing ? t('update') : t('create') }}
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+</div>

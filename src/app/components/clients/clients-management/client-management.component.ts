@@ -9,7 +9,7 @@ import { ClientService } from '@app/services/client.service';
 import { Client } from '@app/models/client.model';
 import { ClientsListComponent } from '../clients-list/client-list.component';
 import { ClientFormComponent } from '../clients-form/client-form.component';
- 
+
 @Component({
   selector: 'app-client-management',
   standalone: true,
@@ -29,12 +29,13 @@ export class ClientManagementComponent {
   deletingId: number | null = null;
   isDeleting = false;
 
+ 
   constructor(
     private lang: LanguageService,
     private auth: AuthorizationService,
     private alert: AlertService,
     private service: ClientService
-  ) {}
+  ) { }
 
   get t() { return this.lang.t.bind(this.lang); }
   isAdmin(): boolean { return this.auth.isAdmin(); }

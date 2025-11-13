@@ -1,5 +1,6 @@
 export const esTranslations = {
 
+  "custom-list.title": "Listas Dinámicas",
 
   // Campaigns pushin
   "push.management_title": "Gestión de envios masivos de WhatsApp",
@@ -104,6 +105,8 @@ export const esTranslations = {
 
   // Navigation items
 
+  'menu.custom-lists': 'Listas Dinámicas',
+
   'menu.dashboard': 'Tablero',
   'menu.companies': 'Compañías',
   'menu.conversations': 'Conversaciones',
@@ -199,7 +202,47 @@ export const esTranslations = {
   "company.select_company": "Seleccionar compañía",
   "company.select_company_placeholder": "Seleccionar compañía...",
 
+  // Dymanic Lists
+  "dynamic_lists.select_list": "Seleccione una lista dinámica",
+  "dynamic_lists.choose": "Seleccione una lista...",
+  "dynamic_lists.no_lists": "No hay listas disponibles",
+  "dynamic_lists.add_value": "Agregar valor",
+  "dynamic_lists.edit_value": "Editar valor",
+  "dynamic_lists.new_value": "Nuevo valor",
 
+  "dynamic_lists.title": "Listas Dinámicas",
+  "dynamic_lists.description": "Administre los valores configurables asociados a este registro.",
+
+  "dynamic_lists.label": "Etiqueta",
+  "dynamic_lists.select": "Seleccione una opción",
+  "dynamic_lists.manage_values": "Administrar valores",
+
+  "dynamic_lists.values.title": "Valores del listado",
+  "dynamic_lists.values.new": "Nuevo valor",
+  "dynamic_lists.values.edit": "Editar valor",
+  "dynamic_lists.values.code": "Código",
+  "dynamic_lists.values.description_label": "Descripción",
+  "dynamic_lists.values.no_values": "No hay valores registrados",
+
+  "dynamic_lists.actions": "Acciones",
+  "dynamic_lists.create": "Crear",
+  "dynamic_lists.update": "Actualizar",
+  "dynamic_lists.cancel_edit": "Cancelar edición",
+  "dynamic_lists.close": "Cerrar",
+
+  "dynamic_lists.save_success": "Guardado correctamente",
+  "dynamic_lists.update_success": "Actualizado correctamente",
+  "dynamic_lists.delete_success": "Eliminado correctamente",
+
+  "dynamic_lists.error": "Ocurrió un error al procesar la operación",
+  "dynamic_lists.error_load": "No se pudieron cargar los valores",
+  "dynamic_lists.error_fields": "Debe completar todos los campos",
+
+  "dynamic_lists.confirm.delete_title": "Confirmar eliminación",
+  "dynamic_lists.confirm.delete_message": "¿Está seguro de que desea eliminar este valor?",
+  "dynamic_lists.confirm.delete": "Eliminar",
+  "dynamic_lists.confirm.cancel": "Cancelar",
+ 
   // Departments
 
   "department.management_title": "Gestión de Departamentos",

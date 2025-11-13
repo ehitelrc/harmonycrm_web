@@ -17,11 +17,22 @@ export class CustomFieldsFormComponent implements OnInit {
 
   constructor(private fb: FormBuilder) {}
 
-  ngOnInit() {
-    const controls: any = {};
-    for (const f of this.fields) controls[f.field_key] = [f.value ?? null];
-    this.form = this.fb.group(controls);
+ ngOnInit() {
+  const controls: any = {};
 
-    this.form.valueChanges.subscribe(v => this.changed.emit(v));
+  for (const f of this.fields) {
+    controls[f.field_key] = [f.value ?? null];
   }
+
+  this.form = this.fb.group(controls);
+
+  this.form.valueChanges.subscribe(v => {
+    const arr = Object.keys(v).map(key => ({
+      field_key: key,
+      field_value: v[key]
+    }));
+
+    this.changed.emit(arr);
+  });
+}
 }

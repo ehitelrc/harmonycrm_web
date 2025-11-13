@@ -9,21 +9,37 @@ import { Canton, Country, District, Province } from '@app/models/locations.model
 import { GeoService } from '@app/services/geo.service';
 import { CustomField } from '@app/models/custom-field.model';
 import { CustomFieldsFormComponent } from './custom-fields-form.component';
+import { DynamicListItem, DynamicListSelectComponent } from '@app/components/dynamic-list-select/dynamic-list-select.component';
+import { CustomListService } from '@app/services/custom-list.service';   // ⭐ NUEVO
+import { CustomFieldService } from '@app/services/custom-field.service';
+
+
+export interface ClientCustomFieldDTO {
+  entity_id: number;
+  entity_name: string;
+  field_key: string;
+  value: any;
+}
+
+interface CustomValueItem {
+  field_key: string;
+  field_value: any;
+}
 
 
 @Component({
   selector: 'app-client-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, CustomFieldsFormComponent, FormsModule],
+  imports: [CommonModule, ReactiveFormsModule, CustomFieldsFormComponent, FormsModule, DynamicListSelectComponent],
   templateUrl: './client-form.component.html',
   styleUrls: ['./client-form.component.css'],
 })
 export class ClientFormComponent implements OnInit, OnChanges {
+
   @Input() client: Client | null = null;
-  @Input() phoneNumber: string | null = null; // para prellenar el teléfono al crear
+  @Input() phoneNumber: string | null = null;
   @Output() success = new EventEmitter<Client>();
   @Output() cancel = new EventEmitter<void>();
-  @Output() click = new EventEmitter<void>();
 
   idType: 'national' | 'other' = 'national';
 
@@ -42,14 +58,23 @@ export class ClientFormComponent implements OnInit, OnChanges {
   districtSelected: District | null = null;
 
   customFields: CustomField[] = [];
-  customValues: any = {};
+  customValues: CustomValueItem[] = [];
 
-  activeTab: 'general' | 'location' | 'other' | 'custom' = 'general';
+  maintenanceModal: { list_id: number; list_name: string } | null = null;
+
+
+
+  activeTab: 'general' | 'location' | 'other' = 'general';
+
+  // ⭐ NUEVO: aquí se guardan los valores seleccionados de listas dinámicas
+  dynamicListValues: { list_id: number; selected_value: number | null }[] = [];
 
   constructor(
     private geo: GeoService,
     private fb: FormBuilder,
     private clientService: ClientService,
+    private customListService: CustomListService,      // ⭐ NUEVO
+    private customFieldService: CustomFieldService,
     private lang: LanguageService,
     private alert: AlertService
   ) { }
@@ -62,10 +87,9 @@ export class ClientFormComponent implements OnInit, OnChanges {
     this.build();
     await this.loadCountries();
     await this.patch();
-    await this.loadLocationHierarchyForEdit();  // <<--- AQUI
+    await this.loadLocationHierarchyForEdit();
     await this.loadCustomFields();
 
-    // 🟢 Si es nuevo registro, seleccionar Nacional por defecto
     if (!this.isEditing) {
       this.idType = 'national';
       this.onIdTypeChange();
@@ -77,7 +101,7 @@ export class ClientFormComponent implements OnInit, OnChanges {
     if (changes['client'] && this.form) {
       this.isEditing = !!this.client;
       await this.patch();
-      await this.loadLocationHierarchyForEdit();  // <<--- AQUI
+      await this.loadLocationHierarchyForEdit();
       await this.loadCustomFields();
     }
   }
@@ -105,10 +129,7 @@ export class ClientFormComponent implements OnInit, OnChanges {
       if (this.phoneNumber) {
         this.form.patchValue({ phone: this.phoneNumber });
       }
-
-      // 🟢 Nuevo cliente → nacional por defecto
       this.idType = 'national';
-      // ⚡ Esperar cambio en ngModel y aplicar validadores
       setTimeout(() => this.onIdTypeChange());
       return;
     }
@@ -129,32 +150,10 @@ export class ClientFormComponent implements OnInit, OnChanges {
       is_citizen: this.client.is_citizen ?? null,
     });
 
-    // 🧠 Determinar tipo de ID según is_citizen o formato
     const rawId = (this.client.external_id || '').replace(/\D/g, '');
+    this.idType = (this.client.is_citizen === true || rawId.length === 9) ? 'national' : 'other';
 
-    if (this.client.is_citizen === true || rawId.length === 9) {
-      this.idType = 'national';
-      if (rawId.length === 9) {
-        const formatted = `${rawId.slice(0, 1)} ${rawId.slice(1, 5)} ${rawId.slice(5, 9)}`;
-        this.form.patchValue({ external_id: formatted });
-      }
-    } else {
-      this.idType = 'other';
-    }
-
-    // ⚡ Forzar refresco de validadores tras aplicar el ngModel
     setTimeout(() => this.onIdTypeChange());
-
-    // 🌍 Cargar ubicaciones
-    // if (this.client.country_id) {
-    //   await this.loadProvinces(this.countrySelected?.iso_code || '');
-    //   if (this.client.province_id) {
-    //     await this.loadCantons(this.countrySelected?.iso_code);
-    //     if (this.client.canton_id) {
-    //       await this.loadDistricts(this.client.canton_id);
-    //     }
-    //   }
-    // }
   }
 
 
@@ -163,6 +162,9 @@ export class ClientFormComponent implements OnInit, OnChanges {
     return !!(c && c.invalid && (c.dirty || c.touched));
   }
 
+  // ============================================
+  // ⭐ SUBMIT MODIFICADO PARA GUARDAR LISTAS
+  // ============================================
   async submit(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
@@ -171,24 +173,66 @@ export class ClientFormComponent implements OnInit, OnChanges {
 
     const payload = {
       ...this.form.value,
-      custom_fields: this.customValues, // 🔥 incluye dinámicos
-      is_citizen: this.idType === 'national' ? true : false,
+      custom_fields: this.customValues,
+      is_citizen: this.idType === 'national'
     };
 
+    console.log("Datos a guardar ", payload);
+
+
     this.isSubmitting = true;
+
     try {
       let resp;
+
+      // Crear o actualizar cliente
       if (this.isEditing && this.client) {
         resp = await this.clientService.update(this.client.id, payload);
       } else {
         resp = await this.clientService.create(payload);
       }
 
-      if (resp.success && resp.data) {
-        this.success.emit(resp.data);
-      } else {
+      if (!resp.success || !resp.data) {
         this.alert.error(resp.message || this.t('client.operation_failed'));
+        return;
       }
+
+      const clientId = resp.data.id;
+
+      // Custom field values
+      if (this.customValues.length > 0) {
+
+        // let  customFieldPayloads: ClientCustomFieldDTO[] = this.customFields.map(field => ({
+        //   entity_id: clientId,
+        //   entity_name: 'clients',
+        //   field_key: field.field_key,
+        //   value: this.customValues[field.field_key] || null
+        // }));
+
+        const customFieldPayloads = this.customFields.map(f => {
+          const v = this.customValues.find(x => x.field_key === f.field_key);
+          return {
+            entity_id: clientId,
+            entity_name: 'clients',
+            field_key: f.field_key,
+            field_value: v?.field_value ?? null
+          };
+        });
+
+
+        this.customFieldService.SaveCustomFieldsValues(customFieldPayloads);
+
+
+
+      }
+
+      // ⭐ NUEVO: Guardar listas dinámicas
+      if (this.dynamicListValues.length > 0) {
+        await this.saveCustomLists(clientId);
+      }
+
+      this.success.emit(resp.data);
+
     } catch (e) {
       console.error(e);
       this.alert.error(this.t('client.operation_failed'));
@@ -197,18 +241,29 @@ export class ClientFormComponent implements OnInit, OnChanges {
     }
   }
 
+  // ⭐ NUEVO: Método para grabar las listas dinámicas
+  private async saveCustomLists(clientId: number) {
+    const operations = this.dynamicListValues.map(item =>
+      this.customListService.saveEntityValue({
+        entity_name: 'clients',
+        entity_id: clientId,
+        list_id: item.list_id,
+        value_id: item.selected_value
+      })
+    );
+    await Promise.all(operations);
+  }
+
   onCancel(): void {
     this.cancel.emit();
   }
 
-  // 🌍 Carga de ubicaciones
   private async loadCountries() {
     const res = await this.geo.getCountries();
     if (res.success) this.countries = res.data;
   }
 
   private async loadProvinces(iso_code: string) {
-    console.log('Cargando provincias para ISO:', iso_code);
     const res = await this.geo.getProvincesByCountry(iso_code);
     this.provinces = res.success ? res.data : [];
   }
@@ -222,6 +277,7 @@ export class ClientFormComponent implements OnInit, OnChanges {
     const res = await this.geo.getDistrictsByCanton(country_iso, canton_code);
     this.districts = res.success ? res.data : [];
   }
+
   async onCountrySelectedChange(country: Country | null) {
     if (!country) {
       this.countrySelected = null;
@@ -230,8 +286,6 @@ export class ClientFormComponent implements OnInit, OnChanges {
     }
 
     this.countrySelected = country;
-    console.log('País seleccionado:', this.countrySelected);
-
     await this.loadProvinces(country.iso_code);
 
     this.form.patchValue({ country_id: this.countrySelected.id, province_id: null, canton_id: null, district_id: null });
@@ -248,16 +302,14 @@ export class ClientFormComponent implements OnInit, OnChanges {
     }
 
     this.provinceSelected = province;
-    console.log('Provincia seleccionada:', this.provinceSelected);
-
     await this.loadCantons(this.countrySelected?.iso_code!, province.code);
 
-    // Limpiar dependientes
     this.form.patchValue({
       province_id: province.id,
       canton_id: null,
       district_id: null,
     });
+
     this.districts = [];
   }
 
@@ -269,11 +321,8 @@ export class ClientFormComponent implements OnInit, OnChanges {
     }
 
     this.cantonSelected = canton;
-    console.log('Cantón seleccionado:', this.cantonSelected);
-
     await this.loadDistricts(this.countrySelected?.iso_code!, this.cantonSelected?.code!);
 
-    // Limpiar dependientes y sincronizar el ID en el formulario
     this.form.patchValue({
       canton_id: canton.id,
       district_id: null,
@@ -288,26 +337,17 @@ export class ClientFormComponent implements OnInit, OnChanges {
 
     this.districtSelected = district;
 
-    console.log('Distrito seleccionado:', this.districtSelected);
-
-    // Si querés guardar el ID en el formulario:
     this.form.patchValue({
       district_id: district.id
     });
   }
 
-  // 🧩 Llama al endpoint del backend ya existente
   private async loadCustomFields() {
     try {
       const entityId = this.client?.id || 0;
       const res = await this.clientService.getCustomFields(entityId);
-      if (res.success && Array.isArray(res.data)) {
-        this.customFields = res.data;
-      } else {
-        this.customFields = [];
-      }
-    } catch (err) {
-      console.error('Error cargando campos personalizados:', err);
+      this.customFields = res.success ? res.data : [];
+    } catch {
       this.customFields = [];
     }
   }
@@ -330,7 +370,6 @@ export class ClientFormComponent implements OnInit, OnChanges {
   private async loadLocationHierarchyForEdit() {
     if (!this.client) return;
 
-    /** 1) COUNTRY */
     if (this.client.country_id) {
       this.countrySelected = this.countries.find(c => c.id === this.client!.country_id) || null;
 
@@ -340,39 +379,43 @@ export class ClientFormComponent implements OnInit, OnChanges {
       }
     }
 
-    /** 2) PROVINCE */
     if (this.client.province_id) {
       this.provinceSelected = this.provinces.find(p => p.id === this.client!.province_id) || null;
 
       if (this.provinceSelected) {
-        await this.loadCantons(
-          this.countrySelected!.iso_code,
-          this.provinceSelected.code
-        );
+        await this.loadCantons(this.countrySelected!.iso_code, this.provinceSelected.code);
         this.form.patchValue({ province_id: this.provinceSelected.id });
       }
     }
 
-    /** 3) CANTON */
     if (this.client.canton_id) {
       this.cantonSelected = this.cantons.find(c => c.id === this.client!.canton_id) || null;
 
       if (this.cantonSelected) {
-        await this.loadDistricts(
-          this.countrySelected!.iso_code,
-          this.cantonSelected.code
-        );
+        await this.loadDistricts(this.countrySelected!.iso_code, this.cantonSelected.code);
         this.form.patchValue({ canton_id: this.cantonSelected.id });
       }
     }
 
-    /** 4) DISTRICT */
     if (this.client.district_id) {
       this.districtSelected = this.districts.find(d => d.id === this.client!.district_id) || null;
 
       if (this.districtSelected) {
         this.form.patchValue({ district_id: this.districtSelected.id });
       }
+    }
+  }
+
+  // ============================================
+  // ⭐ NUEVO: capturar los cambios de listas DINÁMICAMENTE
+  // ============================================
+  onListChange(event: { list_id: number; selected_value: number | null }) {
+    const existing = this.dynamicListValues.find(x => x.list_id === event.list_id);
+
+    if (existing) {
+      existing.selected_value = event.selected_value;
+    } else {
+      this.dynamicListValues.push(event);
     }
   }
 
@@ -395,4 +438,13 @@ export class ClientFormComponent implements OnInit, OnChanges {
     this.form.get('external_id')?.setValue(value.trim());
     this.form.get('external_id')?.updateValueAndValidity({ emitEvent: false });
   }
+
+
+
+  closeMaintenanceModal() {
+    this.maintenanceModal = null;
+  }
+
+
+
 }

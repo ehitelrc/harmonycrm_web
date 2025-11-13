@@ -201,6 +201,12 @@ export const routes: Routes = [
     loadComponent: () => import('./components/leads-registration/leads-management/leads-management.component').then(m => m.LeadsManagementComponent),
     canActivate: [AuthGuard]
   },
+  // Dynamic Lists Management
+  { 
+    path: 'custom-lists',
+    loadComponent: () => import('./components/dynamic-list/dymamic-list-maintenance/dynamic-list-maintenance.component').then(m => m.DynamicListsManagementComponent),
+    canActivate: [AuthGuard]
+  },
   // Wildcard route - redirect to dashboard
   {
     path: '**',
