@@ -44,7 +44,7 @@
         <select [(ngModel)]="selectedIntegration" (ngModelChange)="onChannelIntegrationSelected()"
           class="block w-full px-3 py-2 border rounded-md text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
           <option [ngValue]="null">{{ t('whatsapp_template.select_integration') }}</option>
-          <option *ngFor="let i of integrations" [ngValue]="i">{{ i.channel_name }}</option>
+          <option *ngFor="let i of integrations" [ngValue]="i">{{ i.integration_name }}</option>
         </select>
       </div>
     </div>

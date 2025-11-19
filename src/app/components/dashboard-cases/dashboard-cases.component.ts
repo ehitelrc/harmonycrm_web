@@ -76,7 +76,7 @@ export class DashboardCasesComponent implements OnInit {
   caseSelected: CaseWithChannel | null = null;
 
   intervalId: any;
-
+ 
   constructor(
     private authService: AuthService,
     private companyService: CompanyService,

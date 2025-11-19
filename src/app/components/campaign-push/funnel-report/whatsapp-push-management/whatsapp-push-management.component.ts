@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { MainLayoutComponent } from '@app/components/layout/main-layout.component';
 import { CompanyUser } from '@app/models/companies_user_view';
@@ -12,9 +12,14 @@ import { CampaignWithFunnel } from '@app/models/campaign-with-funnel.model';
 import { CompanyChannelTemplateView } from '@app/models/company-channel-template-view.model';
 import { CampaignWhatsappPushLeadInput, CampaignWhatsappPushRequest } from '@app/models/campaign-whatsapp-push.model';
 import { CampaignPushService } from '@app/services/campaign-push.service';
-import { Channel } from '@app/models/channel.model';
 import { ChannelService } from '@app/services/channel.service';
 import Papa from 'papaparse';
+import { Department } from '@app/models/department.model';
+import { DepartmentService } from '@app/services/department.service';
+import { AgentDepartmentAssignment } from '@app/models/agent_department_assignment_view';
+import { AgentUserService } from '@app/services/agent-user.service';
+import { VWChannelIntegration } from '@app/models/vw-channel-integration.model';
+
 @Component({
   selector: 'app-whatsapp-push-management',
   standalone: true,
@@ -23,6 +28,9 @@ import Papa from 'papaparse';
   styleUrls: ['./whatsapp-push-management.component.css'],
 })
 export class WhatsappPushManagementComponent implements OnInit {
+
+  @ViewChild('fileInput') fileInput!: ElementRef<HTMLInputElement>;
+
   // Sesión
   loggedUser: UserAuthModel | null = null;
 
@@ -30,14 +38,22 @@ export class WhatsappPushManagementComponent implements OnInit {
   companies: CompanyUser[] = [];
   campaigns: CampaignWithFunnel[] = [];
   templates: CompanyChannelTemplateView[] = [];
+  departments: Department[] = [];
+  assignedDepartments: AgentDepartmentAssignment[] = [];
+  integrations: VWChannelIntegration[] = [];
 
   selectedCompany: number | null = null;
   selectedCampaign: number | null = null;
   selectedTemplate: number | null = null;
+  selectedDepartment: number | null = null;
+  selectedIntegration: VWChannelIntegration | null = null;
 
   // Form fields
   description = '';
   leads: CampaignWhatsappPushLeadInput[] = [];
+
+  // Drag state
+  isDragOver = false;
 
   // UI state
   loadingCompanies = false;
@@ -52,8 +68,10 @@ export class WhatsappPushManagementComponent implements OnInit {
     private campaignService: CampaignService,
     private pushService: CampaignPushService,
     private channelService: ChannelService,
+    private departmentService: DepartmentService,
+    private agentUserService: AgentUserService,
     private alert: AlertService,
-  ) {}
+  ) { }
 
   get t() {
     return this.i18n.t.bind(this.i18n);
@@ -67,14 +85,23 @@ export class WhatsappPushManagementComponent implements OnInit {
   // === Carga de datos ===
   loadCompanies() {
     this.loadingCompanies = true;
-    this.companies = [];
     const userId = this.loggedUser?.user_id!;
     this.companyService.getCompaniesByUserId(userId)
-      .then(resp => {
-        this.companies = resp?.data || [];
-      })
+      .then(resp => this.companies = resp?.data || [])
       .catch(err => console.error('Error loading companies:', err))
       .finally(() => this.loadingCompanies = false);
+  }
+
+  loadDepartments() {
+    this.agentUserService.companiesDepartments(this.selectedCompany!, this.loggedUser?.user_id!)
+      .then(resp => this.assignedDepartments = resp?.data || [])
+      .catch(err => console.error('Error loading departments:', err));
+  }
+
+  loadIntegrationsForDepartment(departmentId: number) {
+    this.channelService.getWhatsappIntegrationsByDepartment(departmentId)
+      .then(resp => this.integrations = resp?.data || [])
+      .catch(err => console.error('Error loading WhatsApp integrations:', err));
   }
 
   onCompanySelected() {
@@ -85,13 +112,20 @@ export class WhatsappPushManagementComponent implements OnInit {
       this.selectedTemplate = null;
       return;
     }
+
+    this.loadDepartments();
     this.loadCampaignsForCompany(this.selectedCompany);
     this.loadTemplatesForCompany(this.selectedCompany);
   }
 
+  onDepartmentSelected() {
+    if (this.selectedDepartment) {
+      this.loadIntegrationsForDepartment(this.selectedDepartment);
+    }
+  }
+
   loadCampaignsForCompany(companyId: number) {
     this.campaignLoading = true;
-    this.campaigns = [];
     this.campaignService.getByCompany(companyId)
       .then(resp => this.campaigns = resp?.data || [])
       .catch(err => console.error('Error loading campaigns:', err))
@@ -100,70 +134,84 @@ export class WhatsappPushManagementComponent implements OnInit {
 
   loadTemplatesForCompany(companyId: number) {
     this.templateLoading = true;
-    this.templates = [];
     this.channelService.getWhatsappTemplatesByCompany(companyId)
       .then(resp => {
-        // filtra solo los que tengan template_id
         this.templates = (resp?.data || []).filter(t => t.template_id);
       })
       .catch(err => console.error('Error loading templates:', err))
       .finally(() => this.templateLoading = false);
   }
 
-onFileSelected(evt: Event) {
-  const input = evt.target as HTMLInputElement;
-  const file = input.files?.[0];
-  if (!file) return;
+  // ======================
+  //   CSV PROCESSING
+  // ======================
 
-  Papa.parse(file, {
-    header: true,
-    skipEmptyLines: true,
-    complete: (result) => {
-      const parsed: any[] = result.data as any[];
-      this.leads = parsed
-        .filter(r => r.phone_number) // solo filas con teléfono
-        .map(r => ({
-          phone_number: r.phone_number.trim(),
-          full_name: r.full_name?.trim() || undefined,
-        }));
+  onFileSelected(evt: Event) {
+    const input = evt.target as HTMLInputElement;
+    const file = input.files?.[0];
+    if (!file) return;
 
-      if (this.leads.length === 0) {
-        this.alert.info('No se encontraron leads válidos en el CSV.');
-      } else {
-        console.log('Leads cargados:', this.leads);
+    this.parseCsvFile(file);
+
+    // 🔥 Reset input para permitir subir el MISMO archivo nuevamente
+    if (this.fileInput?.nativeElement) {
+      this.fileInput.nativeElement.value = '';
+    }
+  }
+
+  private parseCsvFile(file: File) {
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (result) => {
+        const parsed = result.data as any[];
+
+        this.leads = parsed
+          .filter(r => r.phone_number)
+          .map(r => ({
+            phone_number: r.phone_number.trim(),
+            full_name: r.full_name?.trim() || undefined,
+          }));
+
+        if (this.leads.length === 0) {
+          this.alert.info('No se encontraron leads válidos en el CSV.');
+        } else {
+          console.log('Leads cargados:', this.leads);
+        }
+      },
+      error: () => {
+        this.alert.error('No se pudo leer el archivo CSV.');
       }
-    },
-    error: (error) => {
-      console.error('Error al parsear CSV:', error);
-      this.alert.error('No se pudo leer el CSV.');
+    });
+  }
+
+  // ======================
+  //   DRAG & DROP
+  // ======================
+
+  handleDragOver(evt: DragEvent) {
+    evt.preventDefault();
+    this.isDragOver = true;
+  }
+
+  handleDragLeave(evt: DragEvent) {
+    evt.preventDefault();
+    this.isDragOver = false;
+  }
+
+  handleDrop(evt: DragEvent) {
+    evt.preventDefault();
+    this.isDragOver = false;
+
+    const file = evt.dataTransfer?.files?.[0];
+    if (!file) return;
+
+    this.parseCsvFile(file);
+
+    // Reset input para permitir recargar el mismo archivo
+    if (this.fileInput?.nativeElement) {
+      this.fileInput.nativeElement.value = '';
     }
-  });
-}
-
-  private parseCSV(content: string): CampaignWhatsappPushLeadInput[] {
-    const lines = content.split(/\r?\n/).filter(l => l.trim().length > 0);
-    if (lines.length < 2) return [];
-
-    const header = lines[0].split(',').map(h => h.trim().toLowerCase());
-    const idxPhone = header.indexOf('phone_number');
-    const idxName  = header.indexOf('full_name');
-
-    if (idxPhone === -1) return [];
-
-    const rows = lines.slice(1);
-    const out: CampaignWhatsappPushLeadInput[] = [];
-
-    for (const row of rows) {
-      // parsing simple (si necesitas comillas/escapes, conviene PapaParse)
-      const cols = row.split(',').map(c => c.trim());
-      const phone = cols[idxPhone] || '';
-      if (!phone) continue;
-
-      const fullName = idxName >= 0 ? (cols[idxName] || '') : '';
-      out.push({ phone_number: phone, full_name: fullName || undefined });
-    }
-    return out;
-    // TIP: si ya usas Papa Parse en el proyecto, puedo pasártelo con Papa por mayor robustez.
   }
 
   removeLead(i: number) {
@@ -176,18 +224,24 @@ onFileSelected(evt: Event) {
 
   // === Envío ===
   canSend(): boolean {
-    return !!this.selectedCompany && !!this.selectedCampaign && !!this.selectedTemplate && !!this.description.trim() && this.leads.length > 0 && !this.submitting;
+    return !!this.selectedCompany &&
+           !!this.selectedCampaign &&
+           !!this.selectedTemplate &&
+           !!this.description.trim() &&
+           this.leads.length > 0 &&
+           !this.submitting;
   }
 
   async sendPush() {
     if (!this.canSend()) return;
 
     this.submitting = true;
+
     const payload: CampaignWhatsappPushRequest = {
       campaign_id: this.selectedCampaign!,
       description: this.description.trim(),
       template_id: this.selectedTemplate!,
-      changed_by: this.loggedUser?.user_id || 0, // ajusta al campo que uses como user_id
+      changed_by: this.loggedUser?.user_id || 0,
       leads: this.leads.map(l => ({
         phone_number: l.phone_number,
         full_name: l.full_name?.trim() || undefined,
@@ -196,16 +250,14 @@ onFileSelected(evt: Event) {
 
     try {
       const resp = await this.pushService.createWhatsappPush(payload);
+
       if (resp?.success) {
-        this.alert.success(`Push creado (ID: ${resp.data?.push_id ?? '—'})`);
-        // opcional: reset suave
-        // this.description = '';
-        // this.leads = [];
+        this.alert.success(`Push creado correctamente (ID: ${resp.data?.push_id ?? '—'})`);
       } else {
         this.alert.error(resp?.message || 'No se pudo registrar el push.');
       }
+
     } catch (e) {
-      console.error(e);
       this.alert.error('Error al registrar el push.');
     } finally {
       this.submitting = false;

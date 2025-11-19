@@ -198,8 +198,11 @@
           <!-- TAB 3: OTHER -->
           <div *ngIf="activeTab === 'other'" class="space-y-4">
 
+            @if (customFields.length > 0) {
             <app-custom-fields-form [fields]="customFields" (changed)="customValues = $event">
             </app-custom-fields-form>
+
+            }
 
             <app-dynamic-list-select [entityName]="'clients'" [entityId]="client?.id!" (changed)="onListChange($event)">
             </app-dynamic-list-select>
@@ -230,4 +233,3 @@
     </div>
   </div>
 </div>
- 

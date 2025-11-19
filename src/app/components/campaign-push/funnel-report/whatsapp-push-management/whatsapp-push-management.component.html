@@ -26,6 +26,33 @@
                     </select>
                 </div>
 
+                <!-- Departamento -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Departamento</label>
+                    <select [(ngModel)]="selectedDepartment" (ngModelChange)="onDepartmentSelected()" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
+                   focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f]
+                   dark:bg-gray-700 dark:border-gray-600 dark:text-white" [disabled]="!selectedCompany">
+                        <option [ngValue]="null">Seleccione un departamento</option>
+                        <option *ngFor="let d of assignedDepartments" [ngValue]="d.department_id">{{ d.department_name
+                            }}</option>
+                    </select>
+                </div>
+
+                <!-- Integraciones de WhatsApp -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Integración de
+                        WhatsApp</label>
+                    <select [(ngModel)]="selectedIntegration" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
+                   focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f]
+                   dark:bg-gray-700 dark:border-gray-600 dark:text-white" [disabled]="!selectedDepartment">
+                        <option [ngValue]="null">Seleccione una integración</option>
+                        <option *ngFor="let i of integrations" [ngValue]="i.channel_integration_id">{{
+                            i.integration_name }}</option>
+                    </select>
+                </div>
+
+
+
                 <!-- Campaña -->
                 <div>
                     <label
@@ -68,9 +95,37 @@
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
                         {{ t('whatsapp_template.upload_file_title') }}
                     </label>
-                    <input type="file" (change)="onFileSelected($event)" accept=".csv,text/csv" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
-                   focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f]
-                   dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+                    <!-- DRAG & DROP FILE UPLOADER -->
+                    <div class="mt-2 flex flex-col items-center justify-center w-full border-2 border-dashed rounded-lg
+         transition-all duration-300 cursor-pointer
+         border-gray-300 dark:border-gray-600 hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-gray-700/40"
+                        (drop)="handleDrop($event)" (dragover)="handleDragOver($event)"
+                        (dragleave)="handleDragLeave($event)" (click)="fileInput.click()"
+                        [class.bg-blue-50]="isDragOver" [class.border-blue-600]="isDragOver">
+
+                        <!-- Ícono -->
+                        <div class="text-center p-6">
+                            <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-300" fill="none"
+                                viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 0116.9 9.1a4.5 4.5 0 11-.4 8.9H7z" />
+                            </svg>
+
+                            <p class="mt-4 text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Arrastra tu archivo CSV aquí<br />
+                                <span class="text-xs text-gray-500 dark:text-gray-400">o haz clic para
+                                    seleccionarlo</span>
+                            </p>
+
+                            <p class="mt-2 text-xs text-gray-400">
+                                Formato aceptado: <code>phone_number, full_name</code>
+                            </p>
+                        </div>
+
+                        <!-- Input oculto -->
+                        <input #fileInput type="file" class="hidden" accept=".csv,text/csv"
+                            (change)="onFileSelected($event)" />
+                    </div>
                     <p class="text-xs text-gray-500 mt-2">
                         {{ t('whatsapp_template.upload_file_example') }}<br />
                         <code>{{ t('whatsapp_template.upload_file_example_sub1') }}</code><br />

@@ -177,7 +177,7 @@
           <tr *ngFor="let oc of dashboard?.oldest_open_cases || []" class="border-b last:border-none">
             <td class="py-2">{{ oc.case_id }}</td>
             <td class="py-2">{{ oc.client_name || 'Desconocido' }}</td>
-            <td class="py-2">{{ oc.started_at ? (oc.started_at | date: 'short') : '-' }}</td>
+            <td class="py-2">{{ oc.created_at ? (oc.created_at | date: 'short') : '-' }}</td>
           </tr>
         </tbody>
       </table>

@@ -34,5 +34,5 @@ export interface CaseAgentStat {
 export interface OldestOpenCase {
   case_id: number;
   client_name?: string | null;
-  started_at?: string | null;
+  created_at?: string | null;
 }

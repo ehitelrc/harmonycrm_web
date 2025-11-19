@@ -8,6 +8,6 @@ export const environment = {
     },
     TESTING: true,
     production: false,
-    appVersion: 'v2.0.6',
+    appVersion: 'v2.0.7',
   };
   

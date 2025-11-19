@@ -67,6 +67,12 @@ export class ChannelService {
     });
   }
 
+    getWhatsappIntegrationsByDepartment(department_id: number) : Promise<ApiResponse<VWChannelIntegration[]>>  {
+    return this.fetch.get<ApiResponse<VWChannelIntegration[]>>({
+      API_Gateway: `${CHANNEL_URL}/integrations/whatsapp/department/${department_id}`,
+    });
+  }
+
   // Get intgrations by company and channel
   getIntegrationsByCompanyAndChannel(companyId: number, channelId: number) : Promise<ApiResponse<ChannelIntegrationDTO[]>>  {
     return this.fetch.get<ApiResponse<ChannelIntegrationDTO[]>>({
