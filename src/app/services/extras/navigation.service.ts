@@ -6,7 +6,7 @@ import { NavigationItems } from '../../models/navigation.model';
 export class NavigationService {
   private fullMenu: NavigationItems = [
     { type: 'item', name: 'menu.dashboard', href: '/', icon: 'LayoutDashboard', permission: 'dashboard.access' },
-    { type: 'item', name: 'menu.dashboard-cases', href: '/dashboard-cases', icon: 'LayoutDashboard', permission: 'dashboard.access' },
+    { type: 'item', name: 'menu.dashboard-cases', href: '/dashboard-cases', icon: 'LayoutDashboard', permission: 'dashboard-cases.access' },
     { type: 'item', name: 'menu.conversations', href: '/conversations', icon: 'MessageCircle', permission: 'conversations.access' },
     { type: 'item', name: 'menu.whatsapp-campaign-push', href: '/whatsapp-campaign-push', icon: 'UserPlus', permission: 'whatsapp-campaign-push.access' },
     { type: 'item', name: 'menu.cases', href: '/cases', icon: 'Package', permission: 'cases.access' },

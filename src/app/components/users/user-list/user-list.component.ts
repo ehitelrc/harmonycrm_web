@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { User } from '../../../models/user.model';
 import { UserService } from '../../../services/user.service';
@@ -23,7 +23,7 @@ import { AuthService } from '@app/services';
   templateUrl: './user-list.component.html',
   styleUrls: ['./user-list.component.css']
 })
-export class UserListComponent implements OnInit {
+export class UserListComponent implements OnInit, OnChanges {
 
   @Input() users: User[] = [];
   @Input() isLoading = false;
@@ -45,6 +45,9 @@ export class UserListComponent implements OnInit {
 
   loadingCompanies = false;
 
+  userFilter: string = '';
+  filteredUsers: User[] = [];
+
 
   constructor(
     private userService: UserService,
@@ -64,9 +67,15 @@ export class UserListComponent implements OnInit {
 
   ngOnInit() {
     this.loggedUser = this.authService.getCurrentUser();
+    this.filteredUsers = this.users;
     console.log('Logged user:', this.loggedUser);
 
   }
+
+  ngOnChanges() {
+  this.filteredUsers = this.users;
+  this.applyFilter();
+}
 
   getInitials(firstName?: string | null, lastName?: string | null): string {
     if (!firstName && !lastName) return "U";
@@ -146,7 +155,7 @@ export class UserListComponent implements OnInit {
         console.error('Error loading companies:', error);
         this.loadingCompanies = false;
       });
-    }else{
+    } else {
       // Get all companies
       this.companyService.getAllCompanies().then(response => {
         if (response && response.data) {
@@ -313,5 +322,20 @@ export class UserListComponent implements OnInit {
       console.error('Error en batchUpdate:', err);
       this.alertService.error(this.t('user_management.error'), this.t('user_management.failed_update_roles'));
     });
+  }
+
+  applyFilter() {
+    const filter = this.userFilter.toLowerCase().trim();
+
+    if (!filter) {
+      this.filteredUsers = this.users;
+      return;
+    }
+
+    this.filteredUsers = this.users.filter(user =>
+      user.full_name?.toLowerCase().includes(filter) ||
+      user.email?.toLowerCase().includes(filter) ||
+      user.id.toString().includes(filter)
+    );
   }
 }

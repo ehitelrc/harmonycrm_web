@@ -586,6 +586,7 @@ export const esTranslations = {
   'user_management.error': 'Error',
   'user_management.failed_update_roles': 'Error al actualizar roles',
   'user_management.no_user_or_company': 'No se ha seleccionado ningún usuario o compañía',
+  'user_management.search_user': 'Buscar usuario',
 
 
   'loading': 'Cargando...',

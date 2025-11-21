@@ -59,7 +59,7 @@ export class UserFormComponent implements OnInit, OnChanges {
       email: ['', [Validators.required, Validators.email]],
       first_name: ['', [Validators.required]],
       password: [''],
-      is_super_user: [false, [Validators.required]], // ✅
+      is_super_user: [false], // ✅
       is_active: [true, [Validators.required]]
     });
 
@@ -141,9 +141,11 @@ export class UserFormComponent implements OnInit, OnChanges {
     try {
       const formData = { ...this.userForm.value };
 
+      let is_active = formData.is_active === "true" || formData.is_active === true;
+
       let data: any = {
         full_name: formData.first_name,
-        is_active: formData.is_active,
+        is_active: is_active,
         email: formData.email,
         profile_image_url: this.imagePreview,
         is_super_user: formData.is_super_user // ✅
