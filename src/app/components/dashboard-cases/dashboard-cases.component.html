@@ -1,6 +1,7 @@
 <app-main-layout>
-  <div  >
+  <div>
     <!-- Header -->
+
 
     <div class="flex items-center justify-between">
       <!-- Título a la izquierda -->
@@ -133,16 +134,25 @@
               <td class="px-4 py-2 text-sm">{{ c.sender_id }}</td>
               <td class="px-4 py-2 text-sm text-gray-600 truncate max-w-[200px]">
                 {{ c.last_message_preview || '[Sin mensaje]' }}
+
               </td>
               <td class="px-4 py-2 text-center space-x-2">
+                <button class="px-3 py-1.5 bg-purple-600 text-white text-xs rounded hover:bg-purple-700 transition"
+                  (click)="openChatPreview(c)">
+                  Ver
+                </button>
                 <button class="px-3 py-1.5 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition"
                   (click)="assignToAgent(c)">
-                  Asignar agente
+                  Agente
                 </button>
 
                 <button class="px-3 py-1.5 bg-green-600 text-white text-xs rounded hover:bg-green-700 transition"
                   (click)="openAssignClientModal(c)">
-                  Asignar cliente
+                  Cliente
+                </button>
+                <button class="px-3 py-1.5 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700 transition"
+                  (click)="openReassignDepartmentModal(c)">
+                  Cambiar depto.
                 </button>
               </td>
             </tr>
@@ -372,5 +382,59 @@
   <!-- Modal: Crear / Editar cliente -->
   <app-client-form *ngIf="showNewClientModal" [client]="null" (success)="onClientCreated($event)"
     [phoneNumber]="caseSelected?.sender_id!" (cancel)="onClientCancel()"></app-client-form>
+
+  <!-- Modal: Chat Preview -->
+  <div *ngIf="showChatPreview" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-[9999]">
+    <div class="bg-white dark:bg-gray-900 rounded-xl shadow-xl w-[90vw] h-[90vh] overflow-hidden">
+
+      <div class="flex justify-between items-center p-3 border-b border-gray-300 dark:border-gray-700">
+        <h3 class="text-lg font-semibold text-primary">Preview de Chat</h3>
+
+        <button class="px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600" (click)="closeChatPreview()">
+          Cerrar
+        </button>
+      </div>
+
+      <!-- Aquí incrustamos ChatWorkspace -->
+      <app-chat-workspace [preSelectedCase]="chatPreviewCase" (close)="closeChatPreview()" class="w-full h-full block">
+      </app-chat-workspace>
+
+    </div>
+  </div>
+
+  <!-- Modal: Cambiar Departamento -->
+  <div *ngIf="showReassignDepartmentModal"
+    class="fixed inset-0 bg-gray-800 bg-opacity-50 flex items-center justify-center z-50">
+
+    <div class="bg-white dark:bg-gray-900 rounded-lg shadow-lg w-96 p-6 border border-gray-200 dark:border-gray-700">
+
+      <h3 class="text-lg font-semibold text-primary mb-4">
+        Reasignar caso a otro departamento
+      </h3>
+
+      <label class="text-sm text-gray-600 mb-1 block">Departamento</label>
+      <select [(ngModel)]="selectedNewDepartmentId" class="w-full border rounded-md px-3 py-2 text-sm bg-white dark:bg-gray-800 text-primary mb-4
+                   focus:outline-none focus:ring-2 focus:ring-blue-600">
+
+        <option [value]="null" disabled selected>Seleccione un departamento</option>
+        <option *ngFor="let d of allDepartments" [value]="d.id">
+          {{ d.description }}
+        </option>
+      </select>
+
+      <div class="flex justify-end mt-6 space-x-2">
+        <button class="px-3 py-1.5 text-sm rounded bg-gray-300 hover:bg-gray-400"
+          (click)="closeReassignDepartmentModal()">
+          Cancelar
+        </button>
+
+        <button class="px-3 py-1.5 text-sm rounded bg-yellow-600 text-white hover:bg-yellow-700 disabled:opacity-50"
+          [disabled]="!selectedNewDepartmentId || reassigningDepartment" (click)="reassignDepartment()">
+          {{ reassigningDepartment ? 'Moviendo...' : 'Mover' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
 
 </app-main-layout>

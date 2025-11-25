@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy, HostListener } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, Input, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { buildAgentTextMessage,buildAgentImageMessage } from '@app/models/agent-message.model';
+import { buildAgentTextMessage, buildAgentImageMessage } from '@app/models/agent-message.model';
 import { CaseWithChannel } from '@app/models/case-with-channel.model';
 import { Client } from '@app/models/client.model';
 import { Message } from '@app/models/message.model';
@@ -44,12 +44,14 @@ import { SendImageModalComponent } from './send-image-modal/send-image-modal.com
     ClientFormComponent,
     MoveStageModalComponent,
     SendImageModalComponent,
- 
+
   ],
   templateUrl: './chat-workspace.component.html',
   styleUrls: ['./chat-workspace.component.css']
 })
 export class ChatWorkspaceComponent implements OnInit, OnDestroy {
+  @Input() preSelectedCase: CaseWithChannel | null = null;
+  @Output() close = new EventEmitter<void>();
 
   currentCaseFunnel: VwCaseCurrentStage | null = null;
 
@@ -207,8 +209,14 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
 
   ) { }
 
-  ngOnInit(): void { this.onInit(); }
+  ngOnInit(): void {
+    this.onInit();
 
+    // Si viene desde un modal externo
+    if (this.preSelectedCase) {
+      setTimeout(() => this.selectCase(this.preSelectedCase!), 100);
+    }
+  }
 
   ngOnDestroy(): void {
     this.ws.disconnect();
@@ -329,10 +337,11 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
       }
 
       // 2) Conexión WS por caso
-      let wsBase = environment.API.BASE
-        .replace('http', 'ws')
-        .replace('/api', '')
-        .replace('https', 'wss');
+      // let wsBase = environment.API.BASE
+      //   .replace('http', 'ws')
+      //   .replace('/api', '')
+      //   .replace('https', 'wss');
+      let wsBase = environment.socket_url;
 
       const url = `${wsBase}/ws?case_id=${c.case_id}`;
       console.log('Conectando a WebSocket en:', url);
@@ -1381,7 +1390,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
     };
 
     console.log(event.base64);
-    
+
 
     this.messages = [...this.messages, optimistic];
     this.scrollToBottomSoon();

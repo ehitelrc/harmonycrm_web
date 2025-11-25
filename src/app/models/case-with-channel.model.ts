@@ -48,4 +48,6 @@ export interface CaseWithChannel {
   manual_starting_lead?: boolean | null; // true si el lead fue iniciado manualmente
 
   client_messages?: number | null; // Número de mensajes del cliente
+
+  integration_name?: string | null; // Nombre de la integración del canal
 }

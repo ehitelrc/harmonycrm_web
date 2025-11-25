@@ -20,6 +20,7 @@ import { ClientFormComponent } from '../clients/clients-form/client-form.compone
 import { DashboardStats } from '@app/models/dashboard-stats.model';
 import { CaseDashboardService } from '@app/services/case-dashboard.service';
 import { interval } from 'rxjs';
+import { ChatWorkspaceComponent } from '../chat/chat-workspace.component';
 
 
 
@@ -30,6 +31,7 @@ import { interval } from 'rxjs';
     CommonModule,
     FormsModule,
     ClientFormComponent,
+    ChatWorkspaceComponent,
     MainLayoutComponent],
   templateUrl: './dashboard-cases.component.html',
   styleUrls: ['./dashboard-cases.component.css']
@@ -44,6 +46,16 @@ export class DashboardCasesComponent implements OnInit {
 
   // 
   dashboard: DashboardStats | null = null;
+
+  showChatPreview = false;
+  chatPreviewCase: CaseWithChannel | null = null;
+
+  showReassignDepartmentModal = false;
+  selectedNewDepartmentId: number | null = null;
+  reassigningDepartment = false;
+
+  allDepartments: Department[] = []; // Lista completa para reasignación
+  caseToReassign: CaseWithChannel | null = null;
 
 
   // Modal
@@ -76,7 +88,7 @@ export class DashboardCasesComponent implements OnInit {
   caseSelected: CaseWithChannel | null = null;
 
   intervalId: any;
- 
+
   constructor(
     private authService: AuthService,
     private companyService: CompanyService,
@@ -117,22 +129,30 @@ export class DashboardCasesComponent implements OnInit {
 
         await this.loadDepartmentsForDisplay();
 
-        // await this.loadUnassignedCases();
-        // await this.loadDashboardStats();
+        await this.loadUnassignedCases();
+        await this.loadDashboardStats();
       }
     } catch (error) {
       console.error('Error loading companies:', error);
     }
   }
-
   async loadDepartmentsForDisplay(): Promise<void> {
     if (!this.selectedCompanyId) return;
+
     try {
-      const res = await this.departmentService.getByCompanyAndUser(this.selectedCompanyId, this.user!.user_id);
-      if (res.success && res.data) {
-        this.showDepartments = res.data;
-        this.selectedShowDepartmentId = this.showDepartments[0]?.id || null;
+      const res = await this.departmentService.getByCompanyAndUser(
+        this.selectedCompanyId,
+        this.user!.user_id
+      );
+
+      this.showDepartments = res.success && res.data ? res.data : [];
+      this.selectedShowDepartmentId = this.showDepartments[0]?.id || null;
+
+      // ⬇️ ESTE ES EL FIX
+      if (this.selectedShowDepartmentId) {
+        this.onShowDepartmentSelected();  // <-- DISPARA LA CARGA
       }
+
     } catch (err) {
       console.error('Error loading departments for display', err);
     }
@@ -395,4 +415,79 @@ export class DashboardCasesComponent implements OnInit {
   t(key: string): string {
     return this.languageService.t(key);
   }
+
+
+  openChatPreview(c: CaseWithChannel) {
+    this.chatPreviewCase = c;
+    this.showChatPreview = true;
+  }
+
+  closeChatPreview() {
+    this.showChatPreview = false;
+    this.chatPreviewCase = null;
+  }
+
+  openReassignDepartmentModal(c: CaseWithChannel) {
+    this.caseToReassign = c;
+    this.selectedNewDepartmentId = null;
+    this.showReassignDepartmentModal = true;
+
+    this.loadAllDepartments();
+  }
+
+  closeReassignDepartmentModal() {
+    this.showReassignDepartmentModal = false;
+    this.caseToReassign = null;
+  }
+
+  async loadAllDepartments(): Promise<void> {
+    if (!this.selectedCompanyId) return;
+
+    try {
+      const res = await this.departmentService.getByCompany(this.selectedCompanyId);
+      if (res.success && res.data) {
+        this.allDepartments = res.data;
+        console.log('✅ All departments loaded for reassignment:', this.allDepartments);
+      }
+    } catch (err) {
+      console.error('Error loading departments for reassignment', err);
+    }
+  }
+
+  async reassignDepartment(): Promise<void> {
+    if (!this.caseToReassign || !this.selectedNewDepartmentId) return;
+
+    this.reassigningDepartment = true;
+
+    try {
+      // const res = await this.caseService.changeCaseDepartment(
+      //   this.caseToReassign.case_id,
+      //   this.selectedNewDepartmentId
+      // );
+
+      let newDepartemnt = Number(this.selectedNewDepartmentId);
+
+      const res = await this.caseService.assignCaseToDepartment({
+        case_id: this.caseToReassign.case_id,
+        department_id: newDepartemnt,
+        changed_by: this.user?.user_id || 0,
+      });
+
+      if (res.success) {
+        this.alertService.success('Departamento actualizado correctamente');
+        this.closeReassignDepartmentModal();
+        await this.loadUnassignedCases();
+        await this.loadDashboardStats();
+      } else {
+        this.alertService.error('Error al reasignar el departamento');
+      }
+    } catch (err) {
+      console.error('Error reassigning department', err);
+      this.alertService.error('Error al reasignar el departamento');
+    } finally {
+      this.reassigningDepartment = false;
+    }
+  }
+
+   
 }
