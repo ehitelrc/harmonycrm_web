@@ -36,6 +36,10 @@ import { CampaignWhatsappPushRequest } from '@app/models/campaign-whatsapp-push.
 import { CampaignPushService } from '@app/services/campaign-push.service';
 import { SendImageModalComponent } from './send-image-modal/send-image-modal.component';
 
+type MessageUI = Message & {
+  _justArrived?: boolean;
+};
+
 @Component({
   selector: 'app-chat-workspace',
   standalone: true,
@@ -360,7 +364,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
         if (!this.selectedCase || evt.case_id !== this.selectedCase.case_id) return;
 
         if (evt.type === 'new_message') {
-          const real = this.normalizeApiMessage(evt.data, {
+          const fallback: MessageUI = {
             id: 0,
             case_id: this.selectedCase.case_id,
             sender_type: 'client',
@@ -371,9 +375,15 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
             channel_message_id: '',
             created_at: new Date().toISOString(),
             base64_content: null,
-          });
+          };
 
-          // 1) Reemplazo por client_tmp_id si llega
+          let real = this.normalizeApiMessage(evt.data, fallback) as MessageUI;
+
+          // ⭐ Marcar como recién llegado (para animación)
+          real._justArrived = true;
+          setTimeout(() => real._justArrived = false, 300);
+
+          // 🔄 Si trae client_tmp_id reemplaza mensaje optimista
           const tmpId = (evt.data as any)?.client_tmp_id;
           if (tmpId) {
             const idx = this.messages.findIndex(m => m.channel_message_id === tmpId);
@@ -387,19 +397,20 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
             }
           }
 
-          // 2) Fuzzy match por texto (cuando no hay tmp_id)
+          // 🔍 Buscar por fuzzy match (cuando no hay tmp_id)
           const fuzzyIdx = this.messages.findIndex(m =>
             m.id === 0 &&
             m.sender_type === 'agent' &&
             m.message_type === real.message_type &&
             (m.text_content || '').trim() === (real.text_content || '').trim()
           );
+
           if (fuzzyIdx >= 0) {
             const copy = [...this.messages];
             copy[fuzzyIdx] = real;
             this.messages = copy;
           } else {
-            // 3) Si no hay optimista que reemplazar, evitar duplicados
+            // No duplicados
             const dup = this.messages.some(m =>
               (real.id && m.id === real.id) ||
               (!!real.channel_message_id && m.channel_message_id === real.channel_message_id)
@@ -411,6 +422,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
           this.scrollToBottomSoon();
         }
       });
+
     } finally {
       this.isLoadingMessages = false;
     }
@@ -1351,9 +1363,9 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
     const body = this.draft.trim();
     if (!body || !this.selectedCase) return;
 
-    // 1) Mensaje optimista con correlación
     const clientTmpId = `tmp-${Date.now()}-${this.tmpCounter++}`;
-    const optimistic: Message = {
+
+    const optimistic: MessageUI = {
       id: 0,
       case_id: this.selectedCase.case_id,
       sender_type: 'agent',
@@ -1364,23 +1376,25 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
       channel_message_id: clientTmpId,
       created_at: new Date().toISOString(),
       base64_content: null,
+      _justArrived: true
     };
+
+    setTimeout(() => optimistic._justArrived = false, 300);
+
     this.messages = [...this.messages, optimistic];
     this.draft = '';
     this.scrollToBottomSoon();
 
     try {
-      // 2) Enviar al backend (espera WS para reemplazar)
       const payload = buildAgentTextMessage(this.selectedCase.case_id, body);
       (payload as any).client_tmp_id = clientTmpId;
       await this.chatService.sendMessage(payload);
     } catch {
       this.alert.error(this.t('chat.failed_to_send'));
-      // Revierte optimista si falla
       this.messages = this.messages.filter(m => m.channel_message_id !== clientTmpId);
     }
   }
-
+  
   // Cuando el usuario confirma envío
   async onImageSend(event: { base64: string; description: string }) {
     if (!this.selectedCase) return;

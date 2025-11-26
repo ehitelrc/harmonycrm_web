@@ -4,7 +4,7 @@
 </div>
 
 <!-- Empty State -->
-<div *ngIf="!isLoading && users.length === 0" class="text-center py-8">
+<div *ngIf="!isLoading && filteredUsers.length === 0" class="text-center py-8">
   <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
       d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z">
@@ -14,8 +14,31 @@
   <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ t('user_management.get_started_by_creating_user') }}</p>
 </div>
 
+<!-- Search Bar Style Monday -->
+<div class="pt-4 px-4 mb-4">
+  <div class="relative">
+
+    <!-- Icono lupa -->
+    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">
+      🔍
+    </span>
+
+    <!-- Input -->
+    <input type="text" [(ngModel)]="searchQuery" (input)="onSearchChange()" placeholder="Buscar por nombre o correo..."
+      class="w-full pl-10 pr-10 py-2 border border-gray-300 rounded-lg shadow-sm
+             focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-[#3e66ea]
+             text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
+
+    <!-- Botón limpiar -->
+    <button *ngIf="searchQuery" (click)="clearSearch()" class="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600
+             dark:hover:text-gray-300 text-lg leading-none font-bold">
+      ×
+    </button>
+  </div>
+</div>
+
 <!-- Users Table -->
-<div *ngIf="!isLoading && users.length > 0" class="rounded-md border border-gray-200 dark:border-gray-700">
+<div *ngIf="!isLoading && filteredUsers.length > 0" class="rounded-md border border-gray-200 dark:border-gray-700">
   <div class="overflow-x-auto">
     <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
       <!-- Table Header -->
@@ -48,7 +71,7 @@
 
       <!-- Table Body -->
       <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-900 dark:divide-gray-700">
-        <tr *ngFor="let user of users" class="hover:bg-gray-50 dark:hover:bg-gray-800">
+        <tr *ngFor="let user of filteredUsers" class="hover:bg-gray-50 dark:hover:bg-gray-800">
           <!-- Name with Avatar -->
           <td class="px-6 py-4 whitespace-nowrap">
             <div class="flex items-center">

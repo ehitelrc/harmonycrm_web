@@ -17,6 +17,8 @@ export interface Message {
 
   created_at?: string | Date;   // el backend suele enviar ISO string; puedes convertir a Date si quieres
   base64_content?: string | null;
+
+  _justArrived?: boolean;
 }
 
 /**

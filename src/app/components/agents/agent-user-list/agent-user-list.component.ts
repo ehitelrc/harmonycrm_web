@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core';
+import { Component, Input, Output, EventEmitter, OnInit, OnChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { User } from '../../../models/user.model';
 import { UserService } from '../../../services/user.service';
@@ -26,7 +26,7 @@ import { AgentDepartmentAssignment } from '@app/models/agent_department_assignme
   templateUrl: './agent-user-list.component.html',
   styleUrls: ['./agent-user-list.component.css']
 })
-export class AgentUserListComponent implements OnInit {
+export class AgentUserListComponent implements OnInit, OnChanges {
 
   @Input() users: AgentUser[] = [];
   @Input() isLoading = false;
@@ -40,6 +40,8 @@ export class AgentUserListComponent implements OnInit {
 
   loggedUser: UserAuthModel | null = null;
 
+  searchQuery: string = '';
+  filteredUsers: AgentUser[] = [];
 
   loadingRoles = false;
   companies: CompanyUser[] = [];
@@ -52,6 +54,8 @@ export class AgentUserListComponent implements OnInit {
   departments: AgentDepartmentAssignment[] = [];
 
 
+  // Debounce
+  private searchDebounce?: any;
 
 
 
@@ -73,8 +77,14 @@ export class AgentUserListComponent implements OnInit {
 
   ngOnInit() {
     this.loggedUser = this.authService.getCurrentUser();
+    this.filteredUsers = [...this.users];
     console.log('Logged user:', this.loggedUser);
 
+  }
+
+  ngOnChanges() {
+    this.filteredUsers = [...this.users];
+    this.applyFilter();
   }
 
   getInitials(firstName?: string | null, lastName?: string | null): string {
@@ -293,5 +303,28 @@ export class AgentUserListComponent implements OnInit {
     } catch (err: any) {
       this.alertService.error(this.t('agent_user_management.error'), err.message || 'Error al actualizar departamentos');
     }
+  }
+
+  applyFilter() {
+    const q = this.searchQuery.toLowerCase().trim();
+
+    this.filteredUsers = this.users.filter(u => {
+      const name = (u.full_name || '').toLowerCase();
+      const email = (u.email || '').toLowerCase();
+      return name.includes(q) || email.includes(q);
+    });
+  }
+
+  onSearchChange() {
+    clearTimeout(this.searchDebounce);
+
+    this.searchDebounce = setTimeout(() => {
+      this.applyFilter();
+    }, 300);
+  }
+
+  clearSearch() {
+    this.searchQuery = '';
+    this.applyFilter();
   }
 }

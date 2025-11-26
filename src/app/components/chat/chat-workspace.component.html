@@ -185,10 +185,10 @@
                         [class.justify-start]="!isFromAgent(m)">
 
                         <div class="max-w-[75%] px-4 py-3 rounded-2xl shadow-md border
-               transition-all" [class.bg-white]="isFromAgent(m)" [class.bg-[#d5ffd3]]="!isFromAgent(m)"
-                            [class.dark:bg-gray-800]="true" [class.border-gray-200]="isFromAgent(m)"
-                            [class.border-green-200]="!isFromAgent(m)">
-
+     transition-all message-bubble" [class.animate-in]="m._justArrived" [class.bg-white]="isFromAgent(m)"
+                            [class.bg-[#d5ffd3]]="!isFromAgent(m)" [class.dark:bg-gray-800]="true"
+                            [class.border-gray-200]="isFromAgent(m)" [class.border-green-200]="!isFromAgent(m)">
+                            <!-- todo el contenido interno sigue igual -->
                             <!-- Texto -->
                             <div *ngIf="isText(m) && m.text_content?.trim()?.length"
                                 class="text-sm text-gray-800 dark:text-gray-100 whitespace-pre-wrap break-words"
@@ -428,8 +428,8 @@
                     Abrir
                 </button>
 
-                <a *ngIf="attachmentImageSrc(viewingAttachment!) && viewingAttachment?.message_type === 'image'" class="chip-btn"
-                    [href]="attachmentImageSrc(viewingAttachment!)" download="adjunto"
+                <a *ngIf="attachmentImageSrc(viewingAttachment!) && viewingAttachment?.message_type === 'image'"
+                    class="chip-btn" [href]="attachmentImageSrc(viewingAttachment!)" download="adjunto"
                     (click)="$event.stopPropagation()">
                     Descargar
                 </a>

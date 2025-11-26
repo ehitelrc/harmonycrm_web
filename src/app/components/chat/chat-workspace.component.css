@@ -69,3 +69,37 @@
 #close-case-button:hover {
   background: #00113f;
 }
+
+/* Animación zoom-in para nuevos mensajes */
+@keyframes bubbleZoom {
+  0% {
+    opacity: 0;
+    transform: scale(0.85); /* 👈 empieza mucho más pequeño */
+  }
+  60% {
+    opacity: 1;
+    transform: scale(2); /* 👈 un golpe de entrada muy visible */
+  }
+  100% {
+    transform: scale(1); /* 👈 vuelve a su tamaño normal */
+  }
+}
+
+.message-bubble.animate-in {
+  animation: bubbleZoom 0.32s cubic-bezier(0.34, 1.56, 0.64, 1); /* easing "bouncy" */
+}
+
+@keyframes animateMessageIn {
+  0% {
+    transform: scale(0.1);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.animate-in {
+  animation: animateMessageIn 200ms ease-out;
+}
