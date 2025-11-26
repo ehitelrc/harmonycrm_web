@@ -274,11 +274,21 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
 
   applyContactFilter() {
     const q = (this.searchContact || '').toLowerCase().trim();
-    this.filteredCases = this.cases.filter(c =>
-      !q ||
-      (c.client_name || '').toLowerCase().includes(q) ||
-      String(c.case_id).includes(q)
-    );
+
+    this.filteredCases = this.cases.filter(c => {
+      const name = (c.client_name || '').toLowerCase();
+      const integration = (c.integration_name || '').toLowerCase();
+      const sender = String(c.sender_id || '').toLowerCase();
+      const caseId = String(c.case_id || '').toLowerCase();
+
+      return (
+        !q ||
+        name.includes(q) ||
+        caseId.includes(q) ||
+        sender.includes(q) ||
+        integration.includes(q)  // opcional pero útil
+      );
+    });
   }
 
   channelIcon(channelCode: string): string {
