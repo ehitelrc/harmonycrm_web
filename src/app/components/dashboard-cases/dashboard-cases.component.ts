@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MainLayoutComponent } from '../layout/main-layout.component';
@@ -42,16 +42,23 @@ import { HostListener, ElementRef } from '@angular/core';
   templateUrl: './dashboard-cases.component.html',
   styleUrls: ['./dashboard-cases.component.css']
 })
-export class DashboardCasesComponent implements OnInit {
+export class DashboardCasesComponent implements OnInit, OnDestroy {
   user: User | null = null;
   companies: { company_id: number; company_name: string }[] = [];
   selectedCompanyId: number | null = null;
 
 
+  refreshCountdown = 60; // segundos
+  refreshIntervalId: any;
+  countdownIntervalId: any;
+
   data: CaseWithChannel[] = [];
   unassignedCases: CaseWithChannel[] = [];
   assignedCases: CaseWithChannel[] = [];
   loading = false;
+
+  filterUnassigned: string = '';
+  filterAssigned: string = '';
 
   casesByChannel: {
     channel: string;
@@ -131,19 +138,23 @@ export class DashboardCasesComponent implements OnInit {
     if (!this.user) return;
     await this.loadCompanies();
 
-    // 🔄 Refresca cada 30 segundos
-    // this.intervalId = setInterval(async () => {
-    //   if (this.selectedCompanyId) {
-    //     if (this.selectedCompanyId) {
-    //       await this.loadUnassignedCases();
-    //       await this.loadDashboardStats();
-    //     }
-    //   }
-    // }, 30000); // 30 segundos
+    // ⏳ Cuenta regresiva cada segundo
+    this.countdownIntervalId = setInterval(() => {
+      this.refreshCountdown--;
+      if (this.refreshCountdown <= 0) this.refreshCountdown = 0;
+    }, 1000);
+
+    // 🔄 Refrescar cada 60 segundos
+    this.refreshIntervalId = setInterval(() => {
+      this.refreshDashboard();
+    }, 60000);
 
   }
 
-
+  ngOnDestroy(): void {
+    if (this.refreshIntervalId) clearInterval(this.refreshIntervalId);
+    if (this.countdownIntervalId) clearInterval(this.countdownIntervalId);
+  }
 
 
   async loadCompanies(): Promise<void> {
@@ -199,30 +210,27 @@ export class DashboardCasesComponent implements OnInit {
         );
 
       if (response.success && response.data) {
-        this.totalCasesGlobal = this.data.length;
 
-        // Normalizar todos con showMenu = false
-        this.data = response.data.map(c => ({
-          ...c,
-          showMenu: false
-        }));
-
+        // Normalizar showMenu
         const allCases = response.data.map(c => ({
           ...c,
           showMenu: false
         }));
 
-        // 🔹 Separar según si tienen agente asignado
+        // Separar casos
         this.assignedCases = allCases.filter(c => c.agent_assigned === true);
         this.unassignedCases = allCases.filter(c => c.agent_assigned === false);
 
-        // Generar estadísticas locales
-        // 🆕 Agrupar
+        // Asignar todos los casos a this.data
+        this.data = allCases;
+
+        // 🔥 CORREGIDO: total de casos se calcula DESPUÉS de tener allCases
+        this.totalCasesGlobal = allCases.length;
+
+        // 🔥 CORREGIDO: ahora sí calcular estadísticas
         this.computeCasesByChannel();
         this.computeCasesByAgent();
       }
-
-
 
     } catch (error) {
       console.error('Error loading cases by company and department:', error);
@@ -673,4 +681,40 @@ export class DashboardCasesComponent implements OnInit {
     return Math.round((agent.total * 100) / this.totalCasesGlobal);
   }
 
+
+  async refreshDashboard() {
+    if (!this.selectedCompanyId || !this.selectedShowDepartmentId) return;
+
+    this.refreshCountdown = 60; // reinicia cuenta
+    await this.loadCasesByCompanyAndDepartment();
+    console.log("♻️ Dashboard refrescado manual o automáticamente.");
+  }
+
+  get filteredUnassignedCases(): CaseWithChannel[] {
+    const term = this.filterUnassigned.toLowerCase().trim();
+    if (!term) return this.unassignedCases;
+
+    return this.unassignedCases.filter(c =>
+      (c.client_name?.toLowerCase().includes(term)) ||
+      (c.sender_id?.toLowerCase().includes(term)) ||
+      (c.agent_full_name?.toLowerCase().includes(term)) ||
+      (c.integration_name?.toLowerCase().includes(term)) ||
+      (String(c.case_id).includes(term)) ||
+      (c.last_message_text?.toLowerCase().includes(term))
+    );
+  }
+
+  get filteredAssignedCases(): CaseWithChannel[] {
+    const term = this.filterAssigned.toLowerCase().trim();
+    if (!term) return this.assignedCases;
+
+    return this.assignedCases.filter(c =>
+      (c.client_name?.toLowerCase().includes(term)) ||
+      (c.sender_id?.toLowerCase().includes(term)) ||
+      (c.agent_full_name?.toLowerCase().includes(term)) ||
+      (c.integration_name?.toLowerCase().includes(term)) ||
+      (String(c.case_id).includes(term)) ||
+      (c.last_message_text?.toLowerCase().includes(term))
+    );
+  }
 }

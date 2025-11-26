@@ -1,12 +1,11 @@
-/* Dashboard specific styles */
-
-
+/* ============================================================
+   DASHBOARD BASE STYLES
+   ============================================================ */
 
 .dashboard-card {
   @apply bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6;
   transition: all 0.2s ease-in-out;
 }
-
 .dashboard-card:hover {
   @apply shadow-md transform scale-105;
 }
@@ -23,205 +22,113 @@
   @apply w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0;
 }
 
-/* Animation for dashboard elements */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-in-up {
-  animation: fadeInUp 0.5s ease-out;
-}
-
-/* Custom button styles */
-.logout-button {
-  @apply inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md transition-colors duration-200;
-}
-
-.logout-button:hover {
-  @apply transform scale-105;
-}
-
-/* Header styles */
-.dashboard-header {
-  @apply bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700;
-}
-
-/* User avatar styles */
-.user-avatar {
-  @apply w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium;
-  background: linear-gradient(135deg, #00113f 0%, #3e66ea 100%);
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-th, td {
-  white-space: nowrap;
-}
-
+/* ============================================================
+   ANIMACIONES
+   ============================================================ */
 
 @keyframes fadeInUp {
-  0% {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-in-up {
-  animation: fadeInUp 0.8s ease-out both;
-}
-
-@keyframes fadeInUp {
-  0% { opacity: 0; transform: translateY(15px); }
-  100% { opacity: 1; transform: translateY(0); }
+  from { opacity: 0; transform: translateY(15px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 .animate-fade-in-up {
   animation: fadeInUp 0.6s ease-out both;
 }
 
-
-/* 🔹 Contenedor principal: título a la izquierda, selects a la derecha */
-.flex.items-center.justify-between {
-  justify-content: space-between;
+/* Lista animada estilo Monday */
+.animate-list > * {
+  opacity: 0;
+  transform: translateY(10px);
+  animation: fadeInUp 0.35s ease-out forwards;
 }
+.animate-list > *:nth-child(1) { animation-delay: .05s }
+.animate-list > *:nth-child(2) { animation-delay: .10s }
+.animate-list > *:nth-child(3) { animation-delay: .15s }
+.animate-list > *:nth-child(4) { animation-delay: .20s }
 
-/* 🔹 Contenedor de selects */
+/* ============================================================
+   LAYOUT HEADER
+   ============================================================ */
+
+.flex.items-center.justify-between { justify-content: space-between; }
 .flex.items-center.gap-4.justify-end {
   justify-content: flex-end;
   gap: 1rem;
 }
- 
 
-/* 🔹 Estilos para los selects *  /
+/* ============================================================
+   SELECTS
+   ============================================================ */
 
-/* 🔹 Estilo base del select */
 .dashboard-select {
   appearance: none;
   border: 1px solid #d1d5db;
-  border-radius: 0.375rem; /* rounded-md */
-  padding: 0.375rem 2rem 0.375rem 0.75rem; /* 👈 padding-right suficiente para el ícono */
+  border-radius: 0.375rem;
+  padding: 0.375rem 2rem 0.375rem 0.75rem;
   font-size: 0.875rem;
   font-weight: 500;
   background-color: #ffffff;
   color: #1f2937;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  width: auto;
+  min-width: 160px;
+  max-width: 260px;
   transition: all 0.2s ease;
-  width: auto; /* se ajusta al contenido */
-  min-width: 160px; /* evita que se encoja demasiado */
-  max-width: 260px; /* evita que se deforme demasiado */
-  position: relative; /* 👈 clave para que el ícono se alinee sobre el select */
+  position: relative;
   z-index: 1;
 }
-
 .dashboard-select:focus {
   outline: none;
   border-color: #2563eb;
   box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.3);
 }
 
-/* 🔹 Ícono del desplegable */
 .select-icon {
   position: absolute;
   top: 50%;
-  right: 0.75rem; /* 👈 ajusta distancia del borde */
-  transform: translateY(-50%); /* 👈 centra verticalmente */
+  right: 0.75rem;
+  transform: translateY(-50%);
   color: #9ca3af;
   pointer-events: none;
-  z-index: 2;
 }
+.select-icon svg { width: 16px; height: 16px; }
 
-.select-icon svg {
-  width: 16px;
-  height: 16px;
-}
+/* ============================================================
+   TARJETAS TIPO MONDAY
+   ============================================================ */
 
-/* 🌈 Tarjeta estilo Monday */
 .card-monday {
   @apply bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 
          rounded-xl shadow-md hover:shadow-lg transition-all duration-200;
 }
 
-/* 🌈 Header de tarjeta */
+/* HEADER */
 .card-header-monday {
   @apply px-6 py-4 border-b border-gray-200 dark:border-gray-700;
   background: linear-gradient(135deg, #f3f4ff 0%, #e7e9ff 100%);
 }
-
 .card-title {
   @apply text-lg font-semibold text-[#00113f] dark:text-gray-100;
 }
 
-/* 🌈 Cuerpo de tarjeta */
+/* BODY SCROLLABLE */
 .card-body {
-  @apply p-6 space-y-3;
+  padding: 1rem;
+  max-height: 400px;
+  overflow-y: auto;
+  scrollbar-width: thin;
 }
 
-/* 🟦 Fila Monday */
-.case-row {
-  @apply flex justify-between items-center p-3 rounded-lg border border-gray-200 dark:border-gray-700 
-         hover:bg-gray-50 dark:hover:bg-gray-900 transition cursor-pointer;
+/* Scroll moderno */
+.card-body::-webkit-scrollbar     { width: 6px; }
+.card-body::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
 }
+.card-body::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
 
-/* 🟣 Nombre del cliente */
-.case-title {
-  @apply text-sm font-semibold text-blue-900 dark:text-blue-300;
-}
+/* ============================================================
+   FILAS ESTILO MONDAY
+   ============================================================ */
 
-/* 🩶 Metadatos */
-.case-meta span {
-  @apply text-xs text-gray-500 mr-3;
-}
-
-/* 🟢 Botón ver */
-.btn-view {
-  @apply px-3 py-1.5 rounded-lg bg-[#4A1CFF] text-white text-xs font-medium 
-         hover:bg-[#3713cc] transition;
-}
-
-/* 🤍 Empty state */
-.empty-state {
-  @apply text-center py-6 text-gray-500 italic;
-}
-
-/* Tarjeta base */
-.card-monday {
-  @apply bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 
-         rounded-xl shadow-md hover:shadow-lg transition-all duration-200;
-}
-
-.card-header-monday {
-  @apply px-6 py-4 border-b border-gray-200 dark:border-gray-700;
-  background: linear-gradient(135deg, #f3f4ff 0%, #e7e9ff 100%);
-}
-
-.card-title {
-  @apply text-lg font-semibold text-[#00113f] dark:text-gray-100;
-}
-
-.card-body {
-  @apply p-6 space-y-3;
-}
-
-/* Chip con color pastel */
-.chip-purple {
-  @apply inline-block text-xs font-semibold px-2 py-1 rounded-full text-white;
-  background-color: #4A1CFF;
-}
-
-/* Fila estilo Monday */
 .case-row {
   @apply flex justify-between items-start p-3 rounded-lg border border-gray-200 dark:border-gray-700 
          hover:bg-gray-50 dark:hover:bg-gray-900 transition cursor-pointer relative;
@@ -230,42 +137,43 @@ th, td {
 .case-title {
   @apply text-sm font-semibold text-blue-900 dark:text-blue-300;
 }
-
 .case-meta span {
   @apply text-xs text-gray-500 mr-3;
 }
 
-/* Botón menú */
-.btn-menu {
-  @apply text-xl px-2 py-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700;
+/* Chip */
+.chip-purple {
+  @apply inline-block text-xs font-semibold px-2 py-1 rounded-full text-white;
+  background-color: #4A1CFF;
 }
 
-/* Menú desplegable */
-.menu-dropdown {
-  @apply absolute right-0 mt-1 w-40 bg-white dark:bg-gray-800 border border-gray-200 
-         dark:border-gray-700 rounded-lg shadow-xl flex flex-col z-20;
-}
-
-.menu-dropdown button {
-  @apply text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700;
-}
-
-.empty-state {
-  @apply text-center py-6 text-gray-500 italic;
-}
+/* ============================================================
+   MENÚ DESPLEGABLE
+   ============================================================ */
 
 .btn-menu {
   @apply text-xl font-bold px-2 py-1 rounded hover:bg-gray-100 cursor-pointer;
 }
 
+/* Animación del menú */
+@keyframes fadeInMenu {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 .menu-dropdown {
   @apply absolute right-0 mt-2 bg-white shadow-lg rounded-md border border-gray-200 
          flex flex-col z-50 w-44;
+  animation: fadeInMenu 0.18s ease-out forwards;
 }
 
 .menu-dropdown button {
   @apply text-left px-3 py-2 text-sm hover:bg-gray-100 rounded text-black;
 }
+
+/* ============================================================
+   ROWS PARA CASOS POR CANAL Y POR AGENTE
+   ============================================================ */
 
 .monday-row {
   display: flex;
@@ -273,26 +181,21 @@ th, td {
   padding: 10px 12px;
   border-bottom: 1px solid #eee;
 }
+.monday-row:last-child { border-bottom: none; }
 
-.monday-row:last-child {
-  border-bottom: none;
-}
-
-.monday-row-left {
-  min-width: 120px;
-}
+.monday-row-left { min-width: 140px; }
 
 .monday-row-title {
   font-weight: 600;
   font-size: 14px;
   color: #1f2937;
 }
-
 .monday-row-sub {
   font-size: 12px;
   color: #6b7280;
 }
 
+/* Barra de progreso */
 .monday-progress {
   height: 8px;
   width: 100%;
@@ -300,9 +203,34 @@ th, td {
   border-radius: 4px;
   overflow: hidden;
 }
-
 .monday-progress > div {
   height: 100%;
   border-radius: 4px;
   transition: width 0.3s ease;
+}
+
+/* ============================================================
+   INPUT DE BÚSQUEDA
+   ============================================================ */
+
+.filter-input {
+  @apply border border-gray-300 rounded-md px-3 py-2 text-sm bg-white dark:bg-gray-800 w-full;
+  transition: all 0.2s ease;
+}
+.filter-input:focus {
+  box-shadow: 0 0 0 2px rgba(147, 51, 234, 0.3);
+  border-color: #9333ea;
+}
+
+/* Botón limpiar en el input */
+.clear-btn {
+  @apply absolute right-5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 cursor-pointer;
+}
+
+/* ============================================================
+   ESTADOS VACÍOS
+   ============================================================ */
+
+.empty-state {
+  @apply text-center py-6 text-gray-500 italic;
 }

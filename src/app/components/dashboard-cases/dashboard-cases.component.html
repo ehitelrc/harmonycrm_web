@@ -41,6 +41,22 @@
             </svg>
           </div>
         </div>
+
+
+        <!-- BOTÓN REFRESCAR + CUENTA REGRESIVA -->
+        <div class="flex items-center gap-2">
+
+          <!-- Botón -->
+          <button (click)="refreshDashboard()"
+            class="px-3 py-1.5 text-sm bg-blue-600 text-white rounded-md shadow hover:bg-blue-700">
+            ↻ <span class="text-xs text-white inline-block text-center w-8">
+              {{ refreshCountdown }}s
+            </span>
+          </button>
+
+
+
+        </div>
       </div>
     </div>
 
@@ -107,15 +123,27 @@
     <div class="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
 
       <!-- 🟥 CASOS SIN AGENTE ASIGNADO -->
-      <div class="card-monday">
+      <div class="card-monday animate-list">
         <div class="card-header-monday flex justify-between items-center">
           <h3 class="card-title">Casos sin agente asignado</h3>
-
-          <span class="text-sm font-semibold px-3 py-1 rounded-full 
-               bg-purple-100 text-purple-700">
+          <span class="px-3 py-1 rounded-full bg-purple-100 text-purple-700">
             {{ unassignedCases.length }}
           </span>
+
+
         </div>
+
+        <div class="relative px-3 mt-3">
+          <input type="text" [(ngModel)]="filterUnassigned" placeholder="Buscar por nombre, teléfono, canal, ID..."
+            class="filter-input pr-8" />
+
+          <!-- Botón clear -->
+          <button *ngIf="filterUnassigned" (click)="filterUnassigned = ''" class="clear-btn">
+            ✕
+          </button>
+        </div>
+
+
         <div class="card-body">
 
           <div *ngIf="loading" class="text-center py-4 text-gray-400">
@@ -124,8 +152,7 @@
 
           <div *ngIf="!loading && unassignedCases.length > 0">
 
-            <div class="case-row" *ngFor="let c of unassignedCases | orderByDate:'created_at':'desc'">
-
+            <div class="case-row" *ngFor="let c of filteredUnassignedCases | orderByDate:'created_at':'desc'">
               <div class="flex flex-col">
 
                 <!-- 🟣 CHIP: integration_name -->
@@ -174,6 +201,7 @@
           </div>
 
           <div *ngIf="!loading && unassignedCases.length === 0" class="empty-state">
+            <img src="assets/good_job.png" alt="No cases">
             No hay casos pendientes de asignar.
           </div>
 
@@ -181,7 +209,7 @@
       </div>
 
       <!-- 🟦 CASOS ASIGNADOS -->
-      <div class="card-monday">
+      <div class="card-monday animate-list">
         <div class="card-header-monday flex justify-between items-center">
           <h3 class="card-title">Casos asignados</h3>
 
@@ -191,13 +219,23 @@
           </span>
         </div>
 
+
+        <div class="relative px-3 mt-3">
+          <input type="text" [(ngModel)]="filterAssigned" placeholder="Buscar por cliente, agente, canal, ID..."
+            class="filter-input pr-8" />
+
+          <button *ngIf="filterAssigned" (click)="filterAssigned = ''" class="clear-btn">
+            ✕
+          </button>
+        </div>
+
         <div class="card-body">
 
           <div *ngIf="!assignedCases.length" class="empty-state">
             Sin datos disponibles
           </div>
 
-          <div class="case-row flex flex-col" *ngFor="let oc of assignedCases | orderByDate:'created_at':'asc'">
+          <div class="case-row" *ngFor="let oc of filteredAssignedCases | orderByDate:'created_at':'asc'">
 
             <div class="flex flex-col">
 
@@ -309,6 +347,8 @@
           {{ casesByAgent.length }}
         </span>
       </div>
+
+
 
       <div *ngIf="casesByAgent.length === 0" class="empty-state">
         Sin agentes asignados
