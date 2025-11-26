@@ -233,6 +233,13 @@ export class CaseService {
     });
   }
 
+  // Open cases by company, departments
+  getOpenCasesByCompanyAndDepartmen(companyId: number, departmentId: number) {
+    return this.fetch.get<ApiResponse<CaseWithChannel[]>>({
+      API_Gateway: `${CASE_URL}/entry/open_cases/company/${companyId}/department/${departmentId}`,
+    });
+  }
+
   getCasesWithoutAgentByCompanyAndDepartment(companyId: number, departmentId: number) {
     return this.fetch.get<ApiResponse<CaseWithChannel[]>>({
       API_Gateway: `${CASE_URL}/entry/unassigned_cases/company/${companyId}/department/${departmentId}`,

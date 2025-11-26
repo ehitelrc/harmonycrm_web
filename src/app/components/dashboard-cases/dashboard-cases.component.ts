@@ -21,6 +21,10 @@ import { DashboardStats } from '@app/models/dashboard-stats.model';
 import { CaseDashboardService } from '@app/services/case-dashboard.service';
 import { interval } from 'rxjs';
 import { ChatWorkspaceComponent } from '../chat/chat-workspace.component';
+import { OrderByDatePipe } from '../pipes/order-by-date.pipe';
+import { FilterHasAgentPipe } from '../pipes/filter-has-agent.pipe';
+
+import { HostListener, ElementRef } from '@angular/core';
 
 
 
@@ -32,7 +36,9 @@ import { ChatWorkspaceComponent } from '../chat/chat-workspace.component';
     FormsModule,
     ClientFormComponent,
     ChatWorkspaceComponent,
-    MainLayoutComponent],
+    MainLayoutComponent,
+    FilterHasAgentPipe,
+    OrderByDatePipe],
   templateUrl: './dashboard-cases.component.html',
   styleUrls: ['./dashboard-cases.component.css']
 })
@@ -41,10 +47,28 @@ export class DashboardCasesComponent implements OnInit {
   companies: { company_id: number; company_name: string }[] = [];
   selectedCompanyId: number | null = null;
 
+
+  data: CaseWithChannel[] = [];
   unassignedCases: CaseWithChannel[] = [];
+  assignedCases: CaseWithChannel[] = [];
   loading = false;
 
+  casesByChannel: {
+    channel: string;
+    total: number;
+    assigned: number;
+    unassigned: number;
+  }[] = [];
+
+  casesByAgent: {
+    agent: string;
+    total: number;
+    percent?: number;
+  }[] = [];
   // 
+
+  totalCasesGlobal = 0;
+
   dashboard: DashboardStats | null = null;
 
   showChatPreview = false;
@@ -90,6 +114,7 @@ export class DashboardCasesComponent implements OnInit {
   intervalId: any;
 
   constructor(
+    private el: ElementRef,
     private authService: AuthService,
     private companyService: CompanyService,
     private departmentService: DepartmentService,
@@ -120,6 +145,7 @@ export class DashboardCasesComponent implements OnInit {
 
 
 
+
   async loadCompanies(): Promise<void> {
     try {
       const response = await this.companyService.getCompaniesByUserId(this.user!.user_id);
@@ -129,13 +155,16 @@ export class DashboardCasesComponent implements OnInit {
 
         await this.loadDepartmentsForDisplay();
 
-        await this.loadUnassignedCases();
-        await this.loadDashboardStats();
+        await this.loadCasesByCompanyAndDepartment();
+
+        // await this.loadUnassignedCases();
+        // await this.loadDashboardStats();
       }
     } catch (error) {
       console.error('Error loading companies:', error);
     }
   }
+
   async loadDepartmentsForDisplay(): Promise<void> {
     if (!this.selectedCompanyId) return;
 
@@ -155,6 +184,50 @@ export class DashboardCasesComponent implements OnInit {
 
     } catch (err) {
       console.error('Error loading departments for display', err);
+    }
+  }
+
+  async loadCasesByCompanyAndDepartment(): Promise<void> {
+    if (!this.selectedCompanyId) return;
+    this.loading = true;
+
+    try {
+      const response: ApiResponse<CaseWithChannel[]> =
+        await this.caseService.getOpenCasesByCompanyAndDepartmen(
+          this.selectedCompanyId,
+          this.selectedShowDepartmentId!
+        );
+
+      if (response.success && response.data) {
+        this.totalCasesGlobal = this.data.length;
+
+        // Normalizar todos con showMenu = false
+        this.data = response.data.map(c => ({
+          ...c,
+          showMenu: false
+        }));
+
+        const allCases = response.data.map(c => ({
+          ...c,
+          showMenu: false
+        }));
+
+        // 🔹 Separar según si tienen agente asignado
+        this.assignedCases = allCases.filter(c => c.agent_assigned === true);
+        this.unassignedCases = allCases.filter(c => c.agent_assigned === false);
+
+        // Generar estadísticas locales
+        // 🆕 Agrupar
+        this.computeCasesByChannel();
+        this.computeCasesByAgent();
+      }
+
+
+
+    } catch (error) {
+      console.error('Error loading cases by company and department:', error);
+    } finally {
+      this.loading = false;
     }
   }
 
@@ -198,7 +271,11 @@ export class DashboardCasesComponent implements OnInit {
       const response: ApiResponse<CaseWithChannel[]> =
         await this.caseService.getCasesWithoutAgentByCompanyAndDepartment(this.selectedCompanyId, this.selectedShowDepartmentId!);
       if (response.success && response.data) {
-        this.unassignedCases = response.data;
+        //this.unassignedCases = response.data;
+        this.unassignedCases = response.data.map(c => ({
+          ...c,
+          showMenu: false   // 👈 AQUÍ SE AGREGA
+        }));
       }
     } catch (error) {
       console.error('Error loading unassigned cases:', error);
@@ -407,8 +484,11 @@ export class DashboardCasesComponent implements OnInit {
   }
 
   onShowDepartmentSelected(): void {
-    this.loadDashboardStats();
-    this.loadUnassignedCases();
+
+    this.loadCasesByCompanyAndDepartment();
+
+    // this.loadDashboardStats();
+    // this.loadUnassignedCases();
 
   }
 
@@ -489,5 +569,108 @@ export class DashboardCasesComponent implements OnInit {
     }
   }
 
-   
+
+  toggleMenu(c: CaseWithChannel) {
+    c.showMenu = !c.showMenu;
+
+    [...this.unassignedCases, ...this.assignedCases].forEach(x => {
+      if (x !== c) x.showMenu = false;
+    });
+  }
+
+  @HostListener('document:click')
+  closeAllMenus() {
+    [...this.unassignedCases, ...this.assignedCases].forEach(c => c.showMenu = false);
+  }
+
+  @HostListener('document:keydown.escape')
+  closeAllMenusESC() {
+    this.closeAllMenus();
+  }
+
+  private groupByCount<T>(
+    items: T[],
+    keyFn: (item: T) => string | null | undefined
+  ): { label: string; count: number }[] {
+
+    const map = new Map<string, number>();
+
+    for (const item of items) {
+      const key = keyFn(item)?.trim() || 'Sin nombre';
+      map.set(key, (map.get(key) || 0) + 1);
+    }
+
+    return Array.from(map.entries()).map(([label, count]) => ({ label, count }));
+  }
+
+
+  private computeCasesByChannel() {
+    const channelMap = new Map<
+      string,
+      { total: number; assigned: number; unassigned: number }
+    >();
+
+    for (const c of this.data) {
+      const channel = c.integration_name?.trim() || "Sin canal";
+
+      if (!channelMap.has(channel)) {
+        channelMap.set(channel, { total: 0, assigned: 0, unassigned: 0 });
+      }
+
+      const entry = channelMap.get(channel)!;
+
+      entry.total++;
+      if (c.agent_assigned) entry.assigned++;
+      else entry.unassigned++;
+    }
+
+    this.casesByChannel = Array.from(channelMap.entries()).map(
+      ([channel, values]) => ({
+        channel,
+        ...values
+      })
+    );
+  }
+
+  computeCasesByAgent() {
+    if (!this.data || this.data.length === 0) {
+      this.casesByAgent = [];
+      return;
+    }
+
+    const map = new Map<string, number>();
+
+    for (const c of this.data) {
+      if (!c.agent_full_name) continue; // Solo agentes asignados
+
+      const key = c.agent_full_name;
+      map.set(key, (map.get(key) || 0) + 1);
+    }
+
+    this.casesByAgent = [...map.entries()].map(([agent, total]) => ({
+      agent,
+      total,
+      percent: this.totalCasesGlobal
+        ? Math.round((total * 100) / this.totalCasesGlobal)
+        : 0
+    }));
+  }
+
+  // 👇 debajo de computeCasesByChannel()
+  getAssignedPercent(ch: { total: number; assigned: number; unassigned: number }): number {
+    if (!ch || !ch.total) return 0;
+    const pct = (ch.assigned * 100) / ch.total;
+    return Math.round(pct); // por si querés un entero
+  }
+
+  getChannelPercent(ch: { total: number }): number {
+    if (!this.totalCasesGlobal) return 0;
+    return Math.round((ch.total * 100) / this.totalCasesGlobal);
+  }
+
+  getAgentPercent(agent: { total: number }): number {
+    if (!this.totalCasesGlobal) return 0;
+    return Math.round((agent.total * 100) / this.totalCasesGlobal);
+  }
+
 }

@@ -48,7 +48,7 @@
 
 
     <!-- 📊 Dashboard Stats -->
-    <div class="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in-up">
+    <!-- <div class="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in-up">
 
       <div
         class="relative bg-gradient-to-br from-blue-600 to-blue-400 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl shadow-md p-6 hover:scale-105 transition-transform duration-300">
@@ -101,161 +101,244 @@
         </div>
       </div>
     </div>
+ -->
 
-    <!-- Tabla -->
-    <div
-      class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-md mt-4  animate-fade-in-up">
-      <div class="p-4 border-b border-gray-200 dark:border-gray-700">
-        <h3 class="text-lg font-semibold text-primary">Casos sin agente asignado</h3>
+    <!-- 🟦 Contenedor en dos columnas estilo Monday -->
+    <div class="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <!-- 🟥 CASOS SIN AGENTE ASIGNADO -->
+      <div class="card-monday">
+        <div class="card-header-monday flex justify-between items-center">
+          <h3 class="card-title">Casos sin agente asignado</h3>
+
+          <span class="text-sm font-semibold px-3 py-1 rounded-full 
+               bg-purple-100 text-purple-700">
+            {{ unassignedCases.length }}
+          </span>
+        </div>
+        <div class="card-body">
+
+          <div *ngIf="loading" class="text-center py-4 text-gray-400">
+            Cargando casos...
+          </div>
+
+          <div *ngIf="!loading && unassignedCases.length > 0">
+
+            <div class="case-row" *ngFor="let c of unassignedCases | orderByDate:'created_at':'desc'">
+
+              <div class="flex flex-col">
+
+                <!-- 🟣 CHIP: integration_name -->
+                <span class="chip-purple mb-1">
+                  {{ c.integration_name || '—' }}
+                </span>
+
+                <!-- Cliente -->
+                <div class="case-title">{{ c.client_name || 'Sin nombre' }}</div>
+
+                <!-- Último mensaje -->
+                <div class="case-last-message text-gray-600 text-sm mt-1">
+                  <ng-container [ngSwitch]="c.last_message_type">
+                    <span *ngSwitchCase="'text'">{{ c.last_message_text }}</span>
+                    <span *ngSwitchCase="'image'">📷 [Imagen]</span>
+                    <span *ngSwitchCase="'audio'">🎧 [Audio]</span>
+                    <span *ngSwitchCase="'file'">📄 [Archivo]</span>
+                    <span *ngSwitchDefault>—</span>
+                  </ng-container>
+                </div>
+
+                <!-- Meta -->
+                <div class="case-meta mt-1">
+                  <span>ID {{ c.case_id }}</span>
+                  <span>{{ c.channel_name }}</span>
+                  <span>📞 {{ c.sender_id }}</span>
+                </div>
+
+              </div>
+
+              <!-- DERECHA: MENÚ -->
+              <div class="relative ml-3">
+                <button class="btn-menu text-red-500" (click)="toggleMenu(c); $event.stopPropagation()">
+                  •••
+                </button>
+
+                <div *ngIf="c.showMenu" class="menu-dropdown">
+                  <button class="text-black" (click)="openChatPreview(c)">👁 Ver</button>
+                  <button class="text-black" (click)="assignToAgent(c)">👤 Asignar agente</button>
+                  <button class="text-black" (click)="openAssignClientModal(c)">🟩 Asignar cliente</button>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+
+          <div *ngIf="!loading && unassignedCases.length === 0" class="empty-state">
+            No hay casos pendientes de asignar.
+          </div>
+
+        </div>
       </div>
 
-      <div *ngIf="loading" class="p-6 text-center text-gray-500">Cargando casos...</div>
+      <!-- 🟦 CASOS ASIGNADOS -->
+      <div class="card-monday">
+        <div class="card-header-monday flex justify-between items-center">
+          <h3 class="card-title">Casos asignados</h3>
 
-      <div *ngIf="!loading && unassignedCases.length > 0" class="overflow-y-auto max-h-[600px]">
-        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-          <thead class="bg-gray-50 dark:bg-gray-900">
-            <tr>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Campaña</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Canal</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teléfono</th>
-              <th class="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Último mensaje
-              </th>
-              <th class="px-4 py-2 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Acciones</th>
-            </tr>
-          </thead>
+          <span class="text-sm font-semibold px-3 py-1 rounded-full 
+               bg-blue-100 text-blue-700">
+            {{ assignedCases.length }}
+          </span>
+        </div>
 
-          <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700 text-blue-600">
+        <div class="card-body">
 
-            <tr *ngFor="let c of unassignedCases">
-              <td class="px-4 py-2 text-sm">{{ c.client_name || 'Sin nombre' }}</td>
-              <td class="px-4 py-2 text-sm">{{ c.campaign_id || '-' }}</td>
-              <td class="px-4 py-2 text-sm">{{ c.channel_name || '-' }}</td>
-              <td class="px-4 py-2 text-sm">{{ c.sender_id }}</td>
-              <td class="px-4 py-2 text-sm text-gray-600 truncate max-w-[200px]">
-                {{ c.last_message_preview || '[Sin mensaje]' }}
+          <div *ngIf="!assignedCases.length" class="empty-state">
+            Sin datos disponibles
+          </div>
 
-              </td>
-              <td class="px-4 py-2 text-center space-x-2">
-                <button class="px-3 py-1.5 bg-purple-600 text-white text-xs rounded hover:bg-purple-700 transition"
-                  (click)="openChatPreview(c)">
-                  Ver
-                </button>
-                <button class="px-3 py-1.5 bg-blue-600 text-white text-xs rounded hover:bg-blue-700 transition"
-                  (click)="assignToAgent(c)">
-                  Agente
-                </button>
+          <div class="case-row flex flex-col" *ngFor="let oc of assignedCases | orderByDate:'created_at':'asc'">
 
-                <button class="px-3 py-1.5 bg-green-600 text-white text-xs rounded hover:bg-green-700 transition"
-                  (click)="openAssignClientModal(c)">
-                  Cliente
-                </button>
-                <button class="px-3 py-1.5 bg-yellow-600 text-white text-xs rounded hover:bg-yellow-700 transition"
-                  (click)="openReassignDepartmentModal(c)">
-                  Cambiar depto.
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+            <div class="flex flex-col">
+
+              <div class="flex items-center justify-between mb-1">
+
+                <div class="flex items-center gap-2">
+                  <!-- CHIP -->
+                  <span class="chip-purple">
+                    {{ oc.integration_name || '—' }}
+                  </span>
+
+                  <!-- AGENTE -->
+                  <span class="text-xs font-semibold text-gray-600 dark:text-gray-300">
+                    {{ oc.agent_full_name || '—' }}
+                  </span>
+                </div>
+
+
+                <!-- DERECHA: MENÚ -->
+                <div class="relative ml-3">
+                  <button class="btn-menu text-red-500" (click)="toggleMenu(oc); $event.stopPropagation()">
+                    •••
+                  </button>
+
+                  <div *ngIf="oc.showMenu" class="menu-dropdown">
+                    <button class="text-black" (click)="openChatPreview(oc)">👁 Ver</button>
+                    <button class="text-black" (click)="assignToAgent(oc)">👤 Cambiar agente</button>
+                    <button class="text-black" (click)="openReassignDepartmentModal(oc)">🏢 Cambiar
+                      departamento</button>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- Cliente -->
+              <div class="case-title">{{ oc.client_name || 'Desconocido' }}</div>
+
+              <!-- Último mensaje -->
+              <div class="case-last-message text-gray-600 text-sm mt-1">
+                <ng-container [ngSwitch]="oc.last_message_type">
+                  <span *ngSwitchCase="'text'">{{ oc.last_message_text }}</span>
+                  <span *ngSwitchCase="'image'">📷 [Imagen]</span>
+                  <span *ngSwitchCase="'audio'">🎧 [Audio]</span>
+                  <span *ngSwitchCase="'file'">📄 [Archivo]</span>
+                  <span *ngSwitchDefault>—</span>
+                </ng-container>
+              </div>
+
+              <!-- Meta -->
+              <div class="case-meta mt-1">
+                <span>ID {{ oc.case_id }}</span>
+                <span>Desde {{ oc.created_at | date:'short' }}</span>
+                <span>📞 {{ oc.sender_id }}</span>
+              </div>
+
+            </div>
+
+          </div>
+
+        </div>
       </div>
-
-      <div *ngIf="!loading && unassignedCases.length === 0" class="p-6 text-center text-gray-500">
-        No hay casos pendientes de asignar.
-      </div>
-
-      <br>
-
 
     </div>
-
-    <!-- 🕓 Casos más antiguos abiertos -->
-    <div class="mt-10 dashboard-card">
-      <h4 class="text-lg font-semibold text-primary mb-4">Casos Abiertos Más Antiguos</h4>
-      <table class="min-w-full text-sm text-left text-gray-600">
-        <thead>
-          <tr class="text-gray-400 border-b">
-            <th class="py-2">ID Caso</th>
-            <th class="py-2">Cliente</th>
-            <th class="py-2">Desde</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngIf="!dashboard?.oldest_open_cases?.length">
-            <td colspan="3" class="py-3 text-center text-gray-400">Sin datos disponibles</td>
-          </tr>
-          <tr *ngFor="let oc of dashboard?.oldest_open_cases || []" class="border-b last:border-none">
-            <td class="py-2">{{ oc.case_id }}</td>
-            <td class="py-2">{{ oc.client_name || 'Desconocido' }}</td>
-            <td class="py-2">{{ oc.created_at ? (oc.created_at | date: 'short') : '-' }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-
     <!-- 📈 Distribución por canal -->
 
-    <div
-      class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-md mt-8  animate-fade-in-up">
-      <div class="p-4 border-b border-gray-200 dark:border-gray-700">
-        <h3 class="text-lg font-semibold text-primary">Casos por Canal</h3>
-      </div>
-      <div class="p-4">
-        <table class="min-w-full text-sm text-left text-gray-600">
-          <thead class="bg-gray-50 dark:bg-gray-900">
-            <tr class="text-gray-400 border-b">
-              <th class="py-2">Canal</th>
-              <th class="py-2">Abiertos</th>
-              <th class="py-2">Cerrados</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngIf="!dashboard?.cases_by_channel?.length">
-              <td colspan="3" class="py-3 text-center text-gray-400">Sin datos disponibles</td>
-            </tr>
-            <tr *ngFor="let ch of dashboard?.cases_by_channel || []" class="border-b last:border-none">
-              <td class="py-2">{{ ch.channel_name || 'Sin canal' }}</td>
-              <td class="py-2">{{ ch.open_cases ?? 0 }}</td>
-              <td class="py-2">{{ ch.closed_cases ?? 0 }}</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <div class="card-monday p-4 mt-8">
 
+      <div class="card-header-monday flex justify-between items-center mb-4">
+        <h3 class="card-title">Casos por canal</h3>
 
-    <!-- 🧑‍💼 Distribución por agente -->
-    <div
-      class="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 shadow-md mt-8  animate-fade-in-up">
-      <div class="p-4 border-b border-gray-200 dark:border-gray-700">
-        <h3 class="text-lg font-semibold text-primary">Casos por Agente</h3>
+        <!-- 🔵 Contador (igual formato que Casos por Agente) -->
+        <span class="px-3 py-1 text-sm rounded-full bg-purple-100 text-purple-700 font-semibold">
+          {{ casesByChannel.length }}
+        </span>
       </div>
-      <div class="p-4">
-        <table class="min-w-full text-sm text-left text-gray-600">
-          <thead class="bg-gray-50 dark:bg-gray-900">
-            <tr class="text-gray-400 border-b">
-              <th class="py-2">Agente</th>
-              <th class="py-2">Abiertos</th>
-              <th class="py-2">Cerrados</th>
-              <th class="py-2">Prom. Cierre (hrs)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngIf="!dashboard?.cases_by_agent?.length">
-              <td colspan="4" class="py-3 text-center text-gray-400">Sin datos disponibles</td>
-            </tr>
-            <tr *ngFor="let ag of dashboard?.cases_by_agent || []" class="border-b last:border-none">
-              <td class="py-2">{{ ag.agent_name || 'Sin nombre' }}</td>
-              <td class="py-2">{{ ag.open_cases ?? 0 }}</td>
-              <td class="py-2">{{ ag.closed_cases ?? 0 }}</td>
-              <td class="py-2">{{ ag.avg_close_hours ?? '-' }}</td>
-            </tr>
-          </tbody>
-        </table>
+      <div class="p-4 space-y-4">
+
+        <div *ngFor="let ch of casesByChannel" class="monday-row">
+
+          <div class="monday-row-left">
+            <div class="monday-row-title">{{ ch.channel }}</div>
+            <div class="monday-row-sub">{{ ch.total }} casos</div>
+          </div>
+
+          <div class="flex-1 mx-4">
+            <div class="monday-progress">
+              <div class="bg-blue-500" [style.width.%]="getChannelPercent(ch)"></div>
+            </div>
+
+            <div class="flex justify-between text-xs text-gray-600 mt-1">
+              <span>{{ ch.total }} casos</span>
+              <span>{{ getChannelPercent(ch) }}%</span>
+            </div>
+          </div>
+
+        </div>
+
       </div>
     </div>
 
 
+    <!-- 🟦 Tarjeta Casos por Agente -->
+    <div class="card-monday p-4 mt-8">
+
+      <div class="card-header-monday flex justify-between items-center mb-4">
+        <h3 class="card-title">Casos por agente</h3>
+
+        <span class="px-3 py-1 text-sm rounded-full bg-blue-100 text-blue-700 font-semibold">
+          {{ casesByAgent.length }}
+        </span>
+      </div>
+
+      <div *ngIf="casesByAgent.length === 0" class="empty-state">
+        Sin agentes asignados
+      </div>
+
+      <div *ngFor="let ag of casesByAgent" class="mb-5">
+
+        <div class="flex justify-between items-center mb-1">
+          <span class="font-semibold text-[#00113f] text-sm">
+            {{ ag.agent }}
+          </span>
+
+          <span class="text-xs font-semibold bg-blue-100 text-blue-700 px-2 py-1 rounded-full">
+            {{ ag.total }} casos
+          </span>
+        </div>
+
+        <!-- Barra de progreso -->
+        <div class="monday-progress">
+          <div class="bg-blue-500" [style.width.%]="getAgentPercent(ag)"></div>
+        </div>
+
+        <div class="flex justify-between text-xs text-gray-600 mt-1">
+          <span>{{ getAgentPercent(ag) }}%</span>
+
+        </div>
+
+      </div>
+
+    </div>
 
 
 

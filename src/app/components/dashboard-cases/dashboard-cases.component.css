@@ -147,3 +147,162 @@ th, td {
   width: 16px;
   height: 16px;
 }
+
+/* 🌈 Tarjeta estilo Monday */
+.card-monday {
+  @apply bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 
+         rounded-xl shadow-md hover:shadow-lg transition-all duration-200;
+}
+
+/* 🌈 Header de tarjeta */
+.card-header-monday {
+  @apply px-6 py-4 border-b border-gray-200 dark:border-gray-700;
+  background: linear-gradient(135deg, #f3f4ff 0%, #e7e9ff 100%);
+}
+
+.card-title {
+  @apply text-lg font-semibold text-[#00113f] dark:text-gray-100;
+}
+
+/* 🌈 Cuerpo de tarjeta */
+.card-body {
+  @apply p-6 space-y-3;
+}
+
+/* 🟦 Fila Monday */
+.case-row {
+  @apply flex justify-between items-center p-3 rounded-lg border border-gray-200 dark:border-gray-700 
+         hover:bg-gray-50 dark:hover:bg-gray-900 transition cursor-pointer;
+}
+
+/* 🟣 Nombre del cliente */
+.case-title {
+  @apply text-sm font-semibold text-blue-900 dark:text-blue-300;
+}
+
+/* 🩶 Metadatos */
+.case-meta span {
+  @apply text-xs text-gray-500 mr-3;
+}
+
+/* 🟢 Botón ver */
+.btn-view {
+  @apply px-3 py-1.5 rounded-lg bg-[#4A1CFF] text-white text-xs font-medium 
+         hover:bg-[#3713cc] transition;
+}
+
+/* 🤍 Empty state */
+.empty-state {
+  @apply text-center py-6 text-gray-500 italic;
+}
+
+/* Tarjeta base */
+.card-monday {
+  @apply bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 
+         rounded-xl shadow-md hover:shadow-lg transition-all duration-200;
+}
+
+.card-header-monday {
+  @apply px-6 py-4 border-b border-gray-200 dark:border-gray-700;
+  background: linear-gradient(135deg, #f3f4ff 0%, #e7e9ff 100%);
+}
+
+.card-title {
+  @apply text-lg font-semibold text-[#00113f] dark:text-gray-100;
+}
+
+.card-body {
+  @apply p-6 space-y-3;
+}
+
+/* Chip con color pastel */
+.chip-purple {
+  @apply inline-block text-xs font-semibold px-2 py-1 rounded-full text-white;
+  background-color: #4A1CFF;
+}
+
+/* Fila estilo Monday */
+.case-row {
+  @apply flex justify-between items-start p-3 rounded-lg border border-gray-200 dark:border-gray-700 
+         hover:bg-gray-50 dark:hover:bg-gray-900 transition cursor-pointer relative;
+}
+
+.case-title {
+  @apply text-sm font-semibold text-blue-900 dark:text-blue-300;
+}
+
+.case-meta span {
+  @apply text-xs text-gray-500 mr-3;
+}
+
+/* Botón menú */
+.btn-menu {
+  @apply text-xl px-2 py-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700;
+}
+
+/* Menú desplegable */
+.menu-dropdown {
+  @apply absolute right-0 mt-1 w-40 bg-white dark:bg-gray-800 border border-gray-200 
+         dark:border-gray-700 rounded-lg shadow-xl flex flex-col z-20;
+}
+
+.menu-dropdown button {
+  @apply text-left px-4 py-2 text-sm hover:bg-gray-100 dark:hover:bg-gray-700;
+}
+
+.empty-state {
+  @apply text-center py-6 text-gray-500 italic;
+}
+
+.btn-menu {
+  @apply text-xl font-bold px-2 py-1 rounded hover:bg-gray-100 cursor-pointer;
+}
+
+.menu-dropdown {
+  @apply absolute right-0 mt-2 bg-white shadow-lg rounded-md border border-gray-200 
+         flex flex-col z-50 w-44;
+}
+
+.menu-dropdown button {
+  @apply text-left px-3 py-2 text-sm hover:bg-gray-100 rounded text-black;
+}
+
+.monday-row {
+  display: flex;
+  align-items: center;
+  padding: 10px 12px;
+  border-bottom: 1px solid #eee;
+}
+
+.monday-row:last-child {
+  border-bottom: none;
+}
+
+.monday-row-left {
+  min-width: 120px;
+}
+
+.monday-row-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: #1f2937;
+}
+
+.monday-row-sub {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.monday-progress {
+  height: 8px;
+  width: 100%;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.monday-progress > div {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}

@@ -50,4 +50,10 @@ export interface CaseWithChannel {
   client_messages?: number | null; // Número de mensajes del cliente
 
   integration_name?: string | null; // Nombre de la integración del canal
+
+  showMenu?: boolean; // Para controlar el menú en la UI
+
+  agent_assigned?: boolean | false; // Nombre del agente asignado
+
+  agent_full_name?: string | null; // Nombre completo del agente asignado
 }
