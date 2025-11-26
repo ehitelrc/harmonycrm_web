@@ -227,11 +227,18 @@
             </ng-template>
 
             <ng-template #emptyState>
-                <div class="h-full w-full flex items-center justify-center text-gray-500 dark:text-gray-400">
-                    Selecciona una conversación para comenzar.
+                <div class="h-full w-full flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
+
+                    <!-- Imagen del empty state -->
+                    <img src="assets/chatbubble.png" alt="Sin conversación"
+                        class="w-[200px] h-auto opacity-80 mb-4 select-none" />
+
+                    <!-- Texto -->
+                    <div class="text-sm text-center px-4">
+                        Selecciona una conversación para comenzar.
+                    </div>
                 </div>
             </ng-template>
-
         </div>
 
         @if(selectedCase?.manual_starting_lead && selectedCase?.client_messages === 0) {
