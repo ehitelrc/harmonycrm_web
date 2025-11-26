@@ -196,19 +196,64 @@
                             </div>
 
                             <!-- Adjuntos -->
+                            <!-- Adjuntos -->
                             <div *ngIf="isMedia(m)" class="text-sm">
-                                <div class="flex items-center gap-2 mb-1">
-                                    <span
-                                        class="inline-flex items-center rounded-full bg-gray-200 dark:bg-gray-700 px-2 py-0.5 text-xs">
-                                        Adjunto: {{ m.message_type | uppercase }}
-                                    </span>
-                                    <button class="link" (click)="openAttachment(m)">Ver</button>
-                                </div>
 
-                                <div *ngIf="(m.text_content || '').trim().length"
-                                    class="text-gray-700 dark:text-gray-200 whitespace-pre-wrap break-words">
-                                    {{ m.text_content }}
-                                </div>
+                                <!-- 🖼️ IMAGEN -->
+                                <ng-container *ngIf="m.message_type === 'image'">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span
+                                            class="inline-flex items-center rounded-full bg-gray-200 dark:bg-gray-700 px-2 py-0.5 text-xs">
+                                            Imagen
+                                        </span>
+                                        <button class="link" (click)="openAttachment(m)">Ver</button>
+                                    </div>
+                                    <div *ngIf="m.text_content"
+                                        class="mt-1 text-gray-700 dark:text-gray-200 whitespace-pre-wrap">
+                                        {{ m.text_content }}
+                                    </div>
+                                </ng-container>
+
+                                <!-- 🔊 AUDIO -->
+                                <ng-container *ngIf="m.message_type === 'audio'">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span
+                                            class="inline-flex items-center rounded-full bg-gray-200 dark:bg-gray-700 px-2 py-0.5 text-xs">
+                                            Audio
+                                        </span>
+                                    </div>
+
+                                    <audio [src]="attachmentAudioSrc(m)" controls
+                                        s="w-full min-w-[220px] max-w-full mt-1 rounded-md shadow-sm">
+                                    </audio>
+
+                                    <div *ngIf="m.text_content"
+                                        class="mt-1 text-gray-700 dark:text-gray-200 whitespace-pre-wrap">
+                                        {{ m.text_content }}
+                                    </div>
+                                </ng-container>
+
+                                <!-- 📄 OTROS ARCHIVOS -->
+                                <ng-container
+                                    *ngIf="m.message_type !== 'image' && m.message_type !== 'audio' && m.message_type !== 'text'">
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <span
+                                            class="inline-flex items-center rounded-full bg-gray-200 dark:bg-gray-700 px-2 py-0.5 text-xs">
+                                            Archivo
+                                        </span>
+
+                                        <a [href]="m.file_url" target="_blank"
+                                            class="text-blue-600 dark:text-blue-300 underline">
+                                            Descargar
+                                        </a>
+                                    </div>
+
+                                    <div *ngIf="m.text_content"
+                                        class="mt-1 text-gray-700 dark:text-gray-200 whitespace-pre-wrap">
+                                        {{ m.text_content }}
+                                    </div>
+                                </ng-container>
+
                             </div>
 
                             <!-- Fecha -->
@@ -378,11 +423,12 @@
                     Adjunto
                 </div>
 
-                <button type="button" class="chip-btn" (click)="openImageInNewTab(viewingAttachment!)">
+                <button type="button" *ngIf="viewingAttachment?.message_type === 'image'" class="chip-btn"
+                    (click)="openImageInNewTab(viewingAttachment!)">
                     Abrir
                 </button>
 
-                <a *ngIf="attachmentImageSrc(viewingAttachment!)" class="chip-btn"
+                <a *ngIf="attachmentImageSrc(viewingAttachment!) && viewingAttachment?.message_type === 'image'" class="chip-btn"
                     [href]="attachmentImageSrc(viewingAttachment!)" download="adjunto"
                     (click)="$event.stopPropagation()">
                     Descargar
@@ -411,7 +457,7 @@
                 <div
                     class="viewer-pane lg:w-2/3 border-b lg:border-b-0 lg:border-r border-gray-200 dark:border-gray-700 flex flex-col min-h-0">
                     <!-- Toolbar secundaria -->
-                    <div
+                    <div *ngIf="viewingAttachment?.message_type === 'image'"
                         class="px-3 py-2 flex items-center gap-2 border-b border-gray-100 dark:border-gray-700 bg-gray-50/60 dark:bg-gray-900/40">
                         <span class="text-xs text-gray-500 dark:text-gray-400 flex-1 truncate">
                             {{ viewingAttachment?.mime_type || 'image' }}
@@ -431,7 +477,8 @@
                     </div>
 
                     <!-- Área desplazable fija -->
-                    <div class="viewer-scroll flex-1 min-h-0 overflow-auto bg-gray-100 dark:bg-gray-900 relative">
+                    <div *ngIf="viewingAttachment?.message_type === 'image'"
+                        class="viewer-scroll flex-1 min-h-0 overflow-auto bg-gray-100 dark:bg-gray-900 relative">
                         <!-- Skeleton -->
                         <div *ngIf="!imageLoaded" class="absolute inset-0 flex items-center justify-center">
                             <div class="animate-pulse w-24 h-24 rounded-lg bg-gray-200 dark:bg-gray-700"></div>
@@ -446,8 +493,21 @@
                                 [style.transform]="'scale(' + zoomLevel + ')'" [style.transformOrigin]="'center center'"
                                 [style.maxWidth]="fitToScreen ? '100%' : 'none'"
                                 [style.maxHeight]="fitToScreen ? '100%' : 'none'" draggable="false" />
+
                         </div>
+
                     </div>
+
+                    <!-- Audios -->
+
+                    <ng-container *ngIf="viewingAttachment?.message_type === 'audio'">
+                        <div class="w-full mt-6 bg-[#E9F0FA] p-5 rounded-xl shadow-inner">
+                            <audio [src]="attachmentAudioSrc(viewingAttachment)" controls
+                                class="w-full min-w-[260px] max-w-full h-12 rounded-lg bg-white shadow"></audio>
+                        </div>
+                    </ng-container>
+
+
                 </div>
 
                 <!-- Panel lateral: caption/metadata -->
