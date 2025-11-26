@@ -8,7 +8,7 @@ export const environment = {
     },
     TESTING: true,
     production: false,
-    appVersion: 'v2.0.11',
+    appVersion: 'v2.0.12',
     socket_url: 'ws://20.81.232.132:8099'
   };
   

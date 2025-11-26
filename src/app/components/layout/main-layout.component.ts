@@ -39,6 +39,8 @@ import { Router } from '@angular/router';
 })
 export class MainLayoutComponent {
     user: User | null = null;
+
+    
     
   constructor(
      private authService: AuthService,
