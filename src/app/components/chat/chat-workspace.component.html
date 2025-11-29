@@ -195,7 +195,7 @@
                                 [innerHTML]="parseUrls(m.text_content || '')">
                             </div>
 
-                            <!-- Adjuntos -->
+
                             <!-- Adjuntos -->
                             <div *ngIf="isMedia(m)" class="text-sm">
 
@@ -259,6 +259,25 @@
                             <!-- Fecha -->
                             <div class="mt-2 text-[10px] text-gray-500 dark:text-gray-400 text-right">
                                 {{ m.created_at | date:'short' }}
+                            </div>
+
+                            <!-- ⚠️ Indicador de error debajo del mensaje -->
+                            <div *ngIf="m.has_error"
+                                class="flex items-center gap-1 mt-1 text-red-600 cursor-pointer group select-none">
+
+                                <!-- Triángulo de advertencia -->
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                    class="w-4 h-4 text-red-600">
+                                    <path fill-rule="evenodd"
+                                        d="M12 2c-.38 0-.73.21-.9.55L1.18 20.4c-.18.33-.17.73.02 1.05.2.32.54.55.92.55h19.78c.38 0 .72-.23.92-.55.19-.32.2-.72.02-1.05L12.9 2.55A1 1 0 0 0 12 2Zm0 6c.55 0 1 .45 1 1v4a1 1 0 1 1-2 0V9c0-.55.45-1 1-1Zm1 10a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"
+                                        clip-rule="evenodd" />
+                                </svg>
+
+                                <!-- Tooltip -->
+                                <span
+                                    class="hidden group-hover:block bg-red-600 text-white px-2 py-1 rounded text-xs absolute mt-6 shadow-lg whitespace-pre-line z-50 ">
+                                    {{ m.message_error }}
+                                </span>
                             </div>
 
                         </div>

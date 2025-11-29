@@ -375,6 +375,8 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
             channel_message_id: '',
             created_at: new Date().toISOString(),
             base64_content: null,
+            has_error: false,
+            message_error: null
           };
 
           let real = this.normalizeApiMessage(evt.data, fallback) as MessageUI;
@@ -574,6 +576,8 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
       channel_message_id: (api.client_tmp_id ?? '') || fallback.channel_message_id || '',
       created_at: new Date().toISOString(),
       base64_content: null,
+      has_error: api.has_error ?? false,
+      message_error: api.message_error ?? null
     };
   }
 

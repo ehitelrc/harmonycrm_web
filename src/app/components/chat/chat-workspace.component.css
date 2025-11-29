@@ -103,3 +103,13 @@
 .animate-in {
   animation: animateMessageIn 200ms ease-out;
 }
+
+.group:hover .tooltip {
+  opacity: 1;
+  transform: translateY(0);
+}
+.tooltip {
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: all .15s ease;
+}

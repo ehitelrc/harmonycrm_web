@@ -19,6 +19,9 @@ export interface Message {
   base64_content?: string | null;
 
   _justArrived?: boolean;
+
+  has_error?: boolean;
+  message_error?: string | null;
 }
 
 /**
