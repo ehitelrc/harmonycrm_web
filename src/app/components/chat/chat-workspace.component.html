@@ -180,26 +180,26 @@
 
             <ng-container *ngIf="selectedCase; else emptyState">
                 <ng-container *ngIf="!isLoadingMessages; else loadingMessages">
-
+                    <!-- 🔄 Loop de mensajes -->
                     <div *ngFor="let m of messages" class="w-full flex" [class.justify-end]="isFromAgent(m)"
                         [class.justify-start]="!isFromAgent(m)">
 
                         <div class="max-w-[75%] px-4 py-3 rounded-2xl shadow-md border
-     transition-all message-bubble" [class.animate-in]="m._justArrived" [class.bg-white]="isFromAgent(m)"
-                            [class.bg-[#d5ffd3]]="!isFromAgent(m)" [class.dark:bg-gray-800]="true"
-                            [class.border-gray-200]="isFromAgent(m)" [class.border-green-200]="!isFromAgent(m)">
-                            <!-- todo el contenido interno sigue igual -->
+                transition-all message-bubble
+                animate-fade-zoom" [class.bg-white]="isFromAgent(m)" [class.bg-[#d5ffd3]]="!isFromAgent(m)"
+                            [class.dark:bg-gray-800]="true" [class.border-gray-200]="isFromAgent(m)"
+                            [class.border-green-200]="!isFromAgent(m)" [class.animate-in]="m._justArrived">
+
                             <!-- Texto -->
                             <div *ngIf="isText(m) && m.text_content?.trim()?.length"
-                                class="text-sm text-gray-800 dark:text-gray-100 whitespace-pre-wrap break-words"
+                                class="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap break-words"
                                 [innerHTML]="parseUrls(m.text_content || '')">
                             </div>
-
 
                             <!-- Adjuntos -->
                             <div *ngIf="isMedia(m)" class="text-sm">
 
-                                <!-- 🖼️ IMAGEN -->
+                                <!-- Imagen -->
                                 <ng-container *ngIf="m.message_type === 'image'">
                                     <div class="flex items-center gap-2 mb-1">
                                         <span
@@ -214,7 +214,7 @@
                                     </div>
                                 </ng-container>
 
-                                <!-- 🔊 AUDIO -->
+                                <!-- Audio -->
                                 <ng-container *ngIf="m.message_type === 'audio'">
                                     <div class="flex items-center gap-2 mb-1">
                                         <span
@@ -224,7 +224,7 @@
                                     </div>
 
                                     <audio [src]="attachmentAudioSrc(m)" controls
-                                        s="w-full min-w-[220px] max-w-full mt-1 rounded-md shadow-sm">
+                                        class="w-full min-w-[220px] max-w-full mt-1 rounded-md shadow-sm">
                                     </audio>
 
                                     <div *ngIf="m.text_content"
@@ -233,15 +233,15 @@
                                     </div>
                                 </ng-container>
 
-                                <!-- 📄 OTROS ARCHIVOS -->
-                                <ng-container
-                                    *ngIf="m.message_type !== 'image' && m.message_type !== 'audio' && m.message_type !== 'text'">
+                                <!-- Otros archivos -->
+                                <ng-container *ngIf="m.message_type !== 'image'
+                              && m.message_type !== 'audio'
+                              && m.message_type !== 'text'">
                                     <div class="flex items-center gap-2 mb-1">
                                         <span
                                             class="inline-flex items-center rounded-full bg-gray-200 dark:bg-gray-700 px-2 py-0.5 text-xs">
                                             Archivo
                                         </span>
-
                                         <a [href]="m.file_url" target="_blank"
                                             class="text-blue-600 dark:text-blue-300 underline">
                                             Descargar
@@ -261,11 +261,11 @@
                                 {{ m.created_at | date:'short' }}
                             </div>
 
-                            <!-- ⚠️ Indicador de error debajo del mensaje -->
+                            <!-- Error -->
                             <div *ngIf="m.has_error"
-                                class="flex items-center gap-1 mt-1 text-red-600 cursor-pointer group select-none">
+                                class="flex items-center gap-1 mt-1 text-red-600 cursor-pointer group select-none relative">
 
-                                <!-- Triángulo de advertencia -->
+                                <!-- Icono triangular -->
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
                                     class="w-4 h-4 text-red-600">
                                     <path fill-rule="evenodd"
@@ -273,9 +273,9 @@
                                         clip-rule="evenodd" />
                                 </svg>
 
-                                <!-- Tooltip -->
-                                <span
-                                    class="hidden group-hover:block bg-red-600 text-white px-2 py-1 rounded text-xs absolute mt-6 shadow-lg whitespace-pre-line z-50 ">
+                                <!-- Tooltip a la IZQUIERDA -->
+                                <span class="hidden group-hover:flex items-center bg-red-600 text-white px-2 py-1 rounded text-xs shadow-lg
+               whitespace-pre-line z-50 absolute left-0 -translate-x-[105%] top-1/2 -translate-y-1/2 min-w-[120px]">
                                     {{ m.message_error }}
                                 </span>
                             </div>
