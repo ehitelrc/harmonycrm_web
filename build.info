@@ -36,3 +36,21 @@ docker run -d --name harmony_web -p 80:80 --restart unless-stopped ehitelrc/harm
 
 docker rm -f harmony_web
 docker rmi -f ehitelrc/harmony_web:latest
+
+
+
+
+
+********Pruebas de escaneo
+
+docker buildx build --platform linux/amd64 \
+  -t harmony_web_scan \
+  --load \
+   .
+ 
+
+ docker  build   \
+  -t harmony_web_scan \
+  --load \
+   .
+ 

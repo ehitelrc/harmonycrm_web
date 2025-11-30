@@ -1392,13 +1392,15 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
     try {
       const payload = buildAgentTextMessage(this.selectedCase.case_id, body);
       (payload as any).client_tmp_id = clientTmpId;
+
       await this.chatService.sendMessage(payload);
-    } catch {
+    } catch (err) {
+      console.error('❌ Error al enviar mensaje:', err);
       this.alert.error(this.t('chat.failed_to_send'));
       this.messages = this.messages.filter(m => m.channel_message_id !== clientTmpId);
     }
   }
-  
+
   // Cuando el usuario confirma envío
   async onImageSend(event: { base64: string; description: string }) {
     if (!this.selectedCase) return;

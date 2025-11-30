@@ -8,7 +8,7 @@ export const environment = {
     },
     TESTING: true,
     production: false,
-    appVersion: 'v2.0.13',
+    appVersion: 'v2.0.18-stable',
     socket_url: 'ws://20.81.232.132:8099' //'ws://localhost:8098' 
   };
   

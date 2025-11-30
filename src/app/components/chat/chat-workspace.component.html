@@ -201,16 +201,16 @@
 
                                 <!-- Imagen -->
                                 <ng-container *ngIf="m.message_type === 'image'">
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <span
-                                            class="inline-flex items-center rounded-full bg-gray-200 dark:bg-gray-700 px-2 py-0.5 text-xs">
-                                            Imagen
-                                        </span>
-                                        <button class="link" (click)="openAttachment(m)">Ver</button>
-                                    </div>
-                                    <div *ngIf="m.text_content"
-                                        class="mt-1 text-gray-700 dark:text-gray-200 whitespace-pre-wrap">
-                                        {{ m.text_content }}
+                                    <!-- IMAGEN -->
+                                    <div *ngIf="m.message_type === 'image'" class="cursor-pointer"
+                                        (click)="openAttachment(m)">
+                                        <img [src]="attachmentImageSrc(m)" class="rounded-lg max-h-64 object-cover"
+                                            alt="Imagen" />
+                                        <div class="text-xs text-black mt-1 break-words 
+           bg-gray-100 border border-gray-300 
+           rounded-lg px-2 py-1" *ngIf="m.text_content">
+                                            {{ m.text_content }}
+                                        </div>
                                     </div>
                                 </ng-container>
 
