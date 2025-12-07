@@ -36,8 +36,21 @@
         </select>
       </div>
 
-      <!-- Integración -->
+      <!-- Deparments -->
+
       <div>
+        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+          {{ t('whatsapp_template.select_department') }}
+        </label>
+        <select [(ngModel)]="selectedDepartment" (ngModelChange)="onDepartmentChanged()"
+          class="block w-full px-3 py-2 border rounded-md text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+          <option [ngValue]="null">{{ t('whatsapp_template.select_department') }}</option>
+          <option *ngFor="let d of departments" [ngValue]="d.id">{{ d.description }}</option>
+        </select>
+      </div>
+
+      <!-- Integración -->
+      <!-- <div>
         <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
           {{ t('whatsapp_template.select_integration') }}
         </label>
@@ -46,7 +59,7 @@
           <option [ngValue]="null">{{ t('whatsapp_template.select_integration') }}</option>
           <option *ngFor="let i of integrations" [ngValue]="i">{{ i.integration_name }}</option>
         </select>
-      </div>
+      </div> -->
     </div>
 
     <!-- Listado -->
@@ -56,7 +69,7 @@
 
     <!-- Formulario (crear/editar) -->
     <app-template-form *ngIf="isFormOpen" [template]="selectedTemplate"
-      [channelIntegrationId]="selectedIntegration?.channel_integration_id ?? null" (success)="onSuccess($event)"
+      [department_id]="selectedDepartment?? null" (success)="onSuccess($event)"
       (cancel)="closeDialog()">
     </app-template-form>
 

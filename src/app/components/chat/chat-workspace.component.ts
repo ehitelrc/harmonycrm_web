@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, OnDestroy, HostListener, Input, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { buildAgentTextMessage, buildAgentImageMessage } from '@app/models/agent-message.model';
+import { buildAgentTextMessage, buildAgentImageMessage, AgentMessage, buildAgentFileMessage } from '@app/models/agent-message.model';
 import { CaseWithChannel } from '@app/models/case-with-channel.model';
 import { Client } from '@app/models/client.model';
 import { Message } from '@app/models/message.model';
@@ -10,7 +10,7 @@ import { ClientService } from '@app/services/client.service';
 import { AlertService } from '@app/services/extras/alert.service';
 import { LanguageService } from '@app/services/extras/language.service';
 import { WSMessage, WsService } from '@app/services/extras/ws.service';
-import { Subscription } from 'rxjs';
+import { last, Subscription } from 'rxjs';
 import { ClientFormComponent } from "../clients/clients-form/client-form.component";
 import { CaseNote } from '@app/models/case-notes.model';
 import { AuthService } from '@app/services';
@@ -35,6 +35,10 @@ import { ChannelWhatsAppTemplate } from '@app/models/channel-whatsapp-template.m
 import { CampaignWhatsappPushRequest } from '@app/models/campaign-whatsapp-push.model';
 import { CampaignPushService } from '@app/services/campaign-push.service';
 import { SendImageModalComponent } from './send-image-modal/send-image-modal.component';
+import { CompanyService } from '@app/services/company.service';
+import { AgentDepartmentInformation } from '@app/models/agent-department-information.model';
+import { VWChannelIntegration } from '@app/models/vw-channel-integration.model';
+import { SendFileModalComponent } from './send-file-modal/send-file-modal.component';
 
 type MessageUI = Message & {
   _justArrived?: boolean;
@@ -48,7 +52,7 @@ type MessageUI = Message & {
     ClientFormComponent,
     MoveStageModalComponent,
     SendImageModalComponent,
-
+    SendFileModalComponent
   ],
   templateUrl: './chat-workspace.component.html',
   styleUrls: ['./chat-workspace.component.css']
@@ -63,6 +67,14 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
   closeNote = '';
   isClosingCase = false;
 
+  companies: { company_id: number; company_name: string }[] = [];
+  selectedCompanyId: number | null = null;
+
+
+
+  showTemplateMenu = false;
+
+  private wsAgentSub?: Subscription;
 
   // En tu componente padre
   isMoveStageOpen = false;
@@ -131,6 +143,8 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
   viewingAttachment: Message | null = null;
   agent_id: number | null = null;
 
+
+
   private wsSub?: Subscription;
   private tmpCounter = 0;
 
@@ -180,6 +194,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
   stateUser: UserAuthModel | null = null;
 
   selectedTemplate: number | null = null;
+  selectedTemplateObj: ChannelWhatsAppTemplate | null = null;
   templates: ChannelWhatsAppTemplate[] = [];
 
   // 
@@ -194,8 +209,29 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
     this.isImageModalOpen = false;
   }
 
+  isNewConversationOpen = false;
+  newConvPhone = '';
+  newConvClientSearch = '';
 
 
+
+  newConvSelectedClient: Client | null = null;
+  newConvClientResults: Client[] = [];
+
+  newConvSelectedTemplate: ChannelWhatsAppTemplate | null = null;
+
+  selectedShowDepartmentId: number | null = null;
+
+  agents: AgentDepartmentInformation[] = [];
+  showDepartments: Department[] = [];
+
+  integrations: VWChannelIntegration[] = [];
+  selectedIntegration: VWChannelIntegration | null = null;
+
+
+
+
+  isFileModalOpen = false;
 
   constructor(
     private lang: LanguageService,
@@ -210,6 +246,8 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
     private departmentService: DepartmentService,
     private channelService: ChannelService,
     private pushService: CampaignPushService,
+    private companyService: CompanyService,
+
 
   ) { }
 
@@ -225,6 +263,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.ws.disconnect();
     this.wsSub?.unsubscribe();
+    this.wsAgentSub?.unsubscribe();
   }
 
   get t() { return this.lang.t.bind(this.lang); }
@@ -250,8 +289,36 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
     if (!this.agent_id) return;
 
 
+    await this.loadCompanies();
+
+
     await this.loadCases();
 
+    // WS GLOBAL PARA NOTIFICAR NUEVOS MENSAJES EN CUALQUIER CASO
+    this.wsAgentSub = this.ws.connect(`${environment.socket_url}/ws?agent_id=${this.agent_id}`)
+      .subscribe((evt: WSMessage) => {
+
+        if (evt.type !== 'new_message') return;
+
+        const caseId = evt.case_id;
+
+        // Si estoy dentro del caso → NO incrementa
+        if (this.selectedCase && this.selectedCase.case_id === caseId) return;
+
+        // Buscar caso
+        const idx = this.cases.findIndex(c => c.case_id === caseId);
+        if (idx < 0) return;
+
+        const updated = [...this.cases];
+        updated[idx] = {
+          ...updated[idx],
+          unread_count: (updated[idx].unread_count || 0) + 1,
+          last_message_preview: evt.data?.text_content || '[Mensaje]'
+        };
+
+        this.cases = updated;
+        this.applyContactFilter();
+      });
 
   }
 
@@ -264,9 +331,20 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
         ...c,
         case_id: c.case_id ?? c.id,
         client_name: c.client_name ?? '',
-        unread_count: c.unread_count ?? 0,
+        unread_count: Number(c.unread_count ?? 0),
         last_message_preview: c.last_message_preview ?? '',
+        last_message_at: c.last_message_at ?? null,
       }));
+
+      // Order by last_message_at descending
+      this.cases.sort((a, b) => {
+        const dateA = a.last_message_at ? new Date(a.last_message_at).getTime() : 0;
+        const dateB = b.last_message_at ? new Date(b.last_message_at).getTime() : 0;
+        return dateB - dateA;
+      });
+
+      console.log('Casos cargados:', this.cases);
+
       this.applyContactFilter();
     } catch {
       this.alert.error(this.t('chat.failed_to_load_cases'));
@@ -335,10 +413,10 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
       await this.loadCurrentStage(c.case_id); // Nueva línea para cargar el estado actual
 
 
-      if (this.selectedCase.manual_starting_lead && this.selectedCase.client_messages == 0) {
-        this.loadTemplatesForChannelIntegration();
-      }
-
+      // if (this.selectedCase.manual_starting_lead && this.selectedCase.client_messages == 0) {
+      //   this.loadTemplatesForChannelIntegration();
+      // }
+      this.loadTemplates();
 
       if (c.client_id) {
         const clientResponse = await this.clientService.getById(c.client_id);
@@ -420,12 +498,26 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
             if (!dup) this.messages = [...this.messages, real];
           }
 
+
           this.updatePreview(evt.case_id, real);
           this.scrollToBottomSoon();
+
+          // Reset de mensajes no leídos del caso seleccionado
+          c.unread_count = 0;
+          this.updateCaseUnreadCount(c.case_id, 0);
+
+          // Marcar mensajes como leídos en backend
+          this.chatService.markMessagesAsRead(c.case_id);
         }
       });
 
     } finally {
+      c.unread_count = 0;
+      this.updateCaseUnreadCount(c.case_id, 0);
+
+
+
+
       this.isLoadingMessages = false;
     }
   }
@@ -439,6 +531,19 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
       this.selectedDepartment = null;
       this.alert.error(this.t('chat.failed_to_load_department'));
     });
+  }
+
+  updateCaseUnreadCount(caseId: number, value: number) {
+    const idx = this.cases.findIndex(x => x.case_id === caseId);
+    if (idx >= 0) {
+      const updated = [...this.cases];
+      updated[idx] = {
+        ...updated[idx],
+        unread_count: value
+      };
+      this.cases = updated;
+      this.applyContactFilter();
+    }
   }
 
 
@@ -1163,6 +1268,10 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
     this.isAssigningDepartment = false;
   }
 
+  toggleTemplateMenu() {
+    this.showTemplateMenu = !this.showTemplateMenu;
+  }
+
 
 
   editItem(i: VwCaseItemsDetail) {
@@ -1304,11 +1413,29 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
       .finally(() => this.templateLoading = false);
   }
 
+  loadTemplates() {
+    this.templateLoading = true;
+    this.templates = [];
+    this.channelService.getWhatsappTemplatesByDepartmentId(this.selectedCase?.department_id || 0)
+      .then(resp => {
+        // filtra solo los que tengan template_id
+
+        this.templates = (resp?.data || []).filter(t => t.id);
+
+        console.log(this.templates);
+
+      })
+      .catch(err => console.error('Error loading templates:', err))
+      .finally(() => this.templateLoading = false);
+  }
+
   async sendTemplate() {
 
     this.sendPush();
 
   }
+
+
 
   async sendPush() {
 
@@ -1360,6 +1487,66 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
       this.alert.error('Error al registrar el push.');
     } finally {
 
+    }
+  }
+
+  sendSelectedTemplate(t: ChannelWhatsAppTemplate) {
+
+    this.selectedTemplate = t.id;
+
+    this.selectedTemplateObj = t;
+
+
+    this.toggleTemplateMenu();
+
+    this.sendIndividualTemplate();
+
+  }
+
+  async sendIndividualTemplate() {
+    if (!this.selectedTemplate) return;
+    try {
+      try {
+
+
+        const resp = await this.pushService.sendWhatsappTemplateMessage(
+          this.selectedTemplate,
+          this.selectedCase?.case_id || 0,
+
+        );
+
+        if (resp?.success) {
+
+          // this.draft = 'Template ' + (this.selectedTemplateObj?.template_name || '') + ' enviado.';
+
+          // this.send();
+
+          if (this.selectedCase) {
+            this.selectedCase.client_messages = 1;
+          }
+
+          // Si tienes la lista de casos cargada, actualiza ahí también
+          this.cases = this.cases.map(c =>
+            c.case_id === this.selectedCase?.case_id
+              ? { ...c, client_messages: 1 }
+              : c
+          );
+
+
+          this.alert.success(`Push creado (ID: ${resp.data?.message ?? '—'})`);
+
+        } else {
+          this.alert.error(resp?.message || 'No se pudo registrar el push.');
+        }
+      } catch (e) {
+        console.error(e);
+        this.alert.error('Error al registrar el push.');
+      } finally {
+
+      }
+    } catch (err) {
+      console.error('❌ Error al enviar template:', err);
+      this.alert.error(this.t('chat.failed_to_send'));
     }
   }
 
@@ -1438,5 +1625,276 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
       this.closeImageModal();
     }
   }
+
+  openNewConversationModal() {
+    this.isNewConversationOpen = true;
+
+    // limpia los campos del modal
+    this.newConvPhone = '';
+    this.newConvSelectedClient = null;
+    this.newConvSelectedTemplate = null;
+
+
+  }
+
+  async searchNewConvClient() {
+    const q = this.newConvClientSearch.trim();
+    if (!q) {
+      this.newConvClientResults = [];
+      return;
+    }
+
+    const res = await this.clientService.getAll();
+
+    // 🔥 TIPADO CORRECTO
+    const list: Client[] = Array.isArray(res?.data)
+      ? (res.data as Client[])
+      : [];
+
+    this.newConvClientResults = list.filter((c: Client) =>
+      (c.full_name || '').toLowerCase().includes(q.toLowerCase()) ||
+      (c.phone || '').includes(q) ||
+      (c.email || '').toLowerCase().includes(q.toLowerCase())
+    );
+  }
+
+  selectNewConvClient(c: Client) {
+    this.newConvSelectedClient = c;
+    this.newConvPhone = c.phone || '';
+  }
+
+  async confirmNewConversation() {
+    try {
+      if (!this.newConvSelectedTemplate) {
+        this.alert.error("Debe seleccionar un template");
+        return;
+      }
+
+      if (!this.selectedIntegration) {
+        this.alert.error("Debe seleccionar una integración de WhatsApp");
+        return;
+      }
+
+      // teléfono: cliente seleccionado o ingresado
+      const contactPhone =
+        this.newConvSelectedClient?.phone || this.newConvPhone?.trim();
+
+      if (!contactPhone) {
+        this.alert.error("Debe ingresar o seleccionar un teléfono");
+        return;
+      }
+
+      const payload = {
+        template_id: this.newConvSelectedTemplate.id,
+        channel_integration_id: this.selectedIntegration,
+        contact_phone: contactPhone.startsWith("+")
+          ? contactPhone.replace("+", "")
+          : contactPhone,
+        agent_id: this.agent_id,          // ← lo tienes disponible en el component
+        client_id: this.newConvSelectedClient?.id || null
+      };
+
+      console.log("🚀 Enviando payload:", payload);
+
+      const res = await this.chatService.sendTemplateMessage(payload);
+
+      if (res.success) {
+        this.alert.success("Mensaje enviado correctamente");
+        this.isNewConversationOpen = false;
+
+        console.log(res.data.case_id);
+
+
+        await this.loadCases();
+
+        const newCaseId = res.data?.case_id;
+
+        const createdCase = this.cases.find(c => c.case_id === newCaseId);
+
+        if (createdCase) {
+          // marcar highlight temporal
+          createdCase._highlight = true;
+
+          this.selectCase(createdCase);
+
+          // quitar highlight después de 2 segundos
+          setTimeout(() => {
+            createdCase._highlight = false;
+          }, 2000);
+        } else {
+          console.warn("⚠ No se encontró el caso recién creado en la lista.");
+        }
+
+
+      } else {
+        this.alert.error("No se pudo enviar el mensaje");
+      }
+    } catch (e) {
+      console.error(e);
+      this.alert.error("Error al iniciar la conversación");
+    }
+  }
+
+
+  async loadCompanies(): Promise<void> {
+    try {
+      const response = await this.companyService.getCompaniesByUserId(this.agent_id || 0);
+      if (response?.success && response.data?.length) {
+        this.companies = response.data;
+        this.selectedCompanyId = this.companies[0].company_id;
+
+        await this.loadDepartmentsForDisplay();
+
+      }
+    } catch (error) {
+      console.error('Error loading companies:', error);
+    }
+  }
+
+  async loadDepartmentsForDisplay(): Promise<void> {
+    if (!this.selectedCompanyId) return;
+
+    try {
+      const res = await this.departmentService.getByCompanyAndUser(
+        this.selectedCompanyId,
+        this.agent_id || 0
+      );
+
+      this.showDepartments = res.success && res.data ? res.data : [];
+      this.selectedShowDepartmentId = this.showDepartments[0]?.id || null;
+
+      // ⬇️ ESTE ES EL FIX
+      if (this.selectedShowDepartmentId) {
+        this.onShowDepartmentSelected();  // <-- DISPARA LA CARGA
+      }
+
+    } catch (err) {
+      console.error('Error loading departments for display', err);
+    }
+  }
+
+
+  onShowDepartmentSelected(): void {
+    // this.loadDashboardStats();
+    // this.loadUnassignedCases();
+
+    this.loadTemplatesNewChat();
+    this.loadIntegrationsForDepartment(this.selectedShowDepartmentId!);
+
+  }
+
+
+  async onCompanyChange(): Promise<void> {
+    await this.loadDepartmentsForDisplay();
+
+  }
+
+
+  loadIntegrationsForDepartment(departmentId: number) {
+    this.channelService.getWhatsappIntegrationsByDepartment(departmentId)
+      .then(resp => this.integrations = resp?.data || [])
+      .catch(err => console.error('Error loading WhatsApp integrations:', err));
+  }
+
+
+  loadTemplatesNewChat() {
+    this.templateLoading = true;
+    this.templates = [];
+    this.channelService.getWhatsappTemplatesByDepartmentId(this.selectedShowDepartmentId || 0)
+      .then(resp => {
+        // filtra solo los que tengan template_id
+
+        this.templates = (resp?.data || []).filter(t => t.id);
+
+        console.log(this.templates);
+
+      })
+      .catch(err => console.error('Error loading templates:', err))
+      .finally(() => this.templateLoading = false);
+  }
+
+  clearNewConvClient() {
+    this.newConvSelectedClient = null;
+    this.newConvClientSearch = '';
+    this.newConvClientResults = [];
+  }
+
+  trackByClientId(index: number, item: Client): number {
+    return item.id;
+  }
+
+  get selectedClient(): Client | null {
+    return this.newConvSelectedClient;
+  }
+
+
+  openFilePicker() {
+    console.log("Abrir selector de archivos");
+    this.isFileModalOpen = true;
+  }
+
+  startAudioRecording() {
+    console.log("Iniciar grabación de audio");
+    // Más adelante agregamos la lógica real de audio
+  }
+
+
+  closeFileModal() {
+    this.isFileModalOpen = false;
+  }
+
+
+  async onFileSend(event: { base64: string; filename: string, mime: string }) {
+    if (!this.selectedCase) return;
+
+    const clientTmpId = `tmp-file-${Date.now()}`;
+
+    // Detectar MIME desde base64
+    
+    if (event.base64.startsWith("data:")) {
+      const parts = event.base64.split(";")[0];
+    }
+
+    const optimistic: Message = {
+      id: 0,
+      case_id: this.selectedCase.case_id,
+      sender_type: 'agent',
+      message_type: 'file',
+      text_content: event.filename,  // el nombre del archivo
+      file_url: null,
+      mime_type: event.mime,
+      channel_message_id: clientTmpId,
+      created_at: new Date().toISOString(),
+      base64_content: event.base64,
+    };
+
+    // Se agrega optimista al chat
+    this.messages = [...this.messages, optimistic];
+    this.scrollToBottomSoon();
+
+    try {
+      const payload = buildAgentFileMessage(
+        this.selectedCase.case_id,
+        event.filename,
+        event.base64,
+        event.mime
+      );
+
+      (payload as any).client_tmp_id = clientTmpId;
+
+      await this.chatService.sendMessage(payload);
+
+      this.alert.success('Archivo enviado correctamente');
+    } catch (err) {
+      console.error("❌ Error al enviar archivo", err);
+      this.alert.error("Error al enviar archivo");
+      // remover optimista fallido
+      this.messages = this.messages.filter(m => m.channel_message_id !== clientTmpId);
+    } finally {
+      // cerrar modal
+      this.closeFileModal?.();  // si lo tienes como modal separado
+    }
+  }
+
 
 }

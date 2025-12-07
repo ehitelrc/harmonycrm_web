@@ -37,8 +37,8 @@ import { HostListener, ElementRef } from '@angular/core';
     ClientFormComponent,
     ChatWorkspaceComponent,
     MainLayoutComponent,
-    FilterHasAgentPipe,
-    OrderByDatePipe],
+    OrderByDatePipe
+],
   templateUrl: './dashboard-cases.component.html',
   styleUrls: ['./dashboard-cases.component.css']
 })

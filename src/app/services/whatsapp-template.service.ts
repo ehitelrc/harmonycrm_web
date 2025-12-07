@@ -49,11 +49,19 @@ export class WhatsAppTemplateService {
     });
   }
 
+  // DEPRECATED
   async getWhatsappTemplatesByIntegration(integrationId: number): Promise<ApiResponse<WhatsAppTemplate[]>> {
     return await this.fetch.get<ApiResponse<WhatsAppTemplate[]>>({
       API_Gateway: `${TEMPLATE_URL}/whatsapp/templates/integration/${integrationId}`,
     });
   } 
+
+    async getWhatsappTemplatesByDepartment(departmentId: number): Promise<ApiResponse<WhatsAppTemplate[]>> {
+    return await this.fetch.get<ApiResponse<WhatsAppTemplate[]>>({
+      API_Gateway: `${TEMPLATE_URL}/whatsapp/templates/department/${departmentId}`,
+    });
+  } 
+
 
   ///channels/whatsapp/templates
   async createWhatsappTemplate(data: Partial<WhatsAppTemplate>): Promise<ApiResponse<WhatsAppTemplate>> {

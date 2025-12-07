@@ -568,6 +568,9 @@ export const esTranslations = {
   "whatsapp_template.saving": "Guardando...",
   "whatsapp_template.active": "Activo",
   "whatsapp_template.template_url_webhook": "Webhook de URL de plantilla",
+  "whatsapp_template.template_status": "Estado de la plantilla",
+  "whatsapp_template.select_department": "Seleccionar departamento",  
+
 
 
   'articles': 'Maestro de SKUs',

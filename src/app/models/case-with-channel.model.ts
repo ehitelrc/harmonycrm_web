@@ -26,7 +26,7 @@ export interface CaseWithChannel {
   sender_id?: string | null;
 
   // 👇 Campos que necesita la UI
-  unread_count?: number;
+  unread_count: number;
  
 
 
@@ -56,4 +56,6 @@ export interface CaseWithChannel {
   agent_assigned?: boolean | false; // Nombre del agente asignado
 
   agent_full_name?: string | null; // Nombre completo del agente asignado
+
+  _highlight?: boolean; // n
 }

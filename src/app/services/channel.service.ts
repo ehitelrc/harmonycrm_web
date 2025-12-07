@@ -109,5 +109,11 @@ export class ChannelService {
     });
   }
 
+    getWhatsappTemplatesByDepartmentId(departmentId: number): Promise<ApiResponse<ChannelWhatsAppTemplate[]>> {
+    return this.fetch.get<ApiResponse<ChannelWhatsAppTemplate[]>>({
+      API_Gateway: `${CHANNEL_URL}/whatsapp/templates/department/${departmentId}`,
+    });
+  }
+
 
 }

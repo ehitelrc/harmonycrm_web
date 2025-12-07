@@ -52,12 +52,25 @@
 
         </div>
 
+        <!-- BOTÓN NUEVA CONVERSACIÓN -->
+        <div class="px-4 mt-2">
+            <button (click)="openNewConversationModal()" class="w-full flex items-center justify-center gap-2 py-2.5 
+               rounded-xl bg-[#00113f] hover:bg-[#3e66ea] 
+               text-white text-sm font-semibold shadow-md transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                    stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                Nueva conversación
+            </button>
+        </div>
+
         <div class="flex-1 overflow-y-auto">
 
 
             <ng-container *ngIf="!isLoadingCases; else leftLoading">
 
-                <button *ngFor="let c of filteredCases" (click)="selectCase(c)" class="w-[calc(100%-1rem)] mx-2 my-3 text-left rounded-xl px-5 py-4 
+                <button *ngFor="let c of filteredCases" [class.highlight]="c._highlight" (click)="selectCase(c)" class="w-[calc(100%-1rem)] mx-2 my-3 text-left rounded-xl px-5 py-4 
          shadow-md border border-gray-100 dark:border-gray-800 
                  bg-white dark:bg-gray-900 
          hover:shadow-lg hover:bg-gray-50/70 dark:hover:bg-gray-800/70
@@ -69,9 +82,8 @@
                             <img [src]="channelIcon(c.channel_code!)" alt="canal" class="h-12 w-12 rounded-full object-cover bg-white 
                p-1 shadow-sm border border-gray-200 dark:border-gray-700" />
 
-                            <!-- Contador de no leídos -->
-                            <span *ngIf="c.unread_count" class="absolute -top-1 -right-1 bg-[#3e66ea] text-white text-[10px] 
-               h-5 min-w-[1.25rem] px-1.5 rounded-full flex items-center justify-center shadow">
+                            <span *ngIf="c.unread_count && c.unread_count > 0"
+                                class="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full font-semibold min-w-[22px] text-center">
                                 {{ c.unread_count }}
                             </span>
                         </div>
@@ -334,6 +346,50 @@
      bg-[#E9F0FA] dark:bg-gray-900
      border border-[#d2dbe8] flex items-center gap-3">
 
+            <!-- CONTENEDOR DEL BOTÓN DE TEMPLATES -->
+            <div class="relative">
+                <!-- Botón Templates -->
+                <button (click)="toggleTemplateMenu()" class="p-2 rounded hover:bg-gray-200">
+                    🧩
+                </button>
+
+                <!-- MENÚ DE TEMPLATES POSICIONADO ARRIBA Y A LA DERECHA -->
+                <div *ngIf="showTemplateMenu"
+                    class="absolute bottom-full right-0 mb-2 w-64 bg-white shadow-lg rounded border p-2 z-70">
+                    <div class="font-semibold text-sm mb-2">Templates disponibles</div>
+
+                    <div *ngFor="let t of templates" (click)="sendSelectedTemplate(t)"
+                        class="p-2 hover:bg-gray-100 rounded cursor-pointer text-sm text-black">
+                        {{ t.template_name }}
+                    </div>
+
+                    <div class="text-right mt-2">
+                        <button (click)="toggleTemplateMenu()" class="text-xs text-gray-500 hover:underline">
+                            Cerrar
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Botón archivo 📎 -->
+            <button (click)="openFilePicker()"
+                class="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-400 shadow-md flex items-center justify-center transition">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path
+                        d="M16.5 6.75V15a4.5 4.5 0 1 1-9 0V6.75a3 3 0 1 1 6 0v7.5a1.5 1.5 0 1 1-3 0V7.5h-1.5v6.75a3 3 0 1 0 6 0V6.75a4.5 4.5 0 1 0-9 0V15a6 6 0 1 0 12 0V6.75h-1.5Z" />
+                </svg>
+            </button>
+
+            <!-- Botón audio 🎤 -->
+            <button (click)="startAudioRecording()"
+                class="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-400 shadow-md flex items-center justify-center transition">
+                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                    <path
+                        d="M12 1.5a3 3 0 0 0-3 3V12a3 3 0 1 0 6 0V4.5a3 3 0 0 0-3-3Zm-6 9a.75.75 0 0 1 1.5 0A4.5 4.5 0 0 0 12 15a4.5 4.5 0 0 0 4.5-4.5.75.75 0 0 1 1.5 0 6 6 0 0 1-5.25 5.964V18h3a.75.75 0 0 1 0 1.5h-7.5A.75.75 0 0 1 9 18h3v-1.536A6 6 0 0 1 6 10.5Z" />
+                </svg>
+            </button>
+
+
             <!-- Botón imagen -->
             <button (click)="openImageModal()" class="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-400 shadow-md 
                flex items-center justify-center transition">
@@ -358,6 +414,9 @@
             </button>
 
         </div>
+
+
+
         }
         }
     </section>
@@ -628,16 +687,17 @@
                                 </div>
                             </div>
 
+
                             <div class="flex items-center gap-2">
+                                @if(selectedCase?.unread_count ) {
                                 <span
                                     class="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
                                     {{ selectedCase?.status || '—' }}
                                 </span>
-                                <span *ngIf="selectedCase?.unread_count"
-                                    class="px-2 py-1 rounded-full text-xs font-semibold bg-[#3e66ea] text-white">
+                                <span class="px-2 py-1 rounded-full text-xs font-semibold bg-[#3e66ea] text-white">
                                     {{ selectedCase?.unread_count }} sin leer
                                 </span>
-
+                                }
                                 <!-- Cerrar caso -->
                                 <button id="close-case-button" class="w-full chip-btn bg-red-600 text-white hover:bg-red-700 border border-red-700 
          dark:bg-red-700 dark:hover:bg-red-800 dark:border-red-800" (click)="openCloseCaseModal()">
@@ -1453,3 +1513,142 @@
 
 <app-send-image-modal *ngIf="isImageModalOpen" [isOpen]="isImageModalOpen" (close)="closeImageModal()"
     (send)="onImageSend($event)"></app-send-image-modal>
+
+<!-- Modal Nueva Conversación -->
+<div *ngIf="isNewConversationOpen"
+    class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[9999]">
+
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 animate-fadeIn space-y-4">
+
+        <!-- Header -->
+        <div class="flex justify-between items-center">
+            <h2 class="text-xl font-semibold text-[#00113f]">
+                Nueva Conversación
+            </h2>
+
+            <button (click)="isNewConversationOpen = false" class="text-gray-400 hover:text-gray-600">
+                ✕
+            </button>
+        </div>
+
+        <!-- ======================= CLIENTE ======================= -->
+
+        <!-- Input para buscar cliente SOLO si no hay uno seleccionado -->
+        <div *ngIf="!newConvSelectedClient" class="space-y-2">
+
+            <label class="block text-sm font-medium text-gray-700">Cliente</label>
+
+            <input type="text" [(ngModel)]="newConvClientSearch" (input)="searchNewConvClient()"
+                placeholder="Buscar cliente por nombre, correo o teléfono"
+                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3e66ea] focus:border-[#3e66ea]" />
+
+            <!-- Lista de clientes -->
+            <div *ngIf="newConvClientResults.length > 0" class="border rounded-lg max-h-40 overflow-auto">
+
+                <div *ngFor="let c of newConvClientResults; trackBy: trackByClientId" (click)="selectNewConvClient(c)"
+                    class="px-3 py-2 cursor-pointer hover:bg-gray-100" [class.bg-blue-50]="selectedClient?.id === c.id">
+
+                    <div class="font-medium text-gray-800">{{ c.full_name }}</div>
+                    <div class="text-sm text-black">{{ c.phone }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cliente seleccionado -->
+        <div *ngIf="newConvSelectedClient" class="flex items-center justify-between p-3 border rounded-lg bg-blue-50">
+
+            <div>
+                <div class="font-semibold text-[#00113f]">
+                    {{ newConvSelectedClient.full_name }}
+                </div>
+                <div class="text-sm text-gray-600">
+                    {{ newConvSelectedClient.phone }}
+                </div>
+            </div>
+
+            <button (click)="clearNewConvClient()"
+                class="text-xs px-3 py-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200">
+                Limpiar
+            </button>
+        </div>
+
+        <!-- ======================= TELÉFONO ======================= -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
+            <input type="text" [(ngModel)]="newConvPhone" placeholder="Ingresar número (+506...)"
+                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3e66ea] focus:border-[#3e66ea] text-black" />
+        </div>
+
+        <!-- ======================= COMPAÑÍA / DEPARTAMENTO ======================= -->
+        <div class="flex gap-3">
+
+            <!-- Selector de compañía -->
+            <div class="relative flex-1">
+                <select [(ngModel)]="selectedCompanyId" (change)="onCompanyChange()"
+                    class="w-full px-3 py-2 border rounded-lg bg-white text-black">
+
+                    <option *ngFor="let company of companies" [value]="company.company_id">
+                        {{ company.company_name }}
+                    </option>
+                </select>
+            </div>
+
+            <!-- Selector de departamento -->
+            <div class="relative flex-1" *ngIf="showDepartments.length > 0">
+                <select [(ngModel)]="selectedShowDepartmentId" (change)="onShowDepartmentSelected()"
+                    class="w-full px-3 py-2 border rounded-lg bg-white text-black">
+
+                    <option *ngFor="let department of showDepartments" [value]="department.id">
+                        {{ department.description }}
+                    </option>
+                </select>
+            </div>
+
+        </div>
+
+        <!-- ======================= INTEGRACIÓN WHATSAPP ======================= -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Integración de WhatsApp</label>
+
+            <select [(ngModel)]="selectedIntegration" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
+                       focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f]
+                       bg-white" [disabled]="!selectedShowDepartmentId">
+
+                <option [ngValue]="null">Seleccione una integración</option>
+                <option *ngFor="let i of integrations" [ngValue]="i.channel_integration_id">
+                    {{ i.integration_name }}
+                </option>
+            </select>
+        </div>
+
+        <!-- ======================= TEMPLATE ======================= -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Template</label>
+
+            <select [(ngModel)]="newConvSelectedTemplate"
+                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3e66ea] text-black">
+
+                <option [ngValue]="null">Seleccionar plantilla...</option>
+
+                <option *ngFor="let t of templates" [ngValue]="t">
+                    {{ t.template_name }} ({{ t.language }})
+                </option>
+            </select>
+        </div>
+
+        <!-- ======================= BOTÓN PRINCIPAL ======================= -->
+        <div>
+            <button (click)="confirmNewConversation()"
+                class="w-full py-3 rounded-xl text-white font-semibold text-center bg-[#00113f] hover:bg-[#3e66ea] transition">
+                Iniciar Conversación
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<app-send-file-modal
+  *ngIf="isFileModalOpen"
+  (close)="closeFileModal()"
+  (send)="onFileSend($event)">
+</app-send-file-modal>

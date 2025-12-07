@@ -19,6 +19,14 @@ export const CASE_URL = returnCompleteURI({
   API_Gateway: GATEWAY,
 });
 
+export const TEMPLATE_URL = returnCompleteURI({
+  URI: environment.API.BASE,
+  API_Gateway: '/campaigns',
+});
+
+ 
+ 
+
 export interface AssignCaseToCampaignPayload {
   case_id: number;
   campaign_id: number;
@@ -249,6 +257,26 @@ export class CaseService {
   getCasesByCompanyCampaignAgent(companyId: number, campaignId: number, agentId: number, channelIntegration: number) {
     return this.fetch.get<ApiResponse<CaseWithChannel[]>>({
       API_Gateway: `${CASE_URL}/entry/leads/company/${companyId}/campaign/${campaignId}/agent/${agentId}/channel_integration/${channelIntegration}`,
+    });
+  }
+
+  markMessagesAsRead(caseId: number): Promise<ApiResponse<void>> {
+    return this.fetch.put<ApiResponse<void>>({
+      API_Gateway: `${CASE_URL}/entry/mark_messages_read/case/${caseId}`,
+    });
+  }
+
+  createNewCase(data: any): Promise<ApiResponse<CaseWithChannel>> {
+    return this.fetch.post<ApiResponse<CaseWithChannel>>({
+      API_Gateway: `${CASE_URL}/entry/create_case`,
+      values: data,
+    });
+  }
+
+  sendTemplateMessage(payload: any): Promise<ApiResponse<any>> {
+    return this.fetch.post<ApiResponse<CaseWithChannel>>({
+      API_Gateway: `${TEMPLATE_URL}/whatsapp/new-case/template`,
+      values: payload,
     });
   }
 

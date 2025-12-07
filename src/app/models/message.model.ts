@@ -22,6 +22,8 @@ export interface Message {
 
   has_error?: boolean;
   message_error?: string | null;
+
+  message_read?: boolean;
 }
 
 /**

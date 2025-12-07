@@ -14,6 +14,8 @@ import { WhatsAppTemplateService } from '@app/services/whatsapp-template.service
 import { VWChannelIntegration } from '@app/models/vw-channel-integration.model';
 import { TemplatesListComponent } from '../whatsapp-template-list/templates-list.component';
 import { TemplateFormComponent } from '../whatsapp-template-form/template-form.component';
+import { Department } from '@app/models/department.model';
+import { DepartmentService } from '@app/services/department.service';
 
 // 👇 importa el listado standalone 
 @Component({
@@ -52,6 +54,10 @@ export class TemplateManagementComponent implements OnInit {
     isDeleteOpen = false;
     deletingId: number | null = null;
     isDeleting = false;
+
+
+    departments: Department[] = [];
+    selectedDepartment: number | null = null;
  
     
 
@@ -61,6 +67,7 @@ export class TemplateManagementComponent implements OnInit {
         private companyService: CompanyService,
         private channelService: ChannelService,
         private templateService: WhatsAppTemplateService,
+        private departmentService: DepartmentService,
         private alert: AlertService
     ) { }
 
@@ -83,6 +90,13 @@ export class TemplateManagementComponent implements OnInit {
             .finally(() => this.loadingCompanies = false);
     }
 
+    loadDepartments() {
+        if (!this.selectedCompany) return;
+        this.departmentService.getByCompany (this.selectedCompany)
+            .then(resp => this.departments = resp?.data || [])
+            .catch(() => this.alert.error('Error cargando departamentos'));
+    }
+
     loadChannels() {
         this.loadingChannels = true;
         this.channelService.getAll()
@@ -96,12 +110,19 @@ export class TemplateManagementComponent implements OnInit {
         this.templates = [];
 
         if (!this.selectedCompany) return;
-        this.loadIntegrations();
+        //this.loadIntegrations();
+        this.loadDepartments();
     }
 
     onChannelIntegrationSelected() {
         this.templates = [];
         if (!this.selectedIntegration) return;
+        this.loadTemplates();
+    }
+
+    onDepartmentChanged() {
+        this.templates = [];
+        if (!this.selectedDepartment) return;
         this.loadTemplates();
     }
 
@@ -114,9 +135,9 @@ export class TemplateManagementComponent implements OnInit {
     }
 
     loadTemplates() {
-        if (!this.selectedIntegration) return;
+        if (!this.selectedDepartment) return;
         this.loadingTemplates = true;
-        this.templateService.getWhatsappTemplatesByIntegration(this.selectedIntegration.channel_integration_id)
+        this.templateService.getWhatsappTemplatesByDepartment(this.selectedDepartment!)
             .then(resp => this.templates = resp?.data || [])
             .catch(() => this.alert.error('Error cargando plantillas'))
             .finally(() => this.loadingTemplates = false);

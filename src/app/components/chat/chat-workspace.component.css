@@ -113,3 +113,33 @@
   transform: translateY(-4px);
   transition: all .15s ease;
 }
+
+.unread-badge {
+  background-color: #ff3b30; /* rojo estilo iMessage/WhatsApp */
+  color: #fff;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-weight: 600;
+  min-width: 22px;
+  text-align: center;
+  display: inline-block;
+}
+
+.highlight {
+  animation: highlightFlash 0.8s ease-in-out 2; /* 2 ciclos */
+  background-color: #e9f0ff !important; /* azul suave */
+  border-left: 4px solid #3e66ea;       /* borde elegante */
+}
+
+@keyframes highlightFlash {
+  0% {
+    background-color: #ffffff;
+  }
+  50% {
+    background-color: #dce7ff;
+  }
+  100% {
+    background-color: #ffffff;
+  }
+}

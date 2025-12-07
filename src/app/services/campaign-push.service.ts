@@ -26,4 +26,16 @@ export class CampaignPushService {
       values: payload,
     });
   }
+
+  //r.POST("/campaigns/whatsapp/send-template/template/:template_id/case/:case_id", ctrl.SendWhatsappTemplateMessage)
+  sendWhatsappTemplateMessage(templateId: number, caseId: number) {
+
+    const url = `${BASE}campaigns/whatsapp/send-template/template/${templateId}/case/${caseId}`;
+
+    return this.fetch.post<ApiResponse<{ message: string }>>({
+      API_Gateway: url,
+      values: {},
+    });
+  }
+
 }

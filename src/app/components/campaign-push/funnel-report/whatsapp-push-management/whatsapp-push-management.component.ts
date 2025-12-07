@@ -40,12 +40,14 @@ export class WhatsappPushManagementComponent implements OnInit {
   templates: CompanyChannelTemplateView[] = [];
   departments: Department[] = [];
   assignedDepartments: AgentDepartmentAssignment[] = [];
-  integrations: VWChannelIntegration[] = [];
+
 
   selectedCompany: number | null = null;
   selectedCampaign: number | null = null;
   selectedTemplate: number | null = null;
   selectedDepartment: number | null = null;
+
+    integrations: VWChannelIntegration[] = [];
   selectedIntegration: VWChannelIntegration | null = null;
 
   // Form fields

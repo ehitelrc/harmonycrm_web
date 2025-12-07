@@ -16,7 +16,7 @@ import { WhatsAppTemplateService } from '@app/services/whatsapp-template.service
   templateUrl: './template-form.component.html'
 })
 export class TemplateFormComponent implements OnInit {
-  @Input() channelIntegrationId: number | null = null; // viene del padre
+  @Input() department_id: number | null = null; // viene del padre
   @Input() template: WhatsAppTemplate | null = null;
   @Output() success = new EventEmitter<WhatsAppTemplate>();
   @Output() cancel = new EventEmitter<void>();
@@ -45,12 +45,12 @@ export class TemplateFormComponent implements OnInit {
     this.form = this.fb.group({
       template_name: ['', [Validators.required, Validators.maxLength(200)]],
       language: ['', [Validators.required]],
-      channel_integration: [null, Validators.required],
+      department_id: [null, Validators.required],
       template_url_webhook: ['', [Validators.maxLength(500)]], // nuevo campo
       active: [true]
     });
 
-    this.form.get('channel_integration')?.setValue(this.channelIntegrationId);
+    this.form.get('department_id')?.setValue(this.department_id);
   }
 
   private patch(): void {
@@ -59,11 +59,11 @@ export class TemplateFormComponent implements OnInit {
     this.form.patchValue({
       template_name: this.template.template_name,
       language: this.template.language,
-      channel_integration: this.template.channel_integration_id,
+      department_id: this.template.department_id,
       template_url_webhook: this.template.template_url_webhook || '',
       active: this.template.active
     });
-    this.form.get('channel_integration')?.setValue(this.channelIntegrationId);
+   
   }
 
   private async loadChannels() {
@@ -83,7 +83,7 @@ export class TemplateFormComponent implements OnInit {
     try {
       const payload = {
         ...this.form.value,
-        channelIntegrationId: this.channelIntegrationId // 🚀 viene del padre
+         
       };
 
       let resp;
