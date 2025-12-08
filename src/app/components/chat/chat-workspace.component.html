@@ -1678,9 +1678,15 @@
     (send)="onFileSend($event)">
 </app-send-file-modal>
 
+<div *ngIf="isAudioModalOpen"
+     class="fixed inset-0 z-[9999] bg-black/50 flex items-center justify-center"
+     (click)="isAudioModalOpen = false">
 
-<app-audio-recorder
-  *ngIf="isAudioModalOpen"
-  (send)="onAudioSend($event)"
-  (cancel)="isAudioModalOpen = false">
-</app-audio-recorder>
+  <div (click)="$event.stopPropagation()">
+      <app-audio-recorder
+        (send)="onAudioSend($event)"
+        (cancel)="isAudioModalOpen = false">
+      </app-audio-recorder>
+  </div>
+
+</div>

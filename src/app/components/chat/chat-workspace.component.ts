@@ -519,7 +519,14 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
           this.updateCaseUnreadCount(c.case_id, 0);
 
           // Marcar mensajes como leídos en backend
-          this.chatService.markMessagesAsRead(c.case_id);
+          this.chatService.markMessagesAsRead(c.case_id).then(() => {
+            console.log("Marcar como leídos");
+
+          }).catch(() => {
+
+            console.log("Error al marcar como leídos");
+
+          });
         }
       });
 
@@ -527,8 +534,14 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
       c.unread_count = 0;
       this.updateCaseUnreadCount(c.case_id, 0);
 
+      this.chatService.markMessagesAsRead(c.case_id).then(() => {
+        console.log("Marcar como leídos");
 
+      }).catch(() => {
 
+        console.log("Error al marcar como leídos");
+
+      });
 
       this.isLoadingMessages = false;
     }
@@ -2009,36 +2022,44 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
 
   }
 
-  onAudioSend(event: any) {
-    let base64 = "";
-    let mime = "";
-    let filename = "audio.webm";
+  async onAudioSend(event: any) {
 
-    if (event.blob) {
-      // Caso antiguo
-      mime = event.mime_type;
-      filename = `audio_${Date.now()}.webm`;
+    console.log("AUDIO RECIBIDO DEL MODAL", event);
+    this.isAudioModalOpen = false;
 
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        base64 = (reader.result as string).split(',')[1];
-        this.sendAudioMessage(base64, filename, mime);
-      };
-      reader.readAsDataURL(event.blob);
 
-    } else {
-      // Caso nuevo
-      base64 = event.base64;
-      mime = event.mime;
-      filename = event.filename;
+    try {
 
-      this.sendAudioMessage(base64, filename, mime);
+      let base64 = "";
+      let mime = "";
+      let filename = "audio.webm";
+
+      if (event.blob) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          base64 = (reader.result as string).split(',')[1];
+          this.sendAudioMessage(base64, filename, mime);
+        };
+        reader.readAsDataURL(event.blob);
+      } else {
+        base64 = event.base64;
+        mime = event.mime;
+        filename = event.filename;
+        await this.sendAudioMessage(base64, filename, mime);
+      }
+
+      // 🔥 La clave para que Angular SÍ cierre el modal
+      setTimeout(() => {
+        this.isAudioModalOpen = false;
+      });
+    } catch (err) {
+      console.error("❌ Error al enviar audio", err);
+      this.alert.error("Error al enviar audio");
     }
-
     this.isAudioModalOpen = false;
   }
 
-  sendAudioMessage(base64: string, filename: string, mime: string) {
+  async sendAudioMessage(base64: string, filename: string, mime: string) {
 
     const msg = buildAgentAudioMessage(
       this.selectedCase!.case_id, // <-- garantía para TS de que NO es undefined
@@ -2047,12 +2068,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
       mime
     );
 
-    this.chatService.sendMessage(msg).then(() => {
-      this.alert.success('Mensaje de audio enviado');
-    }).catch((err) => {
-      console.error('Error al enviar mensaje de audio:', err);
-      this.alert.error('Error al enviar mensaje de audio');
-    });
-  }
+    await this.chatService.sendMessage(msg)
 
+  }
 }
