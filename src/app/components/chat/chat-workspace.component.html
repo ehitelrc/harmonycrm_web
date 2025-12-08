@@ -1685,7 +1685,7 @@
   <div (click)="$event.stopPropagation()">
       <app-audio-recorder
         (send)="onAudioSend($event)"
-        (cancel)="isAudioModalOpen = false">
+        (cancel)="closeAudioModal()">
       </app-audio-recorder>
   </div>
 

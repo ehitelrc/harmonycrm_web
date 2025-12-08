@@ -2071,4 +2071,10 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
     await this.chatService.sendMessage(msg)
 
   }
+
+  closeAudioModal() {
+    setTimeout(() => {
+      this.isAudioModalOpen = false;
+    }, 0);
+  }
 }
