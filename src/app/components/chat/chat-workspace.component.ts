@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit, OnDestroy, HostListener, Input, Output, EventEmitter } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { buildAgentTextMessage, buildAgentImageMessage, AgentMessage, buildAgentFileMessage } from '@app/models/agent-message.model';
+import { buildAgentTextMessage, buildAgentImageMessage, AgentMessage, buildAgentFileMessage, buildAgentAudioMessage } from '@app/models/agent-message.model';
 import { CaseWithChannel } from '@app/models/case-with-channel.model';
 import { Client } from '@app/models/client.model';
 import { Message } from '@app/models/message.model';
@@ -39,6 +39,8 @@ import { CompanyService } from '@app/services/company.service';
 import { AgentDepartmentInformation } from '@app/models/agent-department-information.model';
 import { VWChannelIntegration } from '@app/models/vw-channel-integration.model';
 import { SendFileModalComponent } from './send-file-modal/send-file-modal.component';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
+import { AudioRecorderComponent } from './send-audio-modal/audio-recorder.component';
 
 type MessageUI = Message & {
   _justArrived?: boolean;
@@ -52,7 +54,9 @@ type MessageUI = Message & {
     ClientFormComponent,
     MoveStageModalComponent,
     SendImageModalComponent,
-    SendFileModalComponent
+    SendFileModalComponent,
+    AudioRecorderComponent
+
   ],
   templateUrl: './chat-workspace.component.html',
   styleUrls: ['./chat-workspace.component.css']
@@ -60,6 +64,10 @@ type MessageUI = Message & {
 export class ChatWorkspaceComponent implements OnInit, OnDestroy {
   @Input() preSelectedCase: CaseWithChannel | null = null;
   @Output() close = new EventEmitter<void>();
+
+  currentAttachmentType: 'image' | 'audio' | 'pdf' | 'file' | null = null;
+  currentAttachmentSrc: string | null = null;
+  currentAttachmentName: string | null = null;
 
   currentCaseFunnel: VwCaseCurrentStage | null = null;
 
@@ -229,9 +237,12 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
   selectedIntegration: VWChannelIntegration | null = null;
 
 
-
-
   isFileModalOpen = false;
+  startInAudioMode = false;
+
+
+  isAudioModalOpen = false;
+
 
   constructor(
     private lang: LanguageService,
@@ -247,6 +258,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
     private channelService: ChannelService,
     private pushService: CampaignPushService,
     private companyService: CompanyService,
+    private sanitizer: DomSanitizer,
 
 
   ) { }
@@ -607,27 +619,100 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
     return this.attachmentList.filter(m => m.message_type === 'image');
   }
 
+  // openAttachment(m: Message) {
+  //   this.viewingAttachment = m;
+  //   this.isAttachmentModalOpen = true;
+
+  //   // reset estado del visor
+  //   this.imageLoaded = false;
+  //   this.zoomLevel = 1;
+  //   this.fitToScreen = true;
+
+  //   // si es imagen, establecer índice para navegación
+  //   if (m.message_type === 'image') {
+  //     const imgs = this.imageAttachments;
+  //     const idx = imgs.findIndex(x =>
+  //       (x.id && m.id && x.id === m.id) ||
+  //       (!!x.channel_message_id && !!m.channel_message_id && x.channel_message_id === m.channel_message_id) ||
+  //       (x.created_at === m.created_at && x.message_type === m.message_type)
+  //     );
+  //     this.viewingIndex = idx;
+  //   } else {
+  //     this.viewingIndex = -1;
+  //   }
+  // }
+
   openAttachment(m: Message) {
     this.viewingAttachment = m;
     this.isAttachmentModalOpen = true;
 
-    // reset estado del visor
+    // reset del visor
     this.imageLoaded = false;
     this.zoomLevel = 1;
     this.fitToScreen = true;
 
-    // si es imagen, establecer índice para navegación
-    if (m.message_type === 'image') {
+    const mime = (m.mime_type || '').toLowerCase();
+    const src = m.file_url || m.base64_content || null;
+
+    if (!src) {
+      console.warn("No se puede abrir el adjunto: sin contenido");
+      return;
+    }
+
+    // =========================================
+    //  🖼 IMÁGENES
+    // =========================================
+    if (mime.startsWith("image/")) {
       const imgs = this.imageAttachments;
+
       const idx = imgs.findIndex(x =>
         (x.id && m.id && x.id === m.id) ||
         (!!x.channel_message_id && !!m.channel_message_id && x.channel_message_id === m.channel_message_id) ||
         (x.created_at === m.created_at && x.message_type === m.message_type)
       );
+
       this.viewingIndex = idx;
-    } else {
-      this.viewingIndex = -1;
+      this.currentAttachmentType = "image";
+      this.currentAttachmentSrc = src;
+      return;
     }
+
+    // =========================================
+    // 🔊 AUDIO
+    // =========================================
+    if (mime.startsWith("audio/")) {
+      this.currentAttachmentType = "audio";
+      this.currentAttachmentSrc = src;
+      this.viewingIndex = -1;
+      return;
+    }
+
+    // =========================================
+    // 📕 PDF
+    // =========================================
+    if (mime.includes("pdf")) {
+      this.currentAttachmentType = "pdf";
+
+      // si es base64, lo usamos directo
+      if (src.startsWith("data:")) {
+        this.currentAttachmentSrc = src;
+      } else {
+        // si es URL directa, usamos visor
+        this.currentAttachmentSrc =
+          `https://docs.google.com/viewer?url=${encodeURIComponent(src)}&embedded=true`;
+      }
+
+      this.viewingIndex = -1;
+      return;
+    }
+
+    // =========================================
+    // 📘 DOC, DOCX — 📗 XLS, XLSX — 🗜 ZIP — TXT…
+    // =========================================
+    this.currentAttachmentType = "file";
+    this.currentAttachmentSrc = src;
+    this.currentAttachmentName = m.text_content || "archivo";
+    this.viewingIndex = -1;
   }
 
   closeAttachmentModal() {
@@ -1833,14 +1918,10 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
     this.isFileModalOpen = true;
   }
 
-  startAudioRecording() {
-    console.log("Iniciar grabación de audio");
-    // Más adelante agregamos la lógica real de audio
-  }
-
 
   closeFileModal() {
     this.isFileModalOpen = false;
+    this.startInAudioMode = false; // limpiar para la próxima
   }
 
 
@@ -1850,7 +1931,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
     const clientTmpId = `tmp-file-${Date.now()}`;
 
     // Detectar MIME desde base64
-    
+
     if (event.base64.startsWith("data:")) {
       const parts = event.base64.split(";")[0];
     }
@@ -1896,5 +1977,82 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
     }
   }
 
+
+  getFileIcon(mime: string | null | undefined): string {
+    if (!mime) return '📄';
+
+    if (mime.includes('pdf')) return '📕 PDF';
+    if (mime.includes('word')) return '📝 DOC';
+    if (mime.includes('excel') || mime.includes('spreadsheet')) return '📊 XLSX';
+    if (mime.includes('presentation')) return '📽 PPT';
+
+    return '📄';
+  }
+
+  safeAttachmentSrc(m?: Message | null): SafeResourceUrl {
+    if (!m?.base64_content || !m?.mime_type) {
+      return '';
+    }
+
+    return this.sanitizer.bypassSecurityTrustResourceUrl(
+      `data:${m.mime_type};base64,${m.base64_content}`
+    );
+  }
+
+  isPdf(m?: Message | null): boolean {
+    if (!m?.mime_type) return false;
+    return m.mime_type.toLowerCase().startsWith('application/pdf');
+  }
+
+  startAudioRecording() {
+    this.isAudioModalOpen = true;
+
+  }
+
+  onAudioSend(event: any) {
+    let base64 = "";
+    let mime = "";
+    let filename = "audio.webm";
+
+    if (event.blob) {
+      // Caso antiguo
+      mime = event.mime_type;
+      filename = `audio_${Date.now()}.webm`;
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        base64 = (reader.result as string).split(',')[1];
+        this.sendAudioMessage(base64, filename, mime);
+      };
+      reader.readAsDataURL(event.blob);
+
+    } else {
+      // Caso nuevo
+      base64 = event.base64;
+      mime = event.mime;
+      filename = event.filename;
+
+      this.sendAudioMessage(base64, filename, mime);
+    }
+
+    this.isAudioModalOpen = false;
+  }
+
+  sendAudioMessage(base64: string, filename: string, mime: string) {
+
+    const msg = buildAgentAudioMessage(
+      this.selectedCase!.case_id, // <-- garantía para TS de que NO es undefined
+      filename,
+      base64,
+      mime
+    );
+
+    this.chatService.sendMessage(msg).then(() => {
+      this.alert.success('Mensaje de audio enviado');
+    }).catch((err) => {
+      console.error('Error al enviar mensaje de audio:', err);
+      this.alert.error('Error al enviar mensaje de audio');
+    });
+  }
 
 }

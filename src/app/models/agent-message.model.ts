@@ -50,3 +50,21 @@ export function buildAgentFileMessage(
     file_name: fileName ?? ''
   };
 }
+
+
+export function buildAgentAudioMessage(
+  caseId: number,
+  filename: string,
+  base64Content: string,
+  mime: string
+): AgentMessage {
+  return {
+    case_id: caseId,
+    sender_type: 'agent',
+    message_type: 'audio',
+    text_message: filename ?? '',
+    base64_content: base64Content ?? '',
+    mime_type: mime ?? '',
+    file_name: filename ?? '',
+  };
+}

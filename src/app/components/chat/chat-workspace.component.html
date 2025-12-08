@@ -254,7 +254,8 @@
                                             class="inline-flex items-center rounded-full bg-gray-200 dark:bg-gray-700 px-2 py-0.5 text-xs">
                                             Archivo
                                         </span>
-                                        <a [href]="m.file_url" target="_blank"
+                                        <a [href]="safeAttachmentSrc(m)" [download]="m.text_content || 'archivo'"
+                                            target="_blank" rel="noopener"
                                             class="text-blue-600 dark:text-blue-300 underline">
                                             Descargar
                                         </a>
@@ -440,35 +441,33 @@
                 <button *ngFor="let a of attachmentList" (click)="openAttachment(a)"
                     class="w-full text-left px-4 py-3 border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50/60 dark:hover:bg-gray-800/60 flex items-center gap-3">
 
-                    <!-- Thumbnail para imágenes (usa base64 si viene) -->
-                    <ng-container *ngIf="a.message_type === 'image'; else otherFile">
+                    <!-- Thumbnail para imágenes -->
+                    <ng-container *ngIf="a.mime_type?.startsWith('image/'); else fileIconBlock">
                         <img [src]="attachmentImageSrc(a)" alt="miniatura"
                             class="w-[52px] h-[52px] rounded-md object-cover border border-gray-300 dark:border-gray-600 shadow-sm" />
                     </ng-container>
 
-                    <!-- Otros tipos de adjunto -->
-                    <ng-template #otherFile>
-                        <div
-                            class="w-[52px] h-[52px] flex items-center justify-center rounded-md bg-gray-200 dark:bg-gray-700 text-xs text-gray-600 dark:text-gray-300">
-                            {{ a.message_type | uppercase }}
+                    <!-- Otros archivos -->
+                    <ng-template #fileIconBlock>
+                        <div class="w-[52px] h-[52px] flex items-center justify-center rounded-md
+                    bg-gray-200 dark:bg-gray-700 text-xl">
+                            {{ getFileIcon(a.mime_type) }}
                         </div>
                     </ng-template>
 
                     <!-- Información del adjunto -->
                     <div class="flex-1 min-w-0">
-                        <div class="text-sm text-[#00113f] dark:text-white truncate">
-                            {{ getMessageType(a.message_type) }}
+                        <!-- Nombre del archivo -->
+                        <div class="text-sm text-[#00113f] dark:text-white font-medium truncate">
+                            {{ a.text_content || 'Archivo' }}
                         </div>
-                        <!-- Muestra caption si existe -->
-                        <div class="text-xs text-gray-700 dark:text-gray-300 truncate"
-                            *ngIf="(a.text_content || '').trim().length > 0">
-                            {{ a.text_content }}
+
+                        <!-- Tipo de archivo -->
+                        <div class="text-xs text-gray-500 dark:text-gray-400 truncate">
+                            {{ a.mime_type || a.message_type | uppercase }}
                         </div>
-                        <!-- Si no hay caption, muestra URL o mime -->
-                        <div class="text-xs text-gray-500 dark:text-gray-400 truncate"
-                            *ngIf="!(a.text_content || '').trim().length">
-                            {{ a.file_url || a.mime_type || '—' }}
-                        </div>
+
+                        <!-- Fecha -->
                         <div class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">
                             {{ a.created_at | date:'short' }}
                         </div>
@@ -582,6 +581,32 @@
                         <div class="w-full mt-6 bg-[#E9F0FA] p-5 rounded-xl shadow-inner">
                             <audio [src]="attachmentAudioSrc(viewingAttachment)" controls
                                 class="w-full min-w-[260px] max-w-full h-12 rounded-lg bg-white shadow"></audio>
+                        </div>
+                    </ng-container>
+
+                    <!-- 📕 PDF (es un file, pero con mime de PDF) -->
+                    <ng-container *ngIf="viewingAttachment?.message_type === 'file' && isPdf(viewingAttachment)">
+                        <iframe [src]="safeAttachmentSrc(viewingAttachment)"
+                            class="w-full h-[85vh] rounded shadow bg-white" frameborder="0">
+                        </iframe>
+                    </ng-container>
+
+                    <!-- 📄 ARCHIVOS GENERALES (no PDF) -->
+                    <ng-container *ngIf="viewingAttachment?.message_type === 'file' && !isPdf(viewingAttachment)">
+                        <div class="flex flex-col items-center justify-center w-full py-10 text-center">
+                            <div class="text-6xl mb-4">📄</div>
+
+                            <p class="text-sm text-gray-700 dark:text-gray-300 mb-4">
+                                {{ viewingAttachment?.text_content || 'Archivo adjunto'
+                                }}
+                            </p>
+
+                            <a [href]="safeAttachmentSrc(viewingAttachment)"
+                                download="{{ viewingAttachment?.text_content || 'archivo' }}" target="_blank"
+                                rel="noopener"
+                                class="px-4 py-2 bg-blue-600 text-white rounded shadow hover:bg-blue-700">
+                                Descargar / Abrir archivo
+                            </a>
                         </div>
                     </ng-container>
 
@@ -1647,8 +1672,15 @@
     </div>
 </div>
 
-<app-send-file-modal
-  *ngIf="isFileModalOpen"
-  (close)="closeFileModal()"
-  (send)="onFileSend($event)">
+<app-send-file-modal *ngIf="isFileModalOpen"
+    [startInAudioMode]="startInAudioMode"
+    (close)="closeFileModal()"
+    (send)="onFileSend($event)">
 </app-send-file-modal>
+
+
+<app-audio-recorder
+  *ngIf="isAudioModalOpen"
+  (send)="onAudioSend($event)"
+  (cancel)="isAudioModalOpen = false">
+</app-audio-recorder>

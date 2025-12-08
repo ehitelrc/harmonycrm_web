@@ -1,0 +1,29 @@
+<div class="fixed inset-0 bg-black/50 flex items-center justify-center" (click)="cancel.emit()">
+
+  <div class="bg-white dark:bg-gray-800 rounded-xl p-6 w-full max-w-md shadow-xl"
+       (click)="$event.stopPropagation()">
+
+    <h2 class="text-lg font-semibold text-[#00113f] dark:text-white mb-4">
+      Grabar audio
+    </h2>
+
+    <button *ngIf="!isRecording"
+            (click)="startRecording()"
+            class="w-full py-3 bg-blue-600 text-white rounded-lg shadow">
+      🎤 Iniciar grabación
+    </button>
+
+    <button *ngIf="isRecording"
+            (click)="stopRecording()"
+            class="w-full py-3 bg-red-600 text-white rounded-lg shadow animate-pulse">
+      ⏺ Grabando… toca para detener
+    </button>
+
+    <button (click)="cancel.emit()"
+            class="mt-4 text-sm text-gray-500 hover:underline w-full text-center">
+      Cancelar
+    </button>
+
+  </div>
+
+</div>
