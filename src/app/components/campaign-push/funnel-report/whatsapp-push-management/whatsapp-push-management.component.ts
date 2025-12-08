@@ -19,6 +19,7 @@ import { DepartmentService } from '@app/services/department.service';
 import { AgentDepartmentAssignment } from '@app/models/agent_department_assignment_view';
 import { AgentUserService } from '@app/services/agent-user.service';
 import { VWChannelIntegration } from '@app/models/vw-channel-integration.model';
+import { ChannelWhatsAppTemplate } from '@app/models/channel-whatsapp-template.model';
 
 @Component({
   selector: 'app-whatsapp-push-management',
@@ -37,7 +38,7 @@ export class WhatsappPushManagementComponent implements OnInit {
   // Listas y selección
   companies: CompanyUser[] = [];
   campaigns: CampaignWithFunnel[] = [];
-  templates: CompanyChannelTemplateView[] = [];
+  templates: ChannelWhatsAppTemplate[] = [];
   departments: Department[] = [];
   assignedDepartments: AgentDepartmentAssignment[] = [];
 
@@ -47,7 +48,7 @@ export class WhatsappPushManagementComponent implements OnInit {
   selectedTemplate: number | null = null;
   selectedDepartment: number | null = null;
 
-    integrations: VWChannelIntegration[] = [];
+  integrations: VWChannelIntegration[] = [];
   selectedIntegration: VWChannelIntegration | null = null;
 
   // Form fields
@@ -102,7 +103,12 @@ export class WhatsappPushManagementComponent implements OnInit {
 
   loadIntegrationsForDepartment(departmentId: number) {
     this.channelService.getWhatsappIntegrationsByDepartment(departmentId)
-      .then(resp => this.integrations = resp?.data || [])
+      .then(resp => {
+        this.integrations = resp?.data || [];
+
+        console.log(this.integrations);
+        
+      })
       .catch(err => console.error('Error loading WhatsApp integrations:', err));
   }
 
@@ -117,12 +123,13 @@ export class WhatsappPushManagementComponent implements OnInit {
 
     this.loadDepartments();
     this.loadCampaignsForCompany(this.selectedCompany);
-    this.loadTemplatesForCompany(this.selectedCompany);
+
   }
 
   onDepartmentSelected() {
     if (this.selectedDepartment) {
       this.loadIntegrationsForDepartment(this.selectedDepartment);
+      this.loadTemplatesForDepartment(this.selectedDepartment);
     }
   }
 
@@ -134,11 +141,12 @@ export class WhatsappPushManagementComponent implements OnInit {
       .finally(() => this.campaignLoading = false);
   }
 
-  loadTemplatesForCompany(companyId: number) {
+
+  loadTemplatesForDepartment(departmentId: number) {
     this.templateLoading = true;
-    this.channelService.getWhatsappTemplatesByCompany(companyId)
+    this.channelService.getWhatsappTemplatesByDepartmentId(departmentId)
       .then(resp => {
-        this.templates = (resp?.data || []).filter(t => t.template_id);
+        this.templates = (resp?.data || []).filter(t => t.id);
       })
       .catch(err => console.error('Error loading templates:', err))
       .finally(() => this.templateLoading = false);
@@ -226,12 +234,13 @@ export class WhatsappPushManagementComponent implements OnInit {
 
   // === Envío ===
   canSend(): boolean {
-    return !!this.selectedCompany &&
-           !!this.selectedCampaign &&
-           !!this.selectedTemplate &&
-           !!this.description.trim() &&
-           this.leads.length > 0 &&
-           !this.submitting;
+
+    return !!this.selectedCompany;
+    // return !!this.selectedCompany &&
+    //        !!this.selectedTemplate &&
+    //        !!this.description.trim() &&
+    //        this.leads.length > 0 &&
+    //        !this.submitting;
   }
 
   async sendPush() {
@@ -239,16 +248,24 @@ export class WhatsappPushManagementComponent implements OnInit {
 
     this.submitting = true;
 
+    console.log(this.selectedIntegration);
+    
+
     const payload: CampaignWhatsappPushRequest = {
       campaign_id: this.selectedCampaign!,
       description: this.description.trim(),
       template_id: this.selectedTemplate!,
+      department_id: this.selectedDepartment!,
+      channel_integration_id: this.selectedIntegration!.channel_integration_id,
       changed_by: this.loggedUser?.user_id || 0,
       leads: this.leads.map(l => ({
         phone_number: l.phone_number,
         full_name: l.full_name?.trim() || undefined,
       })),
     };
+
+    console.log(payload);
+
 
     try {
       const resp = await this.pushService.createWhatsappPush(payload);

@@ -11,5 +11,7 @@ export interface CampaignWhatsappPushRequest {
   description: string;
   template_id: number;
   changed_by: number;
+  department_id: number;
+  channel_integration_id: number;
   leads: CampaignWhatsappPushLeadInput[];
 }

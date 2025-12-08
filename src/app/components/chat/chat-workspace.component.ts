@@ -1553,6 +1553,8 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
       campaign_id: this.selectedCase?.campaign_id || 0,
       description: "Push desde caso #" + this.selectedCase?.case_id,
       template_id: this.selectedTemplate!,
+      department_id: this.selectedDepartment?.id || 0,
+      channel_integration_id: this.selectedIntegration?.channel_integration_id|| 0,
       changed_by: this.agent_id || 0, // ajusta al campo que uses como user_id
       leads: leads,
     };

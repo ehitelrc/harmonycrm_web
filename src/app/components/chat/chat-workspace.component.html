@@ -356,11 +356,11 @@
 
                 <!-- MENÚ DE TEMPLATES POSICIONADO ARRIBA Y A LA DERECHA -->
                 <div *ngIf="showTemplateMenu"
-                    class="absolute bottom-full right-0 mb-2 w-64 bg-white shadow-lg rounded border p-2 z-70">
-                    <div class="font-semibold text-sm mb-2">Templates disponibles</div>
+                    class="absolute bottom-full right-0 mb-2 w-96 bg-white shadow-lg rounded border p-2 z-70">
+                    <div class="font-semibold text-sm mb-2 text-black" >Templates disponibles</div>
 
-                    <div *ngFor="let t of templates" (click)="sendSelectedTemplate(t)"
-                        class="p-2 hover:bg-gray-100 rounded cursor-pointer text-sm text-black">
+                    <div *ngFor="let t of templates" (click)="sendSelectedTemplate(t)" class="p-2 hover:bg-gray-100 rounded cursor-pointer text-sm text-black 
+           break-words whitespace-normal">
                         {{ t.template_name }}
                     </div>
 
@@ -1672,21 +1672,16 @@
     </div>
 </div>
 
-<app-send-file-modal *ngIf="isFileModalOpen"
-    [startInAudioMode]="startInAudioMode"
-    (close)="closeFileModal()"
+<app-send-file-modal *ngIf="isFileModalOpen" [startInAudioMode]="startInAudioMode" (close)="closeFileModal()"
     (send)="onFileSend($event)">
 </app-send-file-modal>
 
-<div *ngIf="isAudioModalOpen"
-     class="fixed inset-0 z-[9999] bg-black/50 flex items-center justify-center"
-     (click)="isAudioModalOpen = false">
+<div *ngIf="isAudioModalOpen" class="fixed inset-0 z-[9999] bg-black/50 flex items-center justify-center"
+    (click)="isAudioModalOpen = false">
 
-  <div (click)="$event.stopPropagation()">
-      <app-audio-recorder
-        (send)="onAudioSend($event)"
-        (cancel)="closeAudioModal()">
-      </app-audio-recorder>
-  </div>
+    <div (click)="$event.stopPropagation()">
+        <app-audio-recorder (send)="onAudioSend($event)" (cancel)="closeAudioModal()">
+        </app-audio-recorder>
+    </div>
 
 </div>
