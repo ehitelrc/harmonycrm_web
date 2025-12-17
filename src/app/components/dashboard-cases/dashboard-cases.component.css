@@ -236,7 +236,7 @@
 }
 
 .virtual-list {
-  height: 400px;
-  width: 100%;
+  height: 380px;        /* o el alto que quieras */
   overflow: auto;
+  display: block;
 }

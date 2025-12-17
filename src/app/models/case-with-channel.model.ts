@@ -58,4 +58,6 @@ export interface CaseWithChannel {
   agent_full_name?: string | null; // Nombre completo del agente asignado
 
   _highlight?: boolean; // n
+
+    _searchText?: string;
 }

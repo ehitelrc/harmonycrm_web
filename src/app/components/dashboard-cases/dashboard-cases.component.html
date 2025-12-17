@@ -64,60 +64,30 @@
 
 
     <!-- 📊 Dashboard Stats -->
-    <!-- <div class="mt-10 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in-up">
+    <!-- <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mt-6" *ngIf="stats">
 
-      <div
-        class="relative bg-gradient-to-br from-blue-600 to-blue-400 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl shadow-md p-6 hover:scale-105 transition-transform duration-300">
-        <div class="dashboard-card text-center">
-          <h4 class="text-sm font-medium text-gray-500">Casos Abiertos</h4>
-          <p class="text-3xl font-bold text-blue-600">{{ dashboard?.open_cases ?? 0 }}</p>
-        </div>
+      <div class="stat-card text-center">
+        <div class="text-xs">Total</div>
+        <div class="text-2xl font-bold">{{ stats.summary.total_cases }}</div>
       </div>
 
-      <div
-        class="relative bg-gradient-to-br from-blue-600 to-blue-400 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl shadow-md p-6 hover:scale-105 transition-transform duration-300">
-        <div class="dashboard-card text-center">
-          <h4 class="text-sm font-medium text-gray-500">Abiertos Hoy</h4>
-          <p class="text-3xl font-bold text-indigo-500">{{ dashboard?.opened_today ?? 0 }}</p>
-        </div>
+      <div class="stat-card text-center">
+        <div class="text-xs">Abiertos</div>
+        <div class="text-2xl font-bold">{{ stats.summary.open_cases }}</div>
       </div>
 
-      <div
-        class="relative bg-gradient-to-br from-blue-600 to-blue-400 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl shadow-md p-6 hover:scale-105 transition-transform duration-300">
-        <div class="dashboard-card text-center">
-          <h4 class="text-sm font-medium text-gray-500">Cerrados Hoy</h4>
-          <p class="text-3xl font-bold text-emerald-500">{{ dashboard?.closed_today ?? 0 }}</p>
-        </div>
+      <div class="stat-card text-center">
+        <div class="text-xs">Sin agente</div>
+        <div class="text-2xl font-bold">{{ stats.summary.unassigned_cases }}</div>
       </div>
 
-
-      <div
-        class="relative bg-gradient-to-br from-blue-600 to-blue-400 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl shadow-md p-6 hover:scale-105 transition-transform duration-300">
-        <div class="dashboard-card text-center">
-          <h4 class="text-sm font-medium text-gray-500">Casos Cerrados</h4>
-          <p class="text-3xl font-bold text-green-600">{{ dashboard?.closed_cases ?? 0 }}</p>
-        </div>
+      <div class="stat-card text-center">
+        <div class="text-xs">No leídos</div>
+        <div class="text-2xl font-bold">{{ stats.summary.unread_cases }}</div>
       </div>
 
+    </div> -->
 
-
-      <div
-        class="relative bg-gradient-to-br from-red-600 to-red-400 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl shadow-md p-6 hover:scale-105 transition-transform duration-300">
-        <div class="dashboard-card text-center">
-          <h4 class="text-sm font-medium text-gray-500">Sin Agente Asignado</h4>
-          <p class="text-3xl font-bold text-orange-500">{{ dashboard?.unassigned_agents ?? 0 }}</p>
-        </div>
-      </div>
-
-      <div
-        class="relative bg-gradient-to-br from-red-600 to-red-400 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl shadow-md p-6 hover:scale-105 transition-transform duration-300">
-        <div class="dashboard-card text-center">
-          <h4 class="text-sm font-medium text-gray-500">Sin Cliente Asignado</h4>
-          <p class="text-3xl font-bold text-red-500">{{ dashboard?.unassigned_clients ?? 0 }}</p>
-        </div>
-      </div>
-    </div>
- -->
 
     <!-- 🟦 Contenedor en dos columnas estilo Monday -->
     <div class="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -152,10 +122,13 @@
           </div>
 
           <!-- Lista virtualizada -->
-          <cdk-virtual-scroll-viewport *ngIf="!loading && filteredUnassignedCasesCache.length > 0" itemSize="120"
+          <cdk-virtual-scroll-viewport *ngIf="filteredUnassignedCasesCache.length > 0" [itemSize]="120"
             class="virtual-list">
 
-            <div class="case-row" *cdkVirtualFor="let c of filteredUnassignedCasesCache">
+            <!-- <div class="case-row" *cdkVirtualFor="let c of filteredUnassignedCasesCache; trackBy: trackByCaseId"> -->
+
+            <div class="case-row" *cdkVirtualFor="let c of filteredUnassignedCasesCache; trackBy: trackByCaseId">
+
 
               <div class="flex flex-col">
 
@@ -243,10 +216,10 @@
           </div>
 
           <!-- Lista virtualizada -->
-          <cdk-virtual-scroll-viewport *ngIf="!loading && filteredAssignedCasesCache.length > 0" itemSize="120"
+          <cdk-virtual-scroll-viewport *ngIf="filteredAssignedCasesCache.length > 0" [itemSize]="120"
             class="virtual-list">
 
-            <div class="case-row" *cdkVirtualFor="let oc of filteredAssignedCasesCache">
+            <div class="case-row" *cdkVirtualFor="let oc of filteredAssignedCasesCache; trackBy: trackByCaseId">
 
               <div class="flex flex-col">
 

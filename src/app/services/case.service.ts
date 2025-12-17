@@ -24,8 +24,8 @@ export const TEMPLATE_URL = returnCompleteURI({
   API_Gateway: '/campaigns',
 });
 
- 
- 
+
+
 
 export interface AssignCaseToCampaignPayload {
   case_id: number;
@@ -277,6 +277,21 @@ export class CaseService {
     return this.fetch.post<ApiResponse<CaseWithChannel>>({
       API_Gateway: `${TEMPLATE_URL}/whatsapp/new-case/template`,
       values: payload,
+    });
+  }
+
+  getOpenCasesMV(
+    companyId: number,
+    departmentId: number,
+    page: number,
+    limit: number
+  ) {
+    return this.fetch.get<ApiResponse<CaseWithChannel[]>>({
+      API_Gateway: `${CASE_URL}/v2/entry/open_cases_mv/company/${companyId}/department/${departmentId}`,
+      values: {
+        page,
+        limit
+      }
     });
   }
 

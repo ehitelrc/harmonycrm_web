@@ -1,4 +1,4 @@
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MainLayoutComponent } from '../layout/main-layout.component';
@@ -23,15 +23,19 @@ import { interval } from 'rxjs';
 import { ChatWorkspaceComponent } from '../chat/chat-workspace.component';
 import { OrderByDatePipe } from '../pipes/order-by-date.pipe';
 import { FilterHasAgentPipe } from '../pipes/filter-has-agent.pipe';
-import { ScrollingModule } from '@angular/cdk/scrolling';
+import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
 
 import { HostListener, ElementRef } from '@angular/core';
+import { CaseStatsService } from '@app/services/case-stats.service';
+import { CaseStatsResponse } from '@app/models/case-stats.model';
+import { NgZone } from '@angular/core';
 
 
 
 @Component({
   selector: 'app-dashboard-cases',
   standalone: true,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   imports: [
     CommonModule,
     FormsModule,
@@ -39,17 +43,32 @@ import { HostListener, ElementRef } from '@angular/core';
     ChatWorkspaceComponent,
     MainLayoutComponent,
     ScrollingModule
-],
+  ],
   templateUrl: './dashboard-cases.component.html',
   styleUrls: ['./dashboard-cases.component.css']
 })
-export class DashboardCasesComponent implements OnInit, OnDestroy {
+export class DashboardCasesComponent implements OnInit, OnDestroy, AfterViewInit {
+  @ViewChild('unassignedViewport')
+  unassignedViewport?: CdkVirtualScrollViewport;
 
+  @ViewChild('assignedViewport')
+  assignedViewport?: CdkVirtualScrollViewport;
+
+  currentPage = 1;
+  pageSize = 25;
+
+  isLoadingPage = false;
+  hasMorePages = true;
+
+  private resizeObserver?: ResizeObserver;
+
+  stats: CaseStatsResponse | null = null;
   filteredUnassignedCasesCache: CaseWithChannel[] = [];
   filteredAssignedCasesCache: CaseWithChannel[] = [];
+  private filterTimeout: any;
 
-  itemSize="120"
-  
+  itemSize = "120"
+
   readonly AUTO_REFRESH_LIMIT = 300;
 
   user: User | null = null;
@@ -139,37 +158,28 @@ export class DashboardCasesComponent implements OnInit, OnDestroy {
     private languageService: LanguageService,
     private clienteService: ClientService,
     private alertService: AlertService,
-    private caseDashboardService: CaseDashboardService
+    private caseDashboardService: CaseDashboardService,
+    private caseStatsService: CaseStatsService,
+    private cdr: ChangeDetectorRef,
+    private zone: NgZone,
   ) { }
 
   async ngOnInit(): Promise<void> {
     this.user = this.authService.getCurrentUser();
     if (!this.user) return;
     await this.loadCompanies();
-
-    // ⏳ Cuenta regresiva cada segundo
-    // this.countdownIntervalId = setInterval(() => {
-    //   this.refreshCountdown--;
-    //   if (this.refreshCountdown <= 0) this.refreshCountdown = 0;
-    // }, 1000);
-
-    // 🔄 Refrescar cada 60 segundos
-    // this.refreshIntervalId = setInterval(() => {
-    //   // 🧠 Solo refresca automáticamente si el volumen es razonable
-    //   if (this.totalCasesGlobal <= this.AUTO_REFRESH_LIMIT) {
-    //     this.refreshDashboard();
-    //   } else {
-    //     console.warn(
-    //       `⏸️ Auto-refresh pausado (${this.totalCasesGlobal} casos)`
-    //     );
-    //   }
-    // }, 60000);
-
   }
+
+  ngAfterViewInit(): void {
+    this.observeViewportResize();
+  }
+
+
 
   ngOnDestroy(): void {
     if (this.refreshIntervalId) clearInterval(this.refreshIntervalId);
     if (this.countdownIntervalId) clearInterval(this.countdownIntervalId);
+    this.resizeObserver?.disconnect();
   }
 
 
@@ -217,6 +227,7 @@ export class DashboardCasesComponent implements OnInit, OnDestroy {
   async loadCasesByCompanyAndDepartment(): Promise<void> {
     if (!this.selectedCompanyId) return;
     this.loading = true;
+    this.cdr.markForCheck();
 
     try {
       const response: ApiResponse<CaseWithChannel[]> =
@@ -225,6 +236,13 @@ export class DashboardCasesComponent implements OnInit, OnDestroy {
           this.selectedShowDepartmentId!
         );
 
+
+      // const response = await this.caseService.getOpenCasesMV(
+      //   this.selectedCompanyId,
+      //   this.selectedShowDepartmentId!,
+      //   this.currentPage,
+      //   this.pageSize
+      // );
       if (response.success && response.data) {
 
         // Normalizar showMenu
@@ -236,21 +254,53 @@ export class DashboardCasesComponent implements OnInit, OnDestroy {
         // Separar casos
         // this.assignedCases = allCases.filter(c => c.agent_assigned === true);
         // this.unassignedCases = allCases.filter(c => c.agent_assigned === false);
+        this.unassignedCases = allCases
+          .filter(c => !c.agent_assigned)
+          .map(c => ({
+            ...c,
+            _searchText: [
+              c.client_name,
+              c.sender_id,
+              c.integration_name,
+              c.last_message_text,
+              c.case_id
+            ]
+              .filter(Boolean)
+              .join(' ')
+              .toLowerCase()
+          }));
 
         this.assignedCases = allCases
           .filter(c => c.agent_assigned)
-          .sort((a, b) =>
-            this.toTimestamp(a.created_at) - this.toTimestamp(b.created_at)
-          );
+          .map(c => ({
+            ...c,
+            _searchText: [
+              c.client_name,
+              c.sender_id,
+              c.agent_full_name,
+              c.integration_name,
+              c.last_message_text,
+              c.case_id
+            ]
+              .filter(Boolean)
+              .join(' ')
+              .toLowerCase()
+          }));
 
-        this.unassignedCases = allCases
-          .filter(c => !c.agent_assigned)
-          .sort((a, b) =>
-            this.toTimestamp(b.created_at) - this.toTimestamp(a.created_at)
-          );
+        this.unassignedViewport?.scrollToIndex(0);
+        this.assignedViewport?.scrollToIndex(0);
 
-        this.applyUnassignedFilter();
-        this.applyAssignedFilter();
+        // this.applyUnassignedFilter();
+        // this.applyAssignedFilter();
+
+        this.filteredUnassignedCasesCache = [...this.unassignedCases];
+        this.filteredAssignedCasesCache = [...this.assignedCases];
+
+        // 🔥 FORZAR REDIBUJO
+
+        //this.cdr.detectChanges();
+        this.refreshViewports();
+        this.cdr.markForCheck();
 
         // Asignar todos los casos a this.data
         this.data = allCases;
@@ -267,7 +317,17 @@ export class DashboardCasesComponent implements OnInit, OnDestroy {
       console.error('Error loading cases by company and department:', error);
     } finally {
       this.loading = false;
+      this.cdr.markForCheck();
     }
+  }
+
+  private refreshViewports(): void {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        this.unassignedViewport?.checkViewportSize();
+        this.assignedViewport?.checkViewportSize();
+      });
+    });
   }
 
   async loadDashboardStats(): Promise<void> {
@@ -522,14 +582,41 @@ export class DashboardCasesComponent implements OnInit, OnDestroy {
     this.showClientAssignModal = true;
   }
 
-  onShowDepartmentSelected(): void {
+  async onShowDepartmentSelected(): Promise<void> {
+    this.unassignedCases = [];
+    this.assignedCases = [];
+    this.filteredUnassignedCasesCache = [];
+    this.filteredAssignedCasesCache = [];
+    this.filterUnassigned = '';
+    this.filterAssigned = '';
 
-    this.loadCasesByCompanyAndDepartment();
+    // Cancela filtros pendientes
+    clearTimeout(this.filterTimeout);
 
-    // this.loadDashboardStats();
-    // this.loadUnassignedCases();
+    this.loading = true;
+    this.cdr.markForCheck();
+
+    await this.loadCasesByCompanyAndDepartment();
+
 
   }
+
+  // async loadStats(): Promise<void> {
+  //   if (!this.selectedCompanyId || !this.selectedShowDepartmentId) return;
+
+  //   try {
+  //     const res = await this.caseStatsService.getStats(
+  //       this.selectedCompanyId,
+  //       this.selectedShowDepartmentId
+  //     );
+
+  //     if (res.success && res.data) {
+  //       this.stats = res.data;
+  //     }
+  //   } catch (err) {
+  //     console.error('Error loading case stats', err);
+  //   }
+  // }
 
   t(key: string): string {
     return this.languageService.t(key);
@@ -736,40 +823,28 @@ export class DashboardCasesComponent implements OnInit, OnDestroy {
     );
   }
 
+
   applyUnassignedFilter(): void {
     const term = this.filterUnassigned.toLowerCase().trim();
 
-    if (!term) {
-      this.filteredUnassignedCasesCache = [...this.unassignedCases];
-      return;
-    }
+    this.filteredUnassignedCasesCache = !term
+      ? [...this.unassignedCases]
+      : this.unassignedCases.filter(c =>
+        (c._searchText ?? '').includes(term)
+      );
 
-    this.filteredUnassignedCasesCache = this.unassignedCases.filter(c =>
-      c.client_name?.toLowerCase().includes(term) ||
-      c.sender_id?.toLowerCase().includes(term) ||
-      c.agent_full_name?.toLowerCase().includes(term) ||
-      c.integration_name?.toLowerCase().includes(term) ||
-      String(c.case_id).includes(term) ||
-      c.last_message_text?.toLowerCase().includes(term)
-    );
+    this.cdr.markForCheck();
   }
+
 
   applyAssignedFilter(): void {
     const term = this.filterAssigned.toLowerCase().trim();
 
-    if (!term) {
-      this.filteredAssignedCasesCache = [...this.assignedCases];
-      return;
-    }
-
-    this.filteredAssignedCasesCache = this.assignedCases.filter(c =>
-      c.client_name?.toLowerCase().includes(term) ||
-      c.sender_id?.toLowerCase().includes(term) ||
-      c.agent_full_name?.toLowerCase().includes(term) ||
-      c.integration_name?.toLowerCase().includes(term) ||
-      String(c.case_id).includes(term) ||
-      c.last_message_text?.toLowerCase().includes(term)
-    );
+    this.filteredAssignedCasesCache = !term
+      ? [...this.assignedCases]
+      : this.assignedCases.filter(c =>
+        (c._searchText ?? '').includes(term)
+      );
   }
 
   private toTimestamp(date?: string | null): number {
@@ -777,4 +852,29 @@ export class DashboardCasesComponent implements OnInit, OnDestroy {
     const t = new Date(date).getTime();
     return isNaN(t) ? 0 : t;
   }
+
+  trackByCaseId(_: number, item: CaseWithChannel) {
+    return item.case_id;
+  }
+
+  private observeViewportResize(): void {
+    if (!this.unassignedViewport || !this.assignedViewport) return;
+
+    const elements = [
+      this.unassignedViewport.elementRef.nativeElement,
+      this.assignedViewport.elementRef.nativeElement,
+    ];
+
+    this.zone.runOutsideAngular(() => {
+      this.resizeObserver = new ResizeObserver(() => {
+        requestAnimationFrame(() => {
+          this.unassignedViewport?.checkViewportSize();
+          this.assignedViewport?.checkViewportSize();
+        });
+      });
+
+      elements.forEach(el => this.resizeObserver!.observe(el));
+    });
+  }
+
 }
