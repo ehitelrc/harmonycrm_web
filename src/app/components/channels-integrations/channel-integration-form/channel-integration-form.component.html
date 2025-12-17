@@ -121,7 +121,27 @@
               </span>
             </label>
 
+            <!-- analyze_incoming_images -->
+            <label class="flex items-center space-x-2 cursor-pointer">
+              <div class="relative">
+                <input id="analyze_incoming_images" type="checkbox" [(ngModel)]="model.analyze_incoming_images"
+                  name="analyze_incoming_images" class="sr-only" />
+                <div class="block w-10 h-5 rounded-full transition-colors duration-200" [ngClass]="model.analyze_incoming_images  
+                    ? 'bg-[#3e66ea]'
+                    : 'bg-gray-300 dark:bg-gray-600'">
+                </div>
+                <div class="absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full transition-transform duration-200"
+                  [ngClass]="model.analyze_incoming_images ? 'translate-x-5' : ''">
+                </div>
+              </div>
+              <span class="text-sm text-gray-700 dark:text-gray-300">
+                {{ t('integration.analyze_incoming_images') }}
+              </span>
+            </label>
+
+
           </div>
+        
 
         </form>
       </div>

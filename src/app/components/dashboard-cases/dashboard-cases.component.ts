@@ -23,6 +23,7 @@ import { interval } from 'rxjs';
 import { ChatWorkspaceComponent } from '../chat/chat-workspace.component';
 import { OrderByDatePipe } from '../pipes/order-by-date.pipe';
 import { FilterHasAgentPipe } from '../pipes/filter-has-agent.pipe';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 import { HostListener, ElementRef } from '@angular/core';
 
@@ -37,12 +38,20 @@ import { HostListener, ElementRef } from '@angular/core';
     ClientFormComponent,
     ChatWorkspaceComponent,
     MainLayoutComponent,
-    OrderByDatePipe
+    ScrollingModule
 ],
   templateUrl: './dashboard-cases.component.html',
   styleUrls: ['./dashboard-cases.component.css']
 })
 export class DashboardCasesComponent implements OnInit, OnDestroy {
+
+  filteredUnassignedCasesCache: CaseWithChannel[] = [];
+  filteredAssignedCasesCache: CaseWithChannel[] = [];
+
+  itemSize="120"
+  
+  readonly AUTO_REFRESH_LIMIT = 300;
+
   user: User | null = null;
   companies: { company_id: number; company_name: string }[] = [];
   selectedCompanyId: number | null = null;
@@ -139,15 +148,22 @@ export class DashboardCasesComponent implements OnInit, OnDestroy {
     await this.loadCompanies();
 
     // ⏳ Cuenta regresiva cada segundo
-    this.countdownIntervalId = setInterval(() => {
-      this.refreshCountdown--;
-      if (this.refreshCountdown <= 0) this.refreshCountdown = 0;
-    }, 1000);
+    // this.countdownIntervalId = setInterval(() => {
+    //   this.refreshCountdown--;
+    //   if (this.refreshCountdown <= 0) this.refreshCountdown = 0;
+    // }, 1000);
 
     // 🔄 Refrescar cada 60 segundos
-    this.refreshIntervalId = setInterval(() => {
-      this.refreshDashboard();
-    }, 60000);
+    // this.refreshIntervalId = setInterval(() => {
+    //   // 🧠 Solo refresca automáticamente si el volumen es razonable
+    //   if (this.totalCasesGlobal <= this.AUTO_REFRESH_LIMIT) {
+    //     this.refreshDashboard();
+    //   } else {
+    //     console.warn(
+    //       `⏸️ Auto-refresh pausado (${this.totalCasesGlobal} casos)`
+    //     );
+    //   }
+    // }, 60000);
 
   }
 
@@ -218,8 +234,23 @@ export class DashboardCasesComponent implements OnInit, OnDestroy {
         }));
 
         // Separar casos
-        this.assignedCases = allCases.filter(c => c.agent_assigned === true);
-        this.unassignedCases = allCases.filter(c => c.agent_assigned === false);
+        // this.assignedCases = allCases.filter(c => c.agent_assigned === true);
+        // this.unassignedCases = allCases.filter(c => c.agent_assigned === false);
+
+        this.assignedCases = allCases
+          .filter(c => c.agent_assigned)
+          .sort((a, b) =>
+            this.toTimestamp(a.created_at) - this.toTimestamp(b.created_at)
+          );
+
+        this.unassignedCases = allCases
+          .filter(c => !c.agent_assigned)
+          .sort((a, b) =>
+            this.toTimestamp(b.created_at) - this.toTimestamp(a.created_at)
+          );
+
+        this.applyUnassignedFilter();
+        this.applyAssignedFilter();
 
         // Asignar todos los casos a this.data
         this.data = allCases;
@@ -682,39 +713,68 @@ export class DashboardCasesComponent implements OnInit, OnDestroy {
   }
 
 
-  async refreshDashboard() {
+  async refreshDashboard(manual = false) {
     if (!this.selectedCompanyId || !this.selectedShowDepartmentId) return;
 
-    this.refreshCountdown = 60; // reinicia cuenta
+    // 🧠 Evita doble carga
+    if (this.loading) return;
+
+    // ⛔ Bloquea auto-refresh si hay demasiados casos
+    if (!manual && this.totalCasesGlobal > this.AUTO_REFRESH_LIMIT) {
+      console.warn('⏸️ Auto-refresh bloqueado por alto volumen');
+      return;
+    }
+
+    this.refreshCountdown = 60;
+
     await this.loadCasesByCompanyAndDepartment();
-    console.log("♻️ Dashboard refrescado manual o automáticamente.");
+
+    console.log(
+      manual
+        ? '🔁 Refresco manual ejecutado'
+        : '♻️ Refresco automático ejecutado'
+    );
   }
 
-  get filteredUnassignedCases(): CaseWithChannel[] {
+  applyUnassignedFilter(): void {
     const term = this.filterUnassigned.toLowerCase().trim();
-    if (!term) return this.unassignedCases;
 
-    return this.unassignedCases.filter(c =>
-      (c.client_name?.toLowerCase().includes(term)) ||
-      (c.sender_id?.toLowerCase().includes(term)) ||
-      (c.agent_full_name?.toLowerCase().includes(term)) ||
-      (c.integration_name?.toLowerCase().includes(term)) ||
-      (String(c.case_id).includes(term)) ||
-      (c.last_message_text?.toLowerCase().includes(term))
+    if (!term) {
+      this.filteredUnassignedCasesCache = [...this.unassignedCases];
+      return;
+    }
+
+    this.filteredUnassignedCasesCache = this.unassignedCases.filter(c =>
+      c.client_name?.toLowerCase().includes(term) ||
+      c.sender_id?.toLowerCase().includes(term) ||
+      c.agent_full_name?.toLowerCase().includes(term) ||
+      c.integration_name?.toLowerCase().includes(term) ||
+      String(c.case_id).includes(term) ||
+      c.last_message_text?.toLowerCase().includes(term)
     );
   }
 
-  get filteredAssignedCases(): CaseWithChannel[] {
+  applyAssignedFilter(): void {
     const term = this.filterAssigned.toLowerCase().trim();
-    if (!term) return this.assignedCases;
 
-    return this.assignedCases.filter(c =>
-      (c.client_name?.toLowerCase().includes(term)) ||
-      (c.sender_id?.toLowerCase().includes(term)) ||
-      (c.agent_full_name?.toLowerCase().includes(term)) ||
-      (c.integration_name?.toLowerCase().includes(term)) ||
-      (String(c.case_id).includes(term)) ||
-      (c.last_message_text?.toLowerCase().includes(term))
+    if (!term) {
+      this.filteredAssignedCasesCache = [...this.assignedCases];
+      return;
+    }
+
+    this.filteredAssignedCasesCache = this.assignedCases.filter(c =>
+      c.client_name?.toLowerCase().includes(term) ||
+      c.sender_id?.toLowerCase().includes(term) ||
+      c.agent_full_name?.toLowerCase().includes(term) ||
+      c.integration_name?.toLowerCase().includes(term) ||
+      String(c.case_id).includes(term) ||
+      c.last_message_text?.toLowerCase().includes(term)
     );
+  }
+
+  private toTimestamp(date?: string | null): number {
+    if (!date) return 0; // fechas nulas van al fondo
+    const t = new Date(date).getTime();
+    return isNaN(t) ? 0 : t;
   }
 }

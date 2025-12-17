@@ -473,6 +473,7 @@ export const esTranslations = {
   "channel.deleting": "Eliminando...",
 
 
+  "integration.analyze_incoming_images": "Analizar imágenes entrantes",
   "integration.department_selected": "Seleccionar departemento",
   "integration.department": "Departamento",
   "integration.management_title": "Gestión de Integraciones",

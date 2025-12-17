@@ -113,8 +113,8 @@
 .card-body {
   padding: 1rem;
   max-height: 400px;
-  overflow-y: auto;
-  scrollbar-width: thin;
+  /* overflow-y: auto; */
+  /* scrollbar-width: thin; */
 }
 
 /* Scroll moderno */
@@ -233,4 +233,10 @@
 
 .empty-state {
   @apply text-center py-6 text-gray-500 italic;
+}
+
+.virtual-list {
+  height: 400px;
+  width: 100%;
+  overflow: auto;
 }

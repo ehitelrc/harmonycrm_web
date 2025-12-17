@@ -48,6 +48,11 @@
           <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
             {{ t('integration.department') }}
           </th>
+
+           <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
+            {{ t('integration.analyze_incoming_images') }}
+          </th>
+
           <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase">
             {{ t('integration.status') }}
           </th>
@@ -71,6 +76,15 @@
           </td>
           <td class="px-6 py-4 text-center text-sm text-gray-900 dark:text-white">
             {{ i.department_name }}
+          </td>
+          <td class="px-6 py-4 text-center">
+            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" [ngClass]="{
+                'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': i.analyze_incoming_images,
+                'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300': !i.analyze_incoming_images
+              }">
+              {{ i.analyze_incoming_images ? t('integration.yes') : t('integration.no') }}
+            </span>
+          </td>
           <td class="px-6 py-4 text-center">
             <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full" [ngClass]="{
                 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300': i.is_active,

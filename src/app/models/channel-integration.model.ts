@@ -12,6 +12,7 @@ export interface ChannelIntegration {
   updated_at?: string;
   is_non_commercial?: boolean;
   department_id?: number;
+  analyze_incoming_images?: boolean;
 }
 
 export interface ChannelIntegrationDTO {
@@ -28,4 +29,5 @@ export interface ChannelIntegrationDTO {
   is_non_commercial?: boolean;
   department_id?: number | null; // <-- permitir null
   department_name?: string;
+  analyze_incoming_images?: boolean;
 }

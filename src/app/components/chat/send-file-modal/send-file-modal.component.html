@@ -9,53 +9,120 @@
     (drop)="onDrop($event)"
     (dragover)="onDragOver($event)"
   >
-    <h2 class="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-100">
-      📎 Enviar archivo
-    </h2>
+    <!-- HEADER -->
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-100">
+        📎 Enviar archivo
+      </h2>
 
-    <!-- Zona de selección -->
-    <div
-      class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-5 text-center cursor-pointer"
-      (click)="fileInput.click()"
-    >
-      <ng-container *ngIf="fileName; else placeholder">
-        <div class="text-5xl mb-2">{{ filePreviewIcon }}</div>
-        <p class="font-medium text-gray-800 dark:text-gray-200">
-          {{ fileName }}
-        </p>
-        <p class="text-sm text-gray-500">Click para reemplazar</p>
-      </ng-container>
-
-      <ng-template #placeholder>
-        <p class="text-gray-500">
-          Arrastra, pega o haz click para seleccionar un archivo
-        </p>
-      </ng-template>
-
-      <input
-        type="file"
-        #fileInput
-        class="hidden"
-        (change)="onFileChange($event)"
-      />
+      <!-- Botón de grabación -->
+      <!-- <button
+        type="button"
+        class="px-3 py-1 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm"
+        (click)="startRecording()"
+        *ngIf="!isRecording && !recordedAudioUrl"
+      >
+        🎙️ Grabar audio
+      </button> -->
     </div>
 
-    <!-- Botones -->
-    <div class="mt-5 flex justify-end space-x-3">
-      <button
-        (click)="onCancel()"
-        class="px-4 py-2 text-sm bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"
-      >
-        Cancelar
-      </button>
+    <!-- =============================== -->
+    <!-- PANEL DE GRABACIÓN DE AUDIO -->
+    <!-- =============================== -->
+
+    <!-- Mientras está grabando -->
+    <div
+      *ngIf="isRecording"
+      class="mt-4 p-4 border border-red-300 bg-red-50 rounded-lg text-center"
+    >
+      <p class="text-red-700 font-medium">🎤 Grabando…</p>
+      <p class="text-xs text-gray-600">Habla ahora</p>
 
       <button
-        [disabled]="!fileName"
-        (click)="onSend()"
-        class="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        class="mt-3 px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700"
+        (click)="stopRecording()"
       >
-        Enviar
+        Detener grabación
       </button>
+    </div>
+
+    <!-- Vista previa del audio grabado -->
+    <div
+      *ngIf="recordedAudioUrl && !isRecording"
+      class="mt-4 p-4 border border-blue-300 bg-blue-50 rounded-lg text-center"
+    >
+      <p class="text-gray-800 dark:text-gray-100 mb-2 font-medium">
+        🎧 Audio grabado
+      </p>
+
+      <audio controls [src]="recordedAudioUrl" class="w-full"></audio>
+
+      <div class="mt-4 flex justify-end space-x-3">
+        <button
+          (click)="discardRecording()"
+          class="px-3 py-2 bg-gray-300 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-400 dark:hover:bg-gray-600"
+        >
+          Descartar
+        </button>
+
+        <button
+          (click)="sendRecordedAudio()"
+          class="px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700"
+        >
+          Enviar audio
+        </button>
+      </div>
+    </div>
+
+    <!-- =============================== -->
+    <!-- PANEL DE ARCHIVOS — SOLO SI NO HAY AUDIO -->
+    <!-- =============================== -->
+
+    <div *ngIf="!isRecording && !recordedAudioUrl">
+      <!-- Zona de selección -->
+      <div
+        class="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-5 text-center cursor-pointer"
+        (click)="fileInput.click()"
+      >
+        <ng-container *ngIf="fileName; else placeholder">
+          <div class="text-5xl mb-2">{{ filePreviewIcon }}</div>
+          <p class="font-medium text-gray-800 dark:text-gray-200">
+            {{ fileName }}
+          </p>
+          <p class="text-sm text-gray-500">Click para reemplazar</p>
+        </ng-container>
+
+        <ng-template #placeholder>
+          <p class="text-gray-500">
+            Arrastra, pega o haz click para seleccionar un archivo
+          </p>
+        </ng-template>
+
+        <input
+          type="file"
+          #fileInput
+          class="hidden"
+          (change)="onFileChange($event)"
+        />
+      </div>
+
+      <!-- Botones del archivo -->
+      <div class="mt-5 flex justify-end space-x-3">
+        <button
+          (click)="onCancel()"
+          class="px-4 py-2 text-sm bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600"
+        >
+          Cancelar
+        </button>
+
+        <button
+          [disabled]="!fileName"
+          (click)="onSend()"
+          class="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          Enviar archivo
+        </button>
+      </div>
     </div>
   </div>
 </div>
