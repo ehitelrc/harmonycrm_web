@@ -63,6 +63,14 @@ export class ClientFormComponent implements OnInit, OnChanges {
   maintenanceModal: { list_id: number; list_name: string } | null = null;
 
 
+  // control de verificación
+  checkingExternalId = false;
+  externalIdExists = false;
+  existingClients: Client[] = [];
+
+  // control del modal
+  showExternalIdDialog = false;
+
 
   activeTab: 'general' | 'location' | 'other' = 'general';
 
@@ -168,6 +176,11 @@ export class ClientFormComponent implements OnInit, OnChanges {
   async submit(): Promise<void> {
     if (this.form.invalid) {
       this.form.markAllAsTouched();
+      return;
+    }
+
+    if (!this.isEditing && this.externalIdExists) {
+      this.alert.warning('La identificación ya existe en el sistema');
       return;
     }
 
@@ -419,6 +432,57 @@ export class ClientFormComponent implements OnInit, OnChanges {
     }
   }
 
+  // onExternalIdInput(event: Event) {
+  //   const input = event.target as HTMLInputElement;
+  //   let value = input.value;
+
+  //   if (this.idType === 'national') {
+  //     value = value.replace(/\D/g, '');
+  //     if (value.length > 9) value = value.slice(0, 9);
+
+  //     if (value.length > 1 && value.length <= 5) {
+  //       value = `${value.slice(0, 1)} ${value.slice(1)}`;
+  //     } else if (value.length > 5) {
+  //       value = `${value.slice(0, 1)} ${value.slice(1, 5)} ${value.slice(5, 9)}`;
+  //     }
+  //   }
+
+  //   input.value = value.trim();
+  //   this.form.get('external_id')?.setValue(value.trim());
+  //   this.form.get('external_id')?.updateValueAndValidity({ emitEvent: false });
+  // }
+
+
+
+  closeMaintenanceModal() {
+    this.maintenanceModal = null;
+  }
+
+
+  private async checkExternalIdExists(externalId: string): Promise<void> {
+    if (!externalId || this.isEditing) return;
+
+    try {
+      this.checkingExternalId = true;
+
+      const res = await this.clientService.getByExternalId(externalId);
+
+      if (res.success && res.data && res.data.length > 0) {
+        this.externalIdExists = true;
+        this.existingClients = res.data;
+        this.showExternalIdDialog = true;
+      } else {
+        this.externalIdExists = false;
+        this.existingClients = [];
+      }
+
+    } catch (e) {
+      console.error(e);
+    } finally {
+      this.checkingExternalId = false;
+    }
+  }
+
   onExternalIdInput(event: Event) {
     const input = event.target as HTMLInputElement;
     let value = input.value;
@@ -434,17 +498,15 @@ export class ClientFormComponent implements OnInit, OnChanges {
       }
     }
 
-    input.value = value.trim();
-    this.form.get('external_id')?.setValue(value.trim());
+    value = value.trim();
+    input.value = value;
+
+    this.form.get('external_id')?.setValue(value);
     this.form.get('external_id')?.updateValueAndValidity({ emitEvent: false });
+
+    // 🔹 SOLO si es válido y estamos creando
+    if (!this.isEditing && this.form.get('external_id')?.valid) {
+      this.checkExternalIdExists(value);
+    }
   }
-
-
-
-  closeMaintenanceModal() {
-    this.maintenanceModal = null;
-  }
-
-
-
 }

@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy, HostListener, Input, Output, EventEmitter } from '@angular/core';
+import { Component, OnInit, OnDestroy, HostListener, Input, Output, EventEmitter, OnChanges, SimpleChanges, ChangeDetectorRef } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { buildAgentTextMessage, buildAgentImageMessage, AgentMessage, buildAgentFileMessage, buildAgentAudioMessage } from '@app/models/agent-message.model';
 import { CaseWithChannel } from '@app/models/case-with-channel.model';
@@ -61,7 +61,7 @@ type MessageUI = Message & {
   templateUrl: './chat-workspace.component.html',
   styleUrls: ['./chat-workspace.component.css']
 })
-export class ChatWorkspaceComponent implements OnInit, OnDestroy {
+export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
   @Input() preSelectedCase: CaseWithChannel | null = null;
   @Output() close = new EventEmitter<void>();
 
@@ -244,6 +244,21 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
   isAudioModalOpen = false;
 
 
+  uiMessage: string | null = null;
+  uiMessageType: 'error' | 'success' | 'info' = 'info';
+
+  canSendMessages = true;
+  sendDisabledReason: string | null = null;
+
+  showMessage(msg: string, type: 'error' | 'success' | 'info' = 'info') {
+    this.uiMessage = msg;
+    this.uiMessageType = type;
+  }
+
+  closeMessage() {
+    this.uiMessage = null;
+  }
+
   constructor(
     private lang: LanguageService,
     private chatService: CaseService,
@@ -259,6 +274,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
     private pushService: CampaignPushService,
     private companyService: CompanyService,
     private sanitizer: DomSanitizer,
+    private cdr: ChangeDetectorRef
 
 
   ) { }
@@ -267,15 +283,30 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
     this.onInit();
 
     // Si viene desde un modal externo
-    if (this.preSelectedCase) {
-      setTimeout(() => this.selectCase(this.preSelectedCase!), 100);
-    }
+    // if (this.preSelectedCase) {
+    //   setTimeout(() => this.selectCase(this.preSelectedCase!), 100);
+    // }
   }
 
   ngOnDestroy(): void {
     this.ws.disconnect();
     this.wsSub?.unsubscribe();
     this.wsAgentSub?.unsubscribe();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['preSelectedCase']?.currentValue) {
+      const c = changes['preSelectedCase'].currentValue as CaseWithChannel;
+
+      if (this.selectedCase?.case_id === c.case_id) return;
+
+      console.log('🔥 Caso recibido por Input:', c.case_id);
+
+      this.selectCase(c);
+
+      // 🔥 FUERZA REDIBUJO CON ONPUSH
+      this.cdr.markForCheck();
+    }
   }
 
   get t() { return this.lang.t.bind(this.lang); }
@@ -398,7 +429,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
   }
 
   async selectCase(c: CaseWithChannel) {
-    // Cierra WS previo
+    // cerrar WS previo
     this.ws.disconnect();
     this.wsSub?.unsubscribe();
 
@@ -407,145 +438,251 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
     this.isLoadingMessages = true;
 
     try {
-      // 1) Histórico
+      // 🔹 1. SOLO mensajes
       const result = await this.chatService.getMessagesByCase(c.case_id);
       this.messages = Array.isArray(result?.data) ? result.data : [];
       this.selectedCase = c;
 
-      // Cargar campaña actual del funnel
-      this.campaignService.getById(c.campaign_id || 0).then(res => {
-        this.currentCampaign = res?.data || null;
-      });
-
-      await this.loadCurrentCaseFunnel(c.case_id);
-
-      this.loadDepartment();
-
-
-      await this.loadCurrentStage(c.case_id); // Nueva línea para cargar el estado actual
-
-
-      // if (this.selectedCase.manual_starting_lead && this.selectedCase.client_messages == 0) {
-      //   this.loadTemplatesForChannelIntegration();
-      // }
-      this.loadTemplates();
-
-      if (c.client_id) {
-        const clientResponse = await this.clientService.getById(c.client_id);
-
-        if (clientResponse.success) {
-          this.currentClient = clientResponse.data || null;
-        } else {
-          this.currentClient = null;
-        }
+      // 🔹 2. marcar como leído SOLO si aplica
+      if (c.unread_count > 0) {
+        this.chatService.markMessagesAsRead(c.case_id);
+        this.updateCaseUnreadCount(c.case_id, 0);
       }
 
-      // 2) Conexión WS por caso
-      // let wsBase = environment.API.BASE
-      //   .replace('http', 'ws')
-      //   .replace('/api', '')
-      //   .replace('https', 'wss');
-      let wsBase = environment.socket_url;
-
-      const url = `${wsBase}/ws?case_id=${c.case_id}`;
-      console.log('Conectando a WebSocket en:', url);
-
-      this.wsSub = this.ws.connect(url).subscribe((evt: WSMessage) => {
-        if (!this.selectedCase || evt.case_id !== this.selectedCase.case_id) return;
-
-        if (evt.type === 'new_message') {
-          const fallback: MessageUI = {
-            id: 0,
-            case_id: this.selectedCase.case_id,
-            sender_type: 'client',
-            message_type: 'text',
-            text_content: '',
-            file_url: null,
-            mime_type: null,
-            channel_message_id: '',
-            created_at: new Date().toISOString(),
-            base64_content: null,
-            has_error: false,
-            message_error: null
-          };
-
-          let real = this.normalizeApiMessage(evt.data, fallback) as MessageUI;
-
-          // ⭐ Marcar como recién llegado (para animación)
-          real._justArrived = true;
-          setTimeout(() => real._justArrived = false, 300);
-
-          // 🔄 Si trae client_tmp_id reemplaza mensaje optimista
-          const tmpId = (evt.data as any)?.client_tmp_id;
-          if (tmpId) {
-            const idx = this.messages.findIndex(m => m.channel_message_id === tmpId);
-            if (idx >= 0) {
-              const copy = [...this.messages];
-              copy[idx] = { ...real, channel_message_id: real.channel_message_id || tmpId };
-              this.messages = copy;
-              this.updatePreview(evt.case_id, real);
-              this.scrollToBottomSoon();
-              return;
-            }
-          }
-
-          // 🔍 Buscar por fuzzy match (cuando no hay tmp_id)
-          const fuzzyIdx = this.messages.findIndex(m =>
-            m.id === 0 &&
-            m.sender_type === 'agent' &&
-            m.message_type === real.message_type &&
-            (m.text_content || '').trim() === (real.text_content || '').trim()
-          );
-
-          if (fuzzyIdx >= 0) {
-            const copy = [...this.messages];
-            copy[fuzzyIdx] = real;
-            this.messages = copy;
-          } else {
-            // No duplicados
-            const dup = this.messages.some(m =>
-              (real.id && m.id === real.id) ||
-              (!!real.channel_message_id && m.channel_message_id === real.channel_message_id)
-            );
-            if (!dup) this.messages = [...this.messages, real];
-          }
-
-
-          this.updatePreview(evt.case_id, real);
-          this.scrollToBottomSoon();
-
-          // Reset de mensajes no leídos del caso seleccionado
-          c.unread_count = 0;
-          this.updateCaseUnreadCount(c.case_id, 0);
-
-          // Marcar mensajes como leídos en backend
-          this.chatService.markMessagesAsRead(c.case_id).then(() => {
-            console.log("Marcar como leídos");
-
-          }).catch(() => {
-
-            console.log("Error al marcar como leídos");
-
-          });
-        }
+      // 🔹 3. WS por caso
+      const url = `${environment.socket_url}/ws?case_id=${c.case_id}`;
+      this.wsSub = this.ws.connect(url).subscribe(evt => {
+        this.onWsMessage(evt);
       });
 
     } finally {
-      c.unread_count = 0;
-      this.updateCaseUnreadCount(c.case_id, 0);
-
-      this.chatService.markMessagesAsRead(c.case_id).then(() => {
-        console.log("Marcar como leídos");
-
-      }).catch(() => {
-
-        console.log("Error al marcar como leídos");
-
-      });
-
       this.isLoadingMessages = false;
+      this.cdr.markForCheck();
     }
   }
+
+  private onWsMessage(evt: WSMessage) {
+    if (!this.selectedCase) return;
+    if (evt.case_id !== this.selectedCase.case_id) return;
+
+    if (evt.type !== 'new_message') return;
+
+    this.handleNewMessage(evt);
+  }
+
+
+  private handleNewMessage(evt: WSMessage) {
+    const fallback: MessageUI = {
+      id: 0,
+      case_id: this.selectedCase!.case_id,
+      sender_type: 'client',
+      message_type: 'text',
+      text_content: '',
+      file_url: null,
+      mime_type: null,
+      channel_message_id: '',
+      created_at: new Date().toISOString(),
+      base64_content: null,
+      has_error: false,
+      message_error: null
+    };
+
+    let real = this.normalizeApiMessage(evt.data, fallback) as MessageUI;
+
+    // animación
+    real._justArrived = true;
+    setTimeout(() => real._justArrived = false, 300);
+
+    // reemplazo optimista
+    const tmpId = (evt.data as any)?.client_tmp_id;
+    if (tmpId) {
+      const idx = this.messages.findIndex(m => m.channel_message_id === tmpId);
+      if (idx >= 0) {
+        const copy = [...this.messages];
+        copy[idx] = real;
+        this.messages = copy;
+        this.updatePreview(evt.case_id, real);
+        this.scrollToBottomSoon();
+        return;
+      }
+    }
+
+    // evitar duplicados
+    const isDuplicate = this.messages.some(m =>
+      (real.id && m.id === real.id) ||
+      (!!real.channel_message_id && m.channel_message_id === real.channel_message_id)
+    );
+
+    if (!isDuplicate) {
+      this.messages = [...this.messages, real];
+    }
+
+    this.updatePreview(evt.case_id, real);
+    this.scrollToBottomSoon();
+  }
+
+  // async selectCase(c: CaseWithChannel) {
+  //   // Cierra WS previo
+  //   this.ws.disconnect();
+  //   this.wsSub?.unsubscribe();
+
+  //   this.selectedCase = null;
+  //   this.messages = [];
+  //   this.isLoadingMessages = true;
+
+  //   try {
+  //     // 1) Histórico
+  //     const result = await this.chatService.getMessagesByCase(c.case_id);
+  //     this.messages = Array.isArray(result?.data) ? result.data : [];
+  //     this.selectedCase = c;
+
+  //     // Aquí se debe verificar si se venció la ventana de tiempo.
+
+
+  //     // Cargar campaña actual del funnel
+  //     this.campaignService.getById(c.campaign_id || 0).then(res => {
+  //       this.currentCampaign = res?.data || null;
+  //     });
+
+  //     await this.loadCurrentCaseFunnel(c.case_id);
+
+  //     this.loadDepartment();
+
+
+  //     await this.loadCurrentStage(c.case_id); // Nueva línea para cargar el estado actual
+
+
+  //     // if (this.selectedCase.manual_starting_lead && this.selectedCase.client_messages == 0) {
+  //     //   this.loadTemplatesForChannelIntegration();
+  //     // }
+  //     this.loadTemplates();
+
+  //     if (c.client_id) {
+  //       const clientResponse = await this.clientService.getById(c.client_id);
+
+  //       if (clientResponse.success) {
+  //         this.currentClient = clientResponse.data || null;
+  //       } else {
+  //         this.currentClient = null;
+  //       }
+  //     }
+
+  //     // 2) Conexión WS por caso
+  //     // let wsBase = environment.API.BASE
+  //     //   .replace('http', 'ws')
+  //     //   .replace('/api', '')
+  //     //   .replace('https', 'wss');
+  //     let wsBase = environment.socket_url;
+
+  //     const url = `${wsBase}/ws?case_id=${c.case_id}`;
+  //     console.log('Conectando a WebSocket en:', url);
+
+  //     this.wsSub = this.ws.connect(url).subscribe((evt: WSMessage) => {
+  //       if (!this.selectedCase || evt.case_id !== this.selectedCase.case_id) return;
+
+  //       if (evt.type === 'new_message') {
+  //         const fallback: MessageUI = {
+  //           id: 0,
+  //           case_id: this.selectedCase.case_id,
+  //           sender_type: 'client',
+  //           message_type: 'text',
+  //           text_content: '',
+  //           file_url: null,
+  //           mime_type: null,
+  //           channel_message_id: '',
+  //           created_at: new Date().toISOString(),
+  //           base64_content: null,
+  //           has_error: false,
+  //           message_error: null
+  //         };
+
+  //         let real = this.normalizeApiMessage(evt.data, fallback) as MessageUI;
+
+  //         // ⭐ Marcar como recién llegado (para animación)
+  //         real._justArrived = true;
+  //         setTimeout(() => real._justArrived = false, 300);
+
+  //         // 🔄 Si trae client_tmp_id reemplaza mensaje optimista
+  //         const tmpId = (evt.data as any)?.client_tmp_id;
+  //         if (tmpId) {
+  //           const idx = this.messages.findIndex(m => m.channel_message_id === tmpId);
+  //           if (idx >= 0) {
+  //             const copy = [...this.messages];
+  //             copy[idx] = { ...real, channel_message_id: real.channel_message_id || tmpId };
+  //             this.messages = copy;
+  //             this.updatePreview(evt.case_id, real);
+  //             this.scrollToBottomSoon();
+  //             return;
+  //           }
+  //         }
+
+  //         // 🔍 Buscar por fuzzy match (cuando no hay tmp_id)
+  //         const fuzzyIdx = this.messages.findIndex(m =>
+  //           m.id === 0 &&
+  //           m.sender_type === 'agent' &&
+  //           m.message_type === real.message_type &&
+  //           (m.text_content || '').trim() === (real.text_content || '').trim()
+  //         );
+
+  //         if (fuzzyIdx >= 0) {
+  //           const copy = [...this.messages];
+  //           copy[fuzzyIdx] = real;
+  //           this.messages = copy;
+  //         } else {
+  //           // No duplicados
+  //           const dup = this.messages.some(m =>
+  //             (real.id && m.id === real.id) ||
+  //             (!!real.channel_message_id && m.channel_message_id === real.channel_message_id)
+  //           );
+  //           if (!dup) this.messages = [...this.messages, real];
+  //         }
+
+
+  //         this.updatePreview(evt.case_id, real);
+  //         this.scrollToBottomSoon();
+
+  //         // Reset de mensajes no leídos del caso seleccionado
+  //         c.unread_count = 0;
+  //         this.updateCaseUnreadCount(c.case_id, 0);
+
+  //         // Marcar mensajes como leídos en backend
+
+  //         if (c.unread_count > 0) {
+  //           this.chatService.markMessagesAsRead(c.case_id).then(() => {
+  //             console.log("Marcar como leídos");
+
+  //           }).catch(() => {
+
+  //             console.log("Error al marcar como leídos");
+
+  //           });
+  //         }
+
+  //       }
+  //     });
+
+  //   } finally {
+  //     c.unread_count = 0;
+  //     this.updateCaseUnreadCount(c.case_id, 0);
+
+  //     if (c.unread_count > 0) {
+  //       this.chatService.markMessagesAsRead(c.case_id).then(() => {
+  //         console.log("Marcar como leídos");
+
+  //       }).catch(() => {
+
+  //         console.log("Error al marcar como leídos");
+
+  //       });
+  //     }
+
+
+  //     this.isLoadingMessages = false;
+  //     this.cdr.markForCheck();
+
+
+  //   }
+  // }
 
   loadDepartment() {
     if (!this.selectedCase?.department_id) return;
@@ -571,7 +708,12 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
     }
   }
 
+  async loadClientIfNeeded() {
+    if (!this.selectedCase?.client_id || this.currentClient) return;
 
+    const res = await this.clientService.getById(this.selectedCase.client_id);
+    this.currentClient = res.success ? res.data : null;
+  }
 
 
   openAssignDepartmentModal() {
@@ -1100,11 +1242,23 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
   private _isCaseMode = false;
 
 
-  viewCase() {
-    this.loadNotes();
-    this.loadCaseItems(); // ✅ nuevo
-    this.isCaseMode = true;
+  // viewCase() {
+  //   this.loadNotes();
+  //   this.loadCaseItems(); // ✅ nuevo
+  //   this.isCaseMode = true;
 
+  // }
+
+  viewCase() {
+    if (!this.notes.length) {
+      this.loadNotes();
+    }
+
+    if (!this.caseItems.length) {
+      this.loadCaseItems();
+    }
+
+    this.isCaseMode = true;
   }
 
 
@@ -1368,6 +1522,10 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
 
   toggleTemplateMenu() {
     this.showTemplateMenu = !this.showTemplateMenu;
+
+    if (this.showTemplateMenu && !this.templates.length) {
+      this.loadTemplates();
+    }
   }
 
 
@@ -1554,7 +1712,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
       description: "Push desde caso #" + this.selectedCase?.case_id,
       template_id: this.selectedTemplate!,
       department_id: this.selectedDepartment?.id || 0,
-      channel_integration_id: this.selectedIntegration?.channel_integration_id|| 0,
+      channel_integration_id: this.selectedIntegration?.channel_integration_id || 0,
       changed_by: this.agent_id || 0, // ajusta al campo que uses como user_id
       leads: leads,
     };
@@ -1765,6 +1923,43 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
 
   async confirmNewConversation() {
     try {
+
+      const phone = (this.newConvPhone || '').trim();
+
+      // 🔴 Validaciones duras
+
+      if (phone.includes(' ')) {
+        this.showMessage('El número no debe contener espacios', 'error');
+
+        return;
+      }
+      if (!phone) {
+
+        this.showMessage('Debe ingresar un número de teléfono', 'error');
+        return;
+      }
+
+      if (phone.includes(' ')) {
+        this.showMessage('El número no debe contener espacios', 'error');
+
+        return;
+      }
+
+      if (phone.length < 11) {
+        this.showMessage('El número es demasiado corto', 'error');
+        return;
+      }
+
+      // opcional: solo números
+      if (!/^\d+$/.test(phone)) {
+        this.showMessage('El número solo puede contener dígitos', 'error');
+
+        return;
+      }
+
+      // ✔️ normalizado
+      this.newConvPhone = phone;
+
       if (!this.newConvSelectedTemplate) {
         this.alert.error("Debe seleccionar un template");
         return;
@@ -2004,6 +2199,26 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
     return '📄';
   }
 
+  async downloadFile(m: Message) {
+    if (!m.id) {
+      console.warn('Cannot download file without ID');
+      return;
+    }
+
+    // Usar la URL directa: BASE (sin /api) + /public/downloads/ + nombre_archivo
+    const filename = m.text_content || 'archivo';
+
+    let baseUrl = environment.API.BASE;
+    // Asegurar que solo quitamos /api del final
+    if (baseUrl.endsWith('/api')) {
+      baseUrl = baseUrl.substring(0, baseUrl.length - 4);
+    }
+
+    const url = `${baseUrl}/public/downloads/${encodeURIComponent(filename)}`;
+
+    window.open(url, '_blank');
+  }
+
   safeAttachmentSrc(m?: Message | null): SafeResourceUrl {
     if (!m?.base64_content || !m?.mime_type) {
       return '';
@@ -2078,5 +2293,12 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy {
     setTimeout(() => {
       this.isAudioModalOpen = false;
     }, 0);
+  }
+
+  onPhoneInput(): void {
+    if (!this.newConvPhone) return;
+
+    // elimina espacios, tabs, saltos
+    this.newConvPhone = this.newConvPhone.replace(/\s+/g, '');
   }
 }

@@ -115,6 +115,8 @@ export class CaseService {
 
   // Enviar mensaje de texto
   sendMessage(message: AgentMessage) {
+
+    console.log('Sending message:', message);
     return this.fetch.post<ApiResponse<Message>>({
       API_Gateway: `${CASE_URL}/entry/send`,
       values: message,
@@ -263,6 +265,12 @@ export class CaseService {
   markMessagesAsRead(caseId: number): Promise<ApiResponse<void>> {
     return this.fetch.put<ApiResponse<void>>({
       API_Gateway: `${CASE_URL}/entry/mark_messages_read/case/${caseId}`,
+    });
+  }
+
+  downloadMessageFile(messageId: number): Promise<Blob> {
+    return this.fetch.download({
+      API_Gateway: `${CASE_URL}/entry/download/${messageId}`,
     });
   }
 

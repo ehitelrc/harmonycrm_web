@@ -162,15 +162,16 @@
 
               <!-- DERECHA: MENÚ -->
               <div class="relative ml-3">
-                <button class="btn-menu text-red-500" (click)="toggleMenu(c); $event.stopPropagation()">
+                <button class="btn-menu text-red-500"
+                  (click)="openMenu($event, c, 'unassigned'); $event.stopPropagation()">
                   •••
                 </button>
 
-                <div *ngIf="c.showMenu" class="menu-dropdown">
+                <!-- <div *ngIf="c.showMenu" class="menu-dropdown">
                   <button class="text-black" (click)="openChatPreview(c)">👁 Ver</button>
                   <button class="text-black" (click)="assignToAgent(c)">👤 Asignar agente</button>
                   <button class="text-black" (click)="openAssignClientModal(c)">🟩 Asignar cliente</button>
-                </div>
+                </div> -->
               </div>
 
             </div>
@@ -239,17 +240,18 @@
 
                   <!-- DERECHA: MENÚ -->
                   <div class="relative ml-3">
-                    <button class="btn-menu text-red-500" (click)="toggleMenu(oc); $event.stopPropagation()">
+                    <button class="btn-menu text-red-500"
+                      (click)="openMenu($event, oc, 'assigned'); $event.stopPropagation()">
                       •••
                     </button>
 
-                    <div *ngIf="oc.showMenu" class="menu-dropdown">
+                    <!-- <div *ngIf="oc.showMenu" class="menu-dropdown">
                       <button class="text-black" (click)="openChatPreview(oc)">👁 Ver</button>
                       <button class="text-black" (click)="assignToAgent(oc)">👤 Cambiar agente</button>
                       <button class="text-black" (click)="openReassignDepartmentModal(oc)">
                         🏢 Cambiar departamento
                       </button>
-                    </div>
+                    </div> -->
                   </div>
 
                 </div>
@@ -395,9 +397,8 @@
           </select>
         </div>
 
-        <ng-template [ngIf]="!agents.length && selectedDepartmentId">
-          <p class="text-sm text-gray-500 mt-2">No hay agentes en este departamento.</p>
-        </ng-template>
+     
+ 
 
         <!-- Botones -->
         <div class="flex justify-end mt-6 space-x-2">
@@ -509,7 +510,8 @@
       </div>
 
       <!-- Aquí incrustamos ChatWorkspace -->
-      <app-chat-workspace [preSelectedCase]="chatPreviewCase" (close)="closeChatPreview()" class="w-full h-full block">
+      <app-chat-workspace *ngIf="chatPreviewCase" [preSelectedCase]="chatPreviewCase" (close)="closeChatPreview()"
+        class="w-full h-full block">
       </app-chat-workspace>
 
     </div>
@@ -548,6 +550,30 @@
       </div>
 
     </div>
+  </div>
+
+  <!-- MENÚ GLOBAL -->
+  <div *ngIf="menuContext" class="menu-dropdown menu-dropdown-fixed" [style.top.px]="menuPosition.top"
+    [style.left.px]="menuPosition.left" (click)="$event.stopPropagation()">
+    <ng-container [ngSwitch]="menuContext.type">
+
+      <!-- Casos sin agente -->
+      <ng-container *ngSwitchCase="'unassigned'">
+        <button (click)="openChatPreview(menuContext.case); closeMenu();">👁 Ver</button>
+        <button (click)="assignToAgent(menuContext.case); closeMenu();">👤 Asignar agente</button>
+        <button (click)="openAssignClientModal(menuContext.case); closeMenu();">🟩 Asignar cliente</button>
+      </ng-container>
+
+      <!-- Casos asignados -->
+      <ng-container *ngSwitchCase="'assigned'">
+        <button (click)="openChatPreview(menuContext.case); closeMenu();">👁 Ver</button>
+        <button (click)="assignToAgent(menuContext.case); closeMenu();">👤 Cambiar agente</button>
+        <button (click)="openReassignDepartmentModal(menuContext.case); closeMenu();">
+          🏢 Cambiar departamento
+        </button>
+      </ng-container>
+
+    </ng-container>
   </div>
 
 </app-main-layout>

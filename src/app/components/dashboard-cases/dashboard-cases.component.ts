@@ -1,4 +1,16 @@
-import { AfterViewInit, ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, ViewChild } from '@angular/core';
+import {
+  AfterViewInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef,
+  Component,
+  OnDestroy,
+  OnInit,
+  ViewChild,
+  HostListener,
+  ElementRef,
+  NgZone
+} from '@angular/core';
+
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MainLayoutComponent } from '../layout/main-layout.component';
@@ -17,18 +29,14 @@ import { ClientService } from '@app/services/client.service';
 import { Client } from '@app/models/client.model';
 import { AlertService } from '@app/services/extras/alert.service';
 import { ClientFormComponent } from '../clients/clients-form/client-form.component';
-import { DashboardStats } from '@app/models/dashboard-stats.model';
+
 import { CaseDashboardService } from '@app/services/case-dashboard.service';
-import { interval } from 'rxjs';
+
 import { ChatWorkspaceComponent } from '../chat/chat-workspace.component';
-import { OrderByDatePipe } from '../pipes/order-by-date.pipe';
-import { FilterHasAgentPipe } from '../pipes/filter-has-agent.pipe';
 import { CdkVirtualScrollViewport, ScrollingModule } from '@angular/cdk/scrolling';
 
-import { HostListener, ElementRef } from '@angular/core';
-import { CaseStatsService } from '@app/services/case-stats.service';
+
 import { CaseStatsResponse } from '@app/models/case-stats.model';
-import { NgZone } from '@angular/core';
 
 
 
@@ -62,23 +70,19 @@ export class DashboardCasesComponent implements OnInit, OnDestroy, AfterViewInit
 
   private resizeObserver?: ResizeObserver;
 
-  stats: CaseStatsResponse | null = null;
   filteredUnassignedCasesCache: CaseWithChannel[] = [];
   filteredAssignedCasesCache: CaseWithChannel[] = [];
   private filterTimeout: any;
 
   itemSize = "120"
 
-  readonly AUTO_REFRESH_LIMIT = 300;
 
   user: User | null = null;
   companies: { company_id: number; company_name: string }[] = [];
   selectedCompanyId: number | null = null;
 
 
-  refreshCountdown = 60; // segundos
-  refreshIntervalId: any;
-  countdownIntervalId: any;
+
 
   data: CaseWithChannel[] = [];
   unassignedCases: CaseWithChannel[] = [];
@@ -103,8 +107,6 @@ export class DashboardCasesComponent implements OnInit, OnDestroy, AfterViewInit
   // 
 
   totalCasesGlobal = 0;
-
-  dashboard: DashboardStats | null = null;
 
   showChatPreview = false;
   chatPreviewCase: CaseWithChannel | null = null;
@@ -148,6 +150,15 @@ export class DashboardCasesComponent implements OnInit, OnDestroy, AfterViewInit
 
   intervalId: any;
 
+
+  menuContext: {
+    case: any;
+    type: 'unassigned' | 'assigned';
+  } | null = null;
+
+  menuPosition = { top: 0, left: 0 };
+
+
   constructor(
     private el: ElementRef,
     private authService: AuthService,
@@ -158,8 +169,8 @@ export class DashboardCasesComponent implements OnInit, OnDestroy, AfterViewInit
     private languageService: LanguageService,
     private clienteService: ClientService,
     private alertService: AlertService,
-    private caseDashboardService: CaseDashboardService,
-    private caseStatsService: CaseStatsService,
+    // private caseDashboardService: CaseDashboardService,
+    // private caseStatsService: CaseStatsService,
     private cdr: ChangeDetectorRef,
     private zone: NgZone,
   ) { }
@@ -177,8 +188,6 @@ export class DashboardCasesComponent implements OnInit, OnDestroy, AfterViewInit
 
 
   ngOnDestroy(): void {
-    if (this.refreshIntervalId) clearInterval(this.refreshIntervalId);
-    if (this.countdownIntervalId) clearInterval(this.countdownIntervalId);
     this.resizeObserver?.disconnect();
   }
 
@@ -194,8 +203,6 @@ export class DashboardCasesComponent implements OnInit, OnDestroy, AfterViewInit
 
         await this.loadCasesByCompanyAndDepartment();
 
-        // await this.loadUnassignedCases();
-        // await this.loadDashboardStats();
       }
     } catch (error) {
       console.error('Error loading companies:', error);
@@ -330,38 +337,6 @@ export class DashboardCasesComponent implements OnInit, OnDestroy, AfterViewInit
     });
   }
 
-  async loadDashboardStats(): Promise<void> {
-    if (!this.selectedCompanyId) return;
-    try {
-      const res = await this.caseDashboardService.getByCompanyAndDepartmentID(this.selectedCompanyId, this.selectedShowDepartmentId!);
-      if (res.success && res.data) {
-        const data = res.data;
-
-        // 🔧 Normaliza valores nulos
-        data.cases_by_channel = data.cases_by_channel || [];
-        data.cases_by_agent = data.cases_by_agent || [];
-        data.oldest_open_cases = data.oldest_open_cases || [];
-
-        this.dashboard = {
-          ...res.data,
-          open_cases: res.data.open_cases ?? 0,
-          closed_cases: res.data.closed_cases ?? 0,
-          closed_today: res.data.closed_today ?? 0,
-          opened_today: res.data.opened_today ?? 0,
-          unassigned_agents: res.data.unassigned_agents ?? 0,
-          unassigned_clients: res.data.unassigned_clients ?? 0,
-          cases_by_channel: res.data.cases_by_channel || [],
-          cases_by_agent: res.data.cases_by_agent || [],
-          oldest_open_cases: res.data.oldest_open_cases || []
-        };
-
-
-        console.log('✅ Dashboard stats loaded:', this.dashboard);
-      }
-    } catch (err) {
-      console.error('Error loading dashboard stats', err);
-    }
-  }
 
   async loadUnassignedCases(): Promise<void> {
     if (!this.selectedCompanyId) return;
@@ -385,8 +360,7 @@ export class DashboardCasesComponent implements OnInit, OnDestroy, AfterViewInit
 
   async onCompanyChange(): Promise<void> {
     await this.loadDepartmentsForDisplay();
-    // await this.loadUnassignedCases();
-    // await this.loadDashboardStats();
+
   }
 
   async assignToAgent(data: any): Promise<void> {
@@ -412,12 +386,23 @@ export class DashboardCasesComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   async onDepartmentSelected(): Promise<void> {
-    if (!this.selectedDepartmentId) return;
+    if (!this.selectedDepartmentId) {
+      this.agents = [];
+      this.selectedAgentId = null;
+      return;
+    }
+
+    // 🔥 FIX CLAVE: LIMPIEZA INMEDIATA
+    this.agents = [];
+    this.selectedAgentId = null;
+    this.cdr.markForCheck(); // repaint inmediato
+
     try {
       const res = await this.agentUserService.getAgentsByCompanyAndDepartment(
         this.selectedCompanyId!,
         this.selectedDepartmentId
       );
+
       if (res.success && res.data) {
         this.agents = res.data;
       } else {
@@ -425,6 +410,9 @@ export class DashboardCasesComponent implements OnInit, OnDestroy, AfterViewInit
       }
     } catch (err) {
       console.error('Error loading agents by department', err);
+      this.agents = [];
+    } finally {
+      this.cdr.markForCheck();
     }
   }
 
@@ -432,6 +420,8 @@ export class DashboardCasesComponent implements OnInit, OnDestroy, AfterViewInit
     if (!this.selectedAgentId || !this.selectedCaseId || !this.user) return;
     this.assigning = true;
 
+
+    this.cdr.markForCheck(); // 🔥 asegura repaint inmediato del botón
 
     let agentID = Number(this.selectedAgentId);
 
@@ -444,10 +434,21 @@ export class DashboardCasesComponent implements OnInit, OnDestroy, AfterViewInit
         this.user.user_id,
         departmentId
       );
+
       if (res.success) {
         this.alertService.success('Case assigned successfully');
-        await this.loadUnassignedCases();
-        await this.loadDashboardStats();
+
+        // 🔥 cerrar modal ANTES de cargas pesadas
+        this.showAssignModal = false;
+        this.assigning = false;
+
+        // 🔥 FORZAR repaint inmediato
+        this.cdr.detectChanges();
+
+        this.loadCasesByCompanyAndDepartment();
+
+        //await this.loadUnassignedCases();
+        // await this.loadDashboardStats();
         this.showAssignModal = false;
       } else {
         this.alertService.error('Error assigning case to agent');
@@ -499,7 +500,7 @@ export class DashboardCasesComponent implements OnInit, OnDestroy, AfterViewInit
         this.alertService.success('Client assigned to case successfully');
         this.showClientAssignModal = false;
         await this.loadUnassignedCases();
-        await this.loadDashboardStats();
+
       } else {
         this.alertService.error('Error assigning client to case');
       }
@@ -624,13 +625,19 @@ export class DashboardCasesComponent implements OnInit, OnDestroy, AfterViewInit
 
 
   openChatPreview(c: CaseWithChannel) {
-    this.chatPreviewCase = c;
+    //this.chatPreviewCase = c;
+    this.chatPreviewCase = { ...c };
     this.showChatPreview = true;
+
+    this.cdr.markForCheck();
+
   }
 
   closeChatPreview() {
     this.showChatPreview = false;
     this.chatPreviewCase = null;
+
+    this.cdr.markForCheck();
   }
 
   openReassignDepartmentModal(c: CaseWithChannel) {
@@ -683,7 +690,7 @@ export class DashboardCasesComponent implements OnInit, OnDestroy, AfterViewInit
         this.alertService.success('Departamento actualizado correctamente');
         this.closeReassignDepartmentModal();
         await this.loadUnassignedCases();
-        await this.loadDashboardStats();
+
       } else {
         this.alertService.error('Error al reasignar el departamento');
       }
@@ -712,6 +719,14 @@ export class DashboardCasesComponent implements OnInit, OnDestroy, AfterViewInit
   @HostListener('document:keydown.escape')
   closeAllMenusESC() {
     this.closeAllMenus();
+  }
+
+  @HostListener('document:click')
+  onDocumentClick() {
+    if (this.menuContext) {
+      this.menuContext = null;
+      this.cdr.markForCheck();
+    }
   }
 
   private groupByCount<T>(
@@ -806,13 +821,6 @@ export class DashboardCasesComponent implements OnInit, OnDestroy, AfterViewInit
     // 🧠 Evita doble carga
     if (this.loading) return;
 
-    // ⛔ Bloquea auto-refresh si hay demasiados casos
-    if (!manual && this.totalCasesGlobal > this.AUTO_REFRESH_LIMIT) {
-      console.warn('⏸️ Auto-refresh bloqueado por alto volumen');
-      return;
-    }
-
-    this.refreshCountdown = 60;
 
     await this.loadCasesByCompanyAndDepartment();
 
@@ -875,6 +883,27 @@ export class DashboardCasesComponent implements OnInit, OnDestroy, AfterViewInit
 
       elements.forEach(el => this.resizeObserver!.observe(el));
     });
+  }
+
+
+  openMenu(event: MouseEvent, c: any, type: 'unassigned' | 'assigned') {
+    event.stopPropagation();
+
+    const rect = (event.target as HTMLElement).getBoundingClientRect();
+
+    this.menuPosition = {
+      top: rect.bottom + 6,
+      left: rect.right - 160
+    };
+
+    this.menuContext = { case: c, type };
+
+    this.cdr.markForCheck(); // 🔥 ESTA LÍNEA ES LA CLAVE
+  }
+
+  closeMenu() {
+    this.menuContext = null;
+    this.cdr.markForCheck();
   }
 
 }

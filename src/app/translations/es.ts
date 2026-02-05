@@ -327,6 +327,10 @@ export const esTranslations = {
 
   "client.custom_info": "Más",
 
+  "client.show_duplicate_phones": "Ver teléfonos duplicados",
+  "client.show_all_clients": "Ver todos los clientes",
+  "client.failed_to_load_duplicates": "No se pudieron cargar los clientes duplicados",
+
   // Items
 
   "item.management_title": "Gestión de Ítems",

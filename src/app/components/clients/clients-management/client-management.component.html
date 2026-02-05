@@ -22,6 +22,16 @@
       </div>
     </div>
 
+    <button type="button" (click)="toggleDuplicates()" class="flex items-center px-4 py-2 rounded-md text-sm font-medium
+         border border-gray-300 text-[#00113f]
+         bg-white hover:bg-gray-100
+         dark:bg-gray-700 dark:text-white dark:border-gray-600">
+
+      {{ showingDuplicates
+      ? t('client.show_all_clients')
+      : t('client.show_duplicate_phones') }}
+    </button>
+
     <!-- List -->
     <app-clients-list [clients]="clients" [isLoading]="isLoading" (edit)="onEdit($event)" (remove)="onRemove($event)"
       (view)="onView($event)">
@@ -79,6 +89,7 @@
               class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 px-4 py-2 bg-white text-gray-700 hover:bg-gray-50 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:bg-gray-800 dark:text-white dark:border-gray-600">
               {{ t('client.cancel') }}
             </button>
+
           </div>
         </div>
       </div>

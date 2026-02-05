@@ -7,6 +7,7 @@ import { Client } from '@app/models/client.model';
 import { Lead } from '@app/models/lead.model';
 import { LeadRequest } from '@app/models/lead-request.model';
 import { CustomField } from '@app/models/custom-field.model';
+import { DuplicatePhoneGroup } from '@app/models/client-duplicates.model';
 
 const GATEWAY = '/clients';
 export const CLIENT_URL = returnCompleteURI({
@@ -14,9 +15,11 @@ export const CLIENT_URL = returnCompleteURI({
   API_Gateway: GATEWAY,
 });
 
+
+
 @Injectable({ providedIn: 'root' })
 export class ClientService {
-  constructor(private fetch: FetchService) {}
+  constructor(private fetch: FetchService) { }
 
   async getAll(): Promise<ApiResponse<Client[]>> {
     return await this.fetch.get<ApiResponse<Client[]>>({ API_Gateway: `${CLIENT_URL}` });
@@ -44,9 +47,24 @@ export class ClientService {
     return await this.fetch.post<ApiResponse<void>>({ API_Gateway: `${CLIENT_URL}/leads`, values: data });
   }
 
-	//r.GET("/clients/custom_fields/:entity_id", ctrl.GetCustomFields)
+  //r.GET("/clients/custom_fields/:entity_id", ctrl.GetCustomFields)
   // Obtiene los campos personalizados de un cliente
   async getCustomFields(entityId: number): Promise<ApiResponse<CustomField[]>> {
     return await this.fetch.get<ApiResponse<CustomField[]>>({ API_Gateway: `${CLIENT_URL}/custom_fields/${entityId}` });
-  }     
+  }
+
+
+  async getDuplicatePhones(): Promise<ApiResponse<DuplicatePhoneGroup[]>> {
+    return await this.fetch.get<ApiResponse<DuplicatePhoneGroup[]>>({
+      API_Gateway: `${CLIENT_URL}/duplicates/phone`,
+    });
+  }
+
+  async getByExternalId(externalId: string): Promise<ApiResponse<Client[]>> {
+    return await this.fetch.get<ApiResponse<Client[]>>({
+      API_Gateway: `${CLIENT_URL}/external/${externalId}`,
+    });
+  }
+
+
 }

@@ -29,7 +29,9 @@ export class ClientManagementComponent {
   deletingId: number | null = null;
   isDeleting = false;
 
- 
+
+  showingDuplicates = false;
+
   constructor(
     private lang: LanguageService,
     private auth: AuthorizationService,
@@ -115,5 +117,39 @@ export class ClientManagementComponent {
   onRemove(c: Client) { this.askDelete(c); }
   onView(_c: Client) {
     // si quisieras un modal de detalle, puedes implementarlo igual que en companies
+  }
+
+  async toggleDuplicates(): Promise<void> {
+    if (this.showingDuplicates) {
+      // 🔁 Volver a listado normal
+      this.showingDuplicates = false;
+      await this.load();
+      return;
+    }
+
+    try {
+      this.isLoading = true;
+      const r = await this.service.getDuplicatePhones();
+
+      if (r.success && r.data) {
+        // 🔹 Flatten: grupos → lista de clientes
+        this.clients = r.data.flatMap(g =>
+          g.clients.map(c => ({
+            ...c,
+            // opcional: marcar que es duplicado
+            _duplicate_phone: g.phone,
+            _duplicate_count: g.count
+          }))
+        );
+
+        this.showingDuplicates = true;
+      } else {
+        this.alert.error(this.t('client.failed_to_load_duplicates'));
+      }
+    } catch {
+      this.alert.error(this.t('client.failed_to_load_duplicates'));
+    } finally {
+      this.isLoading = false;
+    }
   }
 }

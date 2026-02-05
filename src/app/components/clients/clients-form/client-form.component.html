@@ -232,4 +232,43 @@
 
     </div>
   </div>
+<!-- Modal external_id duplicado -->
+<div *ngIf="showExternalIdDialog" class="fixed inset-0 z-60 flex items-center justify-center bg-black bg-opacity-50">
+  <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-lg w-full p-6">
+    <h3 class="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+      Identificación ya registrada
+    </h3>
+
+    <p class="text-sm text-gray-600 dark:text-black mb-3">
+      La identificación <strong>{{ form.value.external_id }}</strong> ya se encuentra registrada en el sistema.
+    </p>
+
+    <div class="max-h-40 overflow-y-auto border rounded-md mb-4">
+      <ul class="divide-y">
+        <li *ngFor="let c of existingClients" class="p-2 text-sm text-black ">
+          <strong>#{{ c.id }}</strong> — {{ c.full_name || 'Sin nombre' }}
+          <br />
+          <span class="text-gray-800">{{ c.email || '-' }}</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="flex justify-end gap-2">
+      <button
+        type="button"
+        (click)="showExternalIdDialog = false"
+        class="px-4 py-2 rounded-md bg-gray-200 text-black text-sm">
+        Continuar de todos modos
+      </button>
+
+      <button
+        type="button"
+        (click)="form.get('external_id')?.reset(); showExternalIdDialog = false"
+        class="px-4 py-2 rounded-md bg-red-600 text-white text-sm">
+        Cambiar identificación
+      </button>
+    </div>
+  </div>
+</div>
+
 </div>
