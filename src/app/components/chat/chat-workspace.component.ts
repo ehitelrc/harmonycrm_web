@@ -2199,6 +2199,12 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
     return '📄';
   }
 
+  // Estado para el modal de PDF
+  isPdfPreviewOpen = false;
+  pdfPreviewSafeUrl: SafeResourceUrl | null = null;
+  currentPdfUrl: string | null = null;
+  currentPdfFilename: string | null = null;
+
   async downloadFile(m: Message) {
     if (!m.id) {
       console.warn('Cannot download file without ID');
@@ -2209,7 +2215,6 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
     const filename = m.text_content || 'archivo';
 
     let baseUrl = environment.API.BASE;
-    // Asegurar que solo quitamos /api del final
     if (baseUrl.endsWith('/api')) {
       baseUrl = baseUrl.substring(0, baseUrl.length - 4);
     }
@@ -2220,20 +2225,40 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
     const isPdf = m.mime_type?.toLowerCase().includes('pdf') || filename.toLowerCase().endsWith('.pdf');
 
     if (isPdf) {
-      // PDF -> Abrir en nueva pestaña
-      window.open(url, '_blank');
+      // PDF -> Abrir en MODAL
+      this.currentPdfUrl = url;
+      this.currentPdfFilename = filename;
+      this.pdfPreviewSafeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
+      this.isPdfPreviewOpen = true;
     } else {
-      // Otros -> Descarga directa (sin abrir pestaña blanca)
-      const iframe = document.createElement('iframe');
-      iframe.style.display = 'none';
-      iframe.src = url;
-      document.body.appendChild(iframe);
-
-      // Limpiar iframe después de un tiempo prudente
-      setTimeout(() => {
-        document.body.removeChild(iframe);
-      }, 5000);
+      // Otros -> Descarga directa
+      this.downloadUrl(url);
     }
+  }
+
+  // Helper para descarga directa usando iframe oculto
+  downloadUrl(url: string) {
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none';
+    iframe.src = url;
+    document.body.appendChild(iframe);
+
+    setTimeout(() => {
+      document.body.removeChild(iframe);
+    }, 5000);
+  }
+
+  downloadCurrentPdf() {
+    if (this.currentPdfUrl) {
+      // Abrir en nueva pestaña para permitir que el usuario lo descargue desde el visor del navegador
+      window.open(this.currentPdfUrl, '_blank');
+    }
+  }
+
+  closePdfPreview() {
+    this.isPdfPreviewOpen = false;
+    this.pdfPreviewSafeUrl = null;
+    this.currentPdfUrl = null;
   }
 
   safeAttachmentSrc(m?: Message | null): SafeResourceUrl {
