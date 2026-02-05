@@ -2216,7 +2216,24 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
 
     const url = `${baseUrl}/public/downloads/${encodeURIComponent(filename)}`;
 
-    window.open(url, '_blank');
+    // Detectar si es PDF
+    const isPdf = m.mime_type?.toLowerCase().includes('pdf') || filename.toLowerCase().endsWith('.pdf');
+
+    if (isPdf) {
+      // PDF -> Abrir en nueva pestaña
+      window.open(url, '_blank');
+    } else {
+      // Otros -> Descarga directa (sin abrir pestaña blanca)
+      const iframe = document.createElement('iframe');
+      iframe.style.display = 'none';
+      iframe.src = url;
+      document.body.appendChild(iframe);
+
+      // Limpiar iframe después de un tiempo prudente
+      setTimeout(() => {
+        document.body.removeChild(iframe);
+      }, 5000);
+    }
   }
 
   safeAttachmentSrc(m?: Message | null): SafeResourceUrl {
