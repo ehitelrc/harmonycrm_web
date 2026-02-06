@@ -2208,45 +2208,62 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
   async downloadFile(m: Message) {
     if (!m.id) {
       console.warn('Cannot download file without ID');
+      this.alert.error('El mensaje no tiene ID, no se puede descargar.');
       return;
     }
 
-    // Usar la URL directa: BASE (sin /api) + /public/downloads/ + nombre_archivo
     const filename = m.text_content || 'archivo';
-
-    let baseUrl = environment.API.BASE;
-    if (baseUrl.endsWith('/api')) {
-      baseUrl = baseUrl.substring(0, baseUrl.length - 4);
-    }
-
-    const url = `${baseUrl}/public/downloads/${encodeURIComponent(filename)}`;
-
-    // Detectar si es PDF
     const isPdf = m.mime_type?.toLowerCase().includes('pdf') || filename.toLowerCase().endsWith('.pdf');
 
-    if (isPdf) {
-      // PDF -> Abrir en MODAL
-      this.currentPdfUrl = url;
-      this.currentPdfFilename = filename;
-      this.pdfPreviewSafeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(url);
-      this.isPdfPreviewOpen = true;
-    } else {
-      // Otros -> Descarga directa
-      this.downloadUrl(url);
+    try {
+      // 1. Obtener URL del archivo desde la API
+      console.log("Solicitando descarga archivo", m.id);
+      const res = await this.chatService.downloadMessageFile(m.id);
+
+      if (!res.success || !res.data?.url) {
+        console.error('Error en respuesta de descarga:', res);
+        this.alert.error('No se pudo obtener el enlace de descarga.');
+        return;
+      }
+
+      // 2. Construir URL absoluta
+      let baseUrl = environment.API.BASE;
+      if (baseUrl.endsWith('/api')) {
+        baseUrl = baseUrl.substring(0, baseUrl.length - 4);
+      }
+      const fullUrl = `${baseUrl}${res.data.url}`;
+
+      console.log("Descargando desde:", fullUrl);
+
+      // 3. Descargar/Visualizar
+      if (isPdf) {
+        // PDF -> Abrir en MODAL
+        this.currentPdfUrl = fullUrl;
+        this.currentPdfFilename = filename;
+        this.pdfPreviewSafeUrl = this.sanitizer.bypassSecurityTrustResourceUrl(fullUrl);
+        this.isPdfPreviewOpen = true;
+      } else {
+        // Otros -> Descarga directa
+        const a = document.createElement('a');
+        a.href = fullUrl;
+        a.download = filename;
+        a.target = '_blank';
+        document.body.appendChild(a);
+        a.click();
+
+        // Limpieza
+        setTimeout(() => {
+          document.body.removeChild(a);
+        }, 100);
+      }
+
+    } catch (e) {
+      console.error('Error downloading file:', e);
+      this.alert.error('Error al descargar el archivo.');
     }
   }
 
-  // Helper para descarga directa usando iframe oculto
-  downloadUrl(url: string) {
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none';
-    iframe.src = url;
-    document.body.appendChild(iframe);
 
-    setTimeout(() => {
-      document.body.removeChild(iframe);
-    }, 5000);
-  }
 
   downloadCurrentPdf() {
     if (this.currentPdfUrl) {

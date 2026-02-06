@@ -268,8 +268,8 @@ export class CaseService {
     });
   }
 
-  downloadMessageFile(messageId: number): Promise<Blob> {
-    return this.fetch.download({
+  downloadMessageFile(messageId: number): Promise<ApiResponse<{ url: string, path: string }>> {
+    return this.fetch.get<ApiResponse<{ url: string, path: string }>>({
       API_Gateway: `${CASE_URL}/entry/download/${messageId}`,
     });
   }
