@@ -8,7 +8,7 @@ export const environment = {
   },
   TESTING: true,
   production: false,
-  appVersion: 'v2.0.33-stable',
+  appVersion: 'v2.0.34-stable',
   socket_url: 'wss://api.harmony.vpcrapps.com'//'ws://localhost:8098' // 'ws://localhost:8098' // //'ws://localhost:8098' 
   //socket_url:  'ws://localhost:8098' // 'ws://localhost:8098' // //'ws://localhost:8098' 
 };
