@@ -798,76 +798,52 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
   // }
 
   openAttachment(m: Message) {
-    this.viewingAttachment = m;
-    this.isAttachmentModalOpen = true;
-
-    // reset del visor
-    this.imageLoaded = false;
-    this.zoomLevel = 1;
-    this.fitToScreen = true;
-
     const mime = (m.mime_type || '').toLowerCase();
-    const src = m.file_url || m.base64_content || null;
 
-    if (!src) {
-      console.warn("No se puede abrir el adjunto: sin contenido");
+    // 1. Prioridad: Si es explícitamente archivo, PDF o no es imagen/audio, usar lógica de descarga
+    const isImage = mime.startsWith('image/') || m.message_type === 'image';
+    const isAudio = mime.startsWith('audio/') || m.message_type === 'audio';
+    const isPdf = mime.includes('pdf');
+
+    if (m.message_type === 'file' || isPdf || (!isImage && !isAudio)) {
+      this.downloadFile(m);
       return;
     }
 
-    // =========================================
-    //  🖼 IMÁGENES
-    // =========================================
-    if (mime.startsWith("image/")) {
-      const imgs = this.imageAttachments;
+    // 2. Imágenes y Audios se manejan en el visor modal
+    if (isImage || isAudio) {
+      this.viewingAttachment = m;
+      this.isAttachmentModalOpen = true;
 
-      const idx = imgs.findIndex(x =>
-        (x.id && m.id && x.id === m.id) ||
-        (!!x.channel_message_id && !!m.channel_message_id && x.channel_message_id === m.channel_message_id) ||
-        (x.created_at === m.created_at && x.message_type === m.message_type)
-      );
+      // reset del visor
+      this.imageLoaded = false;
+      this.zoomLevel = 1;
+      this.fitToScreen = true;
 
-      this.viewingIndex = idx;
-      this.currentAttachmentType = "image";
-      this.currentAttachmentSrc = src;
-      return;
-    }
-
-    // =========================================
-    // 🔊 AUDIO
-    // =========================================
-    if (mime.startsWith("audio/")) {
-      this.currentAttachmentType = "audio";
-      this.currentAttachmentSrc = src;
-      this.viewingIndex = -1;
-      return;
-    }
-
-    // =========================================
-    // 📕 PDF
-    // =========================================
-    if (mime.includes("pdf")) {
-      this.currentAttachmentType = "pdf";
-
-      // si es base64, lo usamos directo
-      if (src.startsWith("data:")) {
-        this.currentAttachmentSrc = src;
-      } else {
-        // si es URL directa, usamos visor
-        this.currentAttachmentSrc =
-          `https://docs.google.com/viewer?url=${encodeURIComponent(src)}&embedded=true`;
+      const src = m.file_url || m.base64_content || null;
+      if (!src) {
+        console.warn('No se puede abrir el adjunto: sin contenido');
+        return;
       }
 
-      this.viewingIndex = -1;
+      if (isImage) {
+        const imgs = this.imageAttachments;
+        const idx = imgs.findIndex(x =>
+          (x.id && m.id && x.id === m.id) ||
+          (!!x.channel_message_id && !!m.channel_message_id && x.channel_message_id === m.channel_message_id) ||
+          (x.created_at === m.created_at && x.message_type === m.message_type)
+        );
+        this.viewingIndex = idx;
+        this.currentAttachmentType = 'image';
+        this.currentAttachmentSrc = src;
+      } else {
+        // audio
+        this.currentAttachmentType = 'audio';
+        this.currentAttachmentSrc = src;
+        this.viewingIndex = -1;
+      }
       return;
     }
-
-    // =========================================
-    // 📘 DOC, DOCX — 📗 XLS, XLSX — 🗜 ZIP — TXT…
-    // =========================================
-    this.currentAttachmentType = "file";
-    this.currentAttachmentSrc = src;
-    this.currentAttachmentName = m.text_content || "archivo";
-    this.viewingIndex = -1;
   }
 
   closeAttachmentModal() {
