@@ -159,6 +159,18 @@ export class DashboardCasesComponent implements OnInit, OnDestroy, AfterViewInit
   menuPosition = { top: 0, left: 0 };
 
 
+  // Bulk Reassignment
+  showBulkReassignModal = false;
+  bulkSourceAgentId: number | null = null;
+  bulkTargetAgentId: number | null = null;
+  bulkAgentCases: CaseWithChannel[] = [];
+  bulkAgentCasesLoading = false;
+  bulkSelectedCases: Set<number> = new Set();
+  isBulkAssigning = false;
+  bulkAssignProgress = 0;
+  showBulkConfirmation = false;
+
+
   constructor(
     private el: ElementRef,
     private authService: AuthService,
@@ -798,6 +810,167 @@ export class DashboardCasesComponent implements OnInit, OnDestroy, AfterViewInit
   }
 
   // 👇 debajo de computeCasesByChannel()
+
+  // BULK REASSIGNMENT LOGIC
+
+  openBulkReassignModal() {
+    if (!this.selectedShowDepartmentId) {
+      this.alertService.error('Seleccione primero un departamento en el tablero.');
+      return;
+    }
+
+    this.showBulkReassignModal = true;
+    this.bulkSourceAgentId = null;
+    this.bulkTargetAgentId = null;
+    this.bulkAgentCases = [];
+    this.bulkSelectedCases.clear();
+    this.bulkAssignProgress = 0;
+    this.showBulkConfirmation = false;
+
+    // Cargar agentes del departamento actual si no están cargados o si cambian
+    // Reutilizamos la lógica de cargar agentes, pero forzamos el depto actual
+    this.loadAgentsForCurrentDepartment();
+  }
+
+  closeBulkReassignModal() {
+    this.showBulkReassignModal = false;
+    this.bulkSourceAgentId = null;
+    this.bulkTargetAgentId = null;
+    this.bulkAgentCases = [];
+    this.bulkSelectedCases.clear();
+    this.bulkAssignProgress = 0;
+    this.showBulkConfirmation = false;
+  }
+
+  async loadAgentsForCurrentDepartment() {
+    if (!this.selectedCompanyId || !this.selectedShowDepartmentId) return;
+
+    try {
+      // Usamos selectedShowDepartmentId que es el del filtro principal
+      const res = await this.agentUserService.getAgentsByCompanyAndDepartment(
+        this.selectedCompanyId,
+        this.selectedShowDepartmentId
+      );
+
+      if (res.success && res.data) {
+        this.agents = res.data;
+      } else {
+        this.agents = [];
+      }
+      this.cdr.markForCheck();
+    } catch (err) {
+      console.error('Error loading agents for bulk', err);
+      this.agents = [];
+    }
+  }
+
+  async onBulkSourceAgentSelected() {
+    if (!this.bulkSourceAgentId) return;
+
+    this.bulkAgentCasesLoading = true;
+    this.bulkAgentCases = [];
+    this.bulkSelectedCases.clear();
+    this.cdr.markForCheck();
+
+    try {
+      const sourceId = Number(this.bulkSourceAgentId);
+      // 🔥 FIX: Usar los casos ya cargados en memoria que corresponden a la vista actual
+      // en lugar de llamar a getByAgent que puede traer casos de otros contextos
+      this.bulkAgentCases = this.assignedCases.filter(c => c.agent_id === sourceId);
+
+    } catch (err) {
+      console.error('Error loading source agent cases', err);
+      this.alertService.error('Error al cargar casos del agente');
+    } finally {
+      this.bulkAgentCasesLoading = false;
+      this.cdr.markForCheck();
+    }
+  }
+
+  toggleBulkCaseSelection(caseId: number) {
+    if (this.bulkSelectedCases.has(caseId)) {
+      this.bulkSelectedCases.delete(caseId);
+    } else {
+      this.bulkSelectedCases.add(caseId);
+    }
+  }
+
+  toggleAllBulkCases(event: any) {
+    const checked = event.target.checked;
+    if (checked) {
+      this.bulkAgentCases.forEach(c => this.bulkSelectedCases.add(c.case_id));
+    } else {
+      this.bulkSelectedCases.clear();
+    }
+  }
+
+  isAllBulkCasesSelected(): boolean {
+    return this.bulkAgentCases.length > 0 && this.bulkSelectedCases.size === this.bulkAgentCases.length;
+  }
+
+  get bulkSelectedCount(): number {
+    return this.bulkSelectedCases.size;
+  }
+
+  async executeBulkReassignment() {
+    if (!this.bulkTargetAgentId || this.bulkSelectedCases.size === 0 || !this.user) return;
+
+    if (this.bulkSourceAgentId === this.bulkTargetAgentId) {
+      this.alertService.error('El agente destino no puede ser el mismo que el origen.');
+      return;
+    }
+
+    // Paso 1: Mostrar confirmación visual
+    this.showBulkConfirmation = true;
+  }
+
+  async processBulkReassignment() {
+    if (!this.bulkTargetAgentId || !this.user) return;
+
+    this.isBulkAssigning = true;
+    const total = this.bulkSelectedCases.size;
+    let processed = 0;
+    this.bulkAssignProgress = 0;
+
+    const caseIds = Array.from(this.bulkSelectedCases);
+    const targetAgentId = Number(this.bulkTargetAgentId);
+    const departmentId = Number(this.selectedShowDepartmentId) || 0;
+
+    try {
+      // Iteramos secuencialmente para actualizar progreso
+      for (const caseId of caseIds) {
+        await this.caseService.assignCaseToAgent(
+          caseId,
+          targetAgentId,
+          this.user.user_id,
+          departmentId
+        );
+        processed++;
+        this.bulkAssignProgress = Math.round((processed / total) * 100);
+        this.cdr.markForCheck();
+      }
+
+      this.alertService.success(`Se reasignaron ${processed} casos exitosamente.`);
+      this.closeBulkReassignModal();
+      this.onShowDepartmentSelected(); // Refrescar tablero principal
+
+    } catch (err) {
+      console.error('Error in bulk reassignment', err);
+      this.alertService.error('Ocurrió un error parcial durante la reasignación.');
+      this.onShowDepartmentSelected();
+    } finally {
+      this.isBulkAssigning = false;
+      this.bulkAssignProgress = 0;
+      this.cdr.markForCheck();
+    }
+  }
+
+  getAgentName(id: number | null): string {
+    if (!id) return '...';
+    const agent = this.agents.find(a => a.agent_id == id);
+    return agent ? agent.agent_name : 'Desconocido';
+  }
+
   getAssignedPercent(ch: { total: number; assigned: number; unassigned: number }): number {
     if (!ch || !ch.total) return 0;
     const pct = (ch.assigned * 100) / ch.total;
