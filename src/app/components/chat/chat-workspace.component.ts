@@ -882,6 +882,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
         channel_message_id: api.channel_message_id ?? fallback.channel_message_id ?? '',
         created_at: api.created_at ?? fallback.created_at,
         base64_content: api.base64_content ?? null,
+        status: api.status ?? fallback.status,
       };
     }
 
@@ -898,7 +899,8 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
       created_at: new Date().toISOString(),
       base64_content: null,
       has_error: api.has_error ?? false,
-      message_error: api.message_error ?? null
+      message_error: api.message_error ?? null,
+      status: api.status ?? null
     };
   }
 

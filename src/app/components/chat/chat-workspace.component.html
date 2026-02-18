@@ -103,9 +103,14 @@
                                 </span>
                             </div>
 
-                            <!-- Cliente -->
-                            <div class="text-sm font-semibold text-gray-800 dark:text-white truncate">
-                                {{ c.client_name }}
+                            <!-- Cliente + Hora -->
+                            <div class="flex items-center justify-between">
+                                <div class="text-sm font-semibold text-gray-800 dark:text-white truncate">
+                                    {{ c.client_name }}
+                                </div>
+                                <div *ngIf="c.last_message_at" class="text-[10px] text-gray-400 whitespace-nowrap ml-2">
+                                    {{ c.last_message_at | date:'short' }}
+                                </div>
                             </div>
 
                             <!-- Último mensaje -->
@@ -268,9 +273,44 @@
 
                             </div>
 
-                            <!-- Fecha -->
-                            <div class="mt-2 text-[10px] text-gray-500 dark:text-gray-400 text-right">
-                                {{ m.created_at | date:'short' }}
+                            <div class="mt-2 flex items-center justify-end gap-1">
+                                <span class="text-[10px] text-gray-500 dark:text-gray-400">
+                                    {{ m.created_at | date:'short' }}
+                                </span>
+
+                                <!-- Status Icons (only for agent/system messages) -->
+                                <ng-container *ngIf="isFromAgent(m)">
+                                    <!-- Pending / Null / Empty -> Clock -->
+                                    <svg *ngIf="!m.status" xmlns="http://www.w3.org/2000/svg"
+                                        class="h-3 w-3 text-gray-400" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+
+                                    <!-- Delivered -> Single Check -->
+                                    <svg *ngIf="m.status === 'delivered' || m.status === 'sent'"
+                                        xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-gray-400" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+
+                                    <!-- Read -> Double Check (Blue) -->
+                                    <svg *ngIf="m.status === 'read'" xmlns="http://www.w3.org/2000/svg"
+                                        class="h-3 w-3 text-blue-500" fill="none" viewBox="0 0 24 24"
+                                        stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M16 6L9 13L6.5 10.5M21 6L14 13L11.5 10.5" />
+                                    </svg>
+
+                                    <!-- Failed -> Error -->
+                                    <svg *ngIf="m.status === 'failed' || m.status === 'fail'"
+                                        xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-red-500" fill="none"
+                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                        <path stroke-linecap="round" stroke-linejoin="round"
+                                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                </ng-container>
                             </div>
 
                             <!-- Error -->
