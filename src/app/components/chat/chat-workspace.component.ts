@@ -1442,8 +1442,79 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
     this.closeNote = '';
   }
 
+  async onSendImage(event: { base64: string, description: string }) {
+    if (!this.selectedCase) return;
+    this.closeImageModal();
+
+    const msg = buildAgentImageMessage(
+      this.selectedCase.case_id,
+      event.description,
+      event.base64
+    );
+
+    try {
+      await this.chatService.sendMessage(msg);
+    } catch (e) {
+      this.alert.error('Error enviando imagen');
+    }
+  }
+
+  async onSendFile(event: { base64: string, filename: string, mime: string }) {
+    if (!this.selectedCase) return;
+    this.closeFileModal();
+
+    const msg = buildAgentFileMessage(
+      this.selectedCase.case_id,
+      event.filename,
+      event.base64,
+      event.mime
+    );
+
+    try {
+      await this.chatService.sendMessage(msg);
+    } catch (e) {
+      this.alert.error('Error enviando archivo');
+    }
+  }
+
+  async onSendAudio(event: { base64: string, filename: string, mime: string }) {
+    if (!this.selectedCase) return;
+    this.closeAudioModal();
+
+    const msg = buildAgentAudioMessage(
+      this.selectedCase.case_id,
+      event.filename,
+      event.base64,
+      event.mime
+    );
+
+    try {
+      await this.chatService.sendMessage(msg);
+    } catch (e) {
+      this.alert.error('Error enviando audio');
+    }
+  }
+
+  closeAudioModal() {
+    this.isAudioModalOpen = false;
+  }
+
+  closeMoveStageModal() {
+    this.isMoveStageOpen = false;
+  }
+
+  closeFileModal() {
+    this.isFileModalOpen = false;
+    this.startInAudioMode = false;
+  }
+
   closeCloseCaseModal() {
     this.isCloseCaseOpen = false;
+  }
+
+  async closeCase() {
+    this.isCloseCaseOpen = true;
+    this.closeNote = '';
   }
 
   async confirmCloseCase() {
@@ -1866,11 +1937,15 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
     this.isNewConversationOpen = true;
 
     // limpia los campos del modal
-    this.newConvPhone = '';
+    this.newConvPhone = '506';
     this.newConvSelectedClient = null;
-    this.newConvSelectedTemplate = null;
-
-
+    if (!this.templates.length) {
+      this.loadCompanyTemplates();
+    }
+    // Carga integraciones si no hay
+    if (!this.integrations.length) {
+      this.loadIntegrations();
+    }
   }
 
   async searchNewConvClient() {
@@ -2028,23 +2103,66 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
     if (!this.selectedCompanyId) return;
 
     try {
-      const res = await this.departmentService.getByCompanyAndUser(
-        this.selectedCompanyId,
-        this.agent_id || 0
-      );
-
-      this.showDepartments = res.success && res.data ? res.data : [];
-      this.selectedShowDepartmentId = this.showDepartments[0]?.id || null;
-
-      // ⬇️ ESTE ES EL FIX
-      if (this.selectedShowDepartmentId) {
-        this.onShowDepartmentSelected();  // <-- DISPARA LA CARGA
+      this.isLoadingDepartments = true;
+      const response = await this.departmentService.getByCompany(this.selectedCompanyId); // Asegúrate de que este método exista y sea correcto
+      if (response?.data) {
+        this.showDepartments = Array.isArray(response.data) ? response.data : [];
+      } else {
+        this.showDepartments = [];
       }
-
-    } catch (err) {
-      console.error('Error loading departments for display', err);
+    } catch (error) {
+      console.error('Error loading departments:', error);
+      this.showDepartments = [];
+    } finally {
+      this.isLoadingDepartments = false;
     }
   }
+
+  async loadIntegrations() {
+    try {
+      // Ajusta según tu AuthService o donde tengas el company_id
+      const companyId = this.authData?.company_id;
+      if (!companyId) return;
+
+      const res = await this.channelService.getWhatsappIntegrationsByCompany(companyId);
+      if (res?.data) {
+        this.integrations = Array.isArray(res.data) ? res.data : [];
+      }
+    } catch (err) {
+      console.error("Error loading integrations", err);
+    }
+  }
+
+  async loadCompanyTemplates() {
+    try {
+      if (!this.authData?.company_id) return;
+
+      this.templateLoading = true;
+      const res = await this.channelService.getWhatsappTemplatesByCompany(this.authData.company_id);
+
+      const rawTemplates = (Array.isArray(res?.data) ? res.data : []).map((t: any) => ({
+        ...t,
+        id: t.id || t.template_id
+      }));
+
+      // Deduplicate by name + language
+      const uniqueMap = new Map();
+      for (const t of rawTemplates) {
+        const key = `${t.template_name}-${t.language}`;
+        if (!uniqueMap.has(key)) {
+          uniqueMap.set(key, t);
+        }
+      }
+      this.templates = Array.from(uniqueMap.values());
+
+    } catch (e) {
+      console.error("Error loading templates", e);
+    } finally {
+      this.templateLoading = false;
+    }
+  }
+
+
 
 
   onShowDepartmentSelected(): void {
@@ -2107,63 +2225,8 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
   }
 
 
-  closeFileModal() {
-    this.isFileModalOpen = false;
-    this.startInAudioMode = false; // limpiar para la próxima
-  }
 
 
-  async onFileSend(event: { base64: string; filename: string, mime: string }) {
-    if (!this.selectedCase) return;
-
-    const clientTmpId = `tmp-file-${Date.now()}`;
-
-    // Detectar MIME desde base64
-
-    if (event.base64.startsWith("data:")) {
-      const parts = event.base64.split(";")[0];
-    }
-
-    const optimistic: Message = {
-      id: 0,
-      case_id: this.selectedCase.case_id,
-      sender_type: 'agent',
-      message_type: 'file',
-      text_content: event.filename,  // el nombre del archivo
-      file_url: null,
-      mime_type: event.mime,
-      channel_message_id: clientTmpId,
-      created_at: new Date().toISOString(),
-      base64_content: event.base64,
-    };
-
-    // Se agrega optimista al chat
-    this.messages = [...this.messages, optimistic];
-    this.scrollToBottomSoon();
-
-    try {
-      const payload = buildAgentFileMessage(
-        this.selectedCase.case_id,
-        event.filename,
-        event.base64,
-        event.mime
-      );
-
-      (payload as any).client_tmp_id = clientTmpId;
-
-      await this.chatService.sendMessage(payload);
-
-      this.alert.success('Archivo enviado correctamente');
-    } catch (err) {
-      console.error("❌ Error al enviar archivo", err);
-      this.alert.error("Error al enviar archivo");
-      // remover optimista fallido
-      this.messages = this.messages.filter(m => m.channel_message_id !== clientTmpId);
-    } finally {
-      // cerrar modal
-      this.closeFileModal?.();  // si lo tienes como modal separado
-    }
-  }
 
 
   getFileIcon(mime: string | null | undefined): string {
@@ -2276,61 +2339,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
 
   }
 
-  async onAudioSend(event: any) {
 
-    console.log("AUDIO RECIBIDO DEL MODAL", event);
-    this.isAudioModalOpen = false;
-
-
-    try {
-
-      let base64 = "";
-      let mime = "";
-      let filename = "audio.webm";
-
-      if (event.blob) {
-        const reader = new FileReader();
-        reader.onloadend = () => {
-          base64 = (reader.result as string).split(',')[1];
-          this.sendAudioMessage(base64, filename, mime);
-        };
-        reader.readAsDataURL(event.blob);
-      } else {
-        base64 = event.base64;
-        mime = event.mime;
-        filename = event.filename;
-        await this.sendAudioMessage(base64, filename, mime);
-      }
-
-      // 🔥 La clave para que Angular SÍ cierre el modal
-      setTimeout(() => {
-        this.isAudioModalOpen = false;
-      });
-    } catch (err) {
-      console.error("❌ Error al enviar audio", err);
-      this.alert.error("Error al enviar audio");
-    }
-    this.isAudioModalOpen = false;
-  }
-
-  async sendAudioMessage(base64: string, filename: string, mime: string) {
-
-    const msg = buildAgentAudioMessage(
-      this.selectedCase!.case_id, // <-- garantía para TS de que NO es undefined
-      filename,
-      base64,
-      mime
-    );
-
-    await this.chatService.sendMessage(msg)
-
-  }
-
-  closeAudioModal() {
-    setTimeout(() => {
-      this.isAudioModalOpen = false;
-    }, 0);
-  }
 
   onPhoneInput(): void {
     if (!this.newConvPhone) return;

@@ -1,144 +1,201 @@
+/* Modern Scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
 .link {
   color: #3e66ea;
   text-decoration: underline;
+  transition: opacity 0.2s;
 }
-.link:hover { opacity: .9; }
 
+.link:hover {
+  opacity: .8;
+}
+
+/* Chip Buttons */
 .chip-btn {
   font-size: 12px;
-  border: 1px solid rgba(0,0,0,.1);
-  padding: 6px 10px;
-  border-radius: 9999px;
+  border: 1px solid rgba(0, 0, 0, .08);
+  padding: 6px 12px;
+  border-radius: 8px;
   background: #fff;
   color: #374151;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
+
+.chip-btn:hover {
+  background: #f9fafb;
+  border-color: #cbd5e1;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
 .dark .chip-btn {
   background: #1f2937;
   color: #e5e7eb;
   border-color: #374151;
+  box-shadow: none;
 }
 
-.chat-scrollbox { scroll-behavior: smooth; }
+.dark .chip-btn:hover {
+  background: #374151;
+  border-color: #4b5563;
+}
 
+.chat-scrollbox {
+  scroll-behavior: smooth;
+}
 
-/* Caja del modal: altura max 90vh y layout en columna */
+/* Modal Box */
 .modal-box {
-  max-height: 80vh;
-  max-width: 70vw;
+  max-height: 85vh;
+  max-width: 90vw;
+  width: 100%;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
-/* El body del modal ocupa el resto del alto y permite scroll interno */
 .modal-body {
-  overflow: hidden;     /* importante para que los hijos controlen su propio scroll */
+  overflow: hidden;
 }
 
-/* Panel del visor con scroll vertical propio */
 .viewer-pane .viewer-scroll {
-  /* La combinación flex-1 + min-h-0 en HTML deja que esta capa haga overflow */
   overscroll-behavior: contain;
 }
 
-#case-button, #new-client {
-  background: #3e66ea;
-  color: white;
+/* Action Buttons */
+#case-button,
+#new-client,
+#close-case-button {
   border: none;
-  border-radius: 9999px;
-  padding: 6px 12px;
+  border-radius: 8px;
+  padding: 6px 14px;
   font-size: 12px;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.3s;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-#case-button, #new-client:hover {
-  background: #00113f;
+#case-button,
+#new-client {
+  background: #3e66ea;
+  color: white;
+}
+
+#case-button:hover,
+#new-client:hover {
+  background: #2b4ebf;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(62, 102, 234, 0.25);
 }
 
 #close-case-button {
-  background: #950340;
+  background: #ef4444;
+  /* Red-500 */
   color: white;
-  border: none;
-  border-radius: 9999px;
-  padding: 6px 12px;
-  font-size: 12px;
-  cursor: pointer;
-  transition: background 0.3s;
 }
 
 #close-case-button:hover {
-  background: #00113f;
+  background: #dc2626;
+  /* Red-600 */
+  transform: translateY(-1px);
+  box-shadow: 0 4px 6px rgba(239, 68, 68, 0.25);
 }
 
-/* Animación zoom-in para nuevos mensajes */
+/* Animations */
 @keyframes bubbleZoom {
   0% {
     opacity: 0;
-    transform: scale(0.85); /* 👈 empieza mucho más pequeño */
+    transform: scale(0.9) translateY(4px);
   }
-  60% {
-    opacity: 1;
-    transform: scale(2); /* 👈 un golpe de entrada muy visible */
-  }
+
   100% {
-    transform: scale(1); /* 👈 vuelve a su tamaño normal */
+    opacity: 1;
+    transform: scale(1) translateY(0);
   }
 }
 
 .message-bubble.animate-in {
-  animation: bubbleZoom 0.32s cubic-bezier(0.34, 1.56, 0.64, 1); /* easing "bouncy" */
+  animation: bubbleZoom 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
-@keyframes animateMessageIn {
-  0% {
-    transform: scale(0.1);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-}
-
-.animate-in {
-  animation: animateMessageIn 200ms ease-out;
-}
-
+/* Tooltips */
 .group:hover .tooltip {
   opacity: 1;
   transform: translateY(0);
 }
+
 .tooltip {
   opacity: 0;
   transform: translateY(-4px);
   transition: all .15s ease;
+  pointer-events: none;
 }
 
+/* Unread Badge */
 .unread-badge {
-  background-color: #ff3b30; /* rojo estilo iMessage/WhatsApp */
+  background-color: #ef4444;
   color: #fff;
-  font-size: 12px;
-  padding: 2px 8px;
-  border-radius: 9999px;
+  font-size: 11px;
+  padding: 0 6px;
+  height: 18px;
+  line-height: 18px;
+  border-radius: 9px;
   font-weight: 600;
-  min-width: 22px;
+  min-width: 18px;
   text-align: center;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 }
 
+/* Highlight Animation */
 .highlight {
-  animation: highlightFlash 0.8s ease-in-out 2; /* 2 ciclos */
-  background-color: #e9f0ff !important; /* azul suave */
-  border-left: 4px solid #3e66ea;       /* borde elegante */
+  animation: highlightFlash 1s ease-in-out;
+  background-color: #eff6ff !important;
+  border-left: 3px solid #3e66ea;
 }
 
 @keyframes highlightFlash {
   0% {
     background-color: #ffffff;
   }
+
   50% {
-    background-color: #dce7ff;
+    background-color: #dbeafe;
   }
+
   100% {
     background-color: #ffffff;
   }

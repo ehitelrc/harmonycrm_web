@@ -19,37 +19,21 @@
             </div>
 
         </div>
-        <div class="flex-">
-            <div class="w-full px-2 my-3">
+        <div class="px-4 py-3">
+            <div class="relative">
+                <input [(ngModel)]="searchContact" (ngModelChange)="applyContactFilter()" type="text"
+                    placeholder="Buscar contacto o #caso" class="w-full pl-9 pr-4 py-2 bg-gray-100 dark:bg-gray-800 border-none rounded-lg
+                           text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500
+                           focus:ring-2 focus:ring-[#3e66ea]/20 focus:bg-white dark:focus:bg-gray-700
+                           transition-all duration-200 outline-none" />
 
-                <div class="rounded-xl shadow-md p-4 
-     bg-[#4A1CFF] text-white
-     border border-[#3a14cc]">
-
-                    <!-- Título -->
-                    <div class="mb-2">
-                        <span class="text-md text-gray-600 dark:text-gray-400 text-white ">Buscar</span>
-                    </div>
-
-                    <!-- Input con ícono -->
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                            <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        </span>
-
-                        <input [(ngModel)]="searchContact" (ngModelChange)="applyContactFilter()" type="text"
-                            placeholder="Buscar contacto o #caso" class="pl-9 block w-full px-3 py-2 rounded-md border border-gray-300 
-                       bg-white shadow-sm placeholder-gray-400 text-sm text-[#00113f]
-                       focus:outline-none focus:ring-2 focus:ring-[#5A32FA] focus:border-transparent
-                       dark:bg-gray-800 dark:border-gray-700 dark:text-white" />
-                    </div>
-
-                </div>
+                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                    <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                    </svg>
+                </span>
             </div>
-
         </div>
 
         <!-- BOTÓN NUEVA CONVERSACIÓN -->
@@ -70,67 +54,75 @@
 
             <ng-container *ngIf="!isLoadingCases; else leftLoading">
 
-                <button *ngFor="let c of filteredCases" [class.highlight]="c._highlight" (click)="selectCase(c)" class="w-[calc(100%-1rem)] mx-2 my-3 text-left rounded-xl px-5 py-4 
-         shadow-md border border-gray-100 dark:border-gray-800 
-                 bg-white dark:bg-gray-900 
-         hover:shadow-lg hover:bg-gray-50/70 dark:hover:bg-gray-800/70
-         transition-all cursor-pointer">
-                    <div class="flex items-start gap-4">
+                <button *ngFor="let c of filteredCases" [class.highlight]="c._highlight" (click)="selectCase(c)"
+                    class="w-full text-left px-4 py-3 border-b border-gray-100 dark:border-gray-800 
+                           hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all duration-200 cursor-pointer group relative">
 
-                        <!-- Ícono del canal -->
-                        <div class="relative">
-                            <img [src]="channelIcon(c.channel_code!)" alt="canal" class="h-12 w-12 rounded-full object-cover bg-white 
-               p-1 shadow-sm border border-gray-200 dark:border-gray-700" />
+                    <!-- Unread Indicator Line -->
+                    <div *ngIf="c.unread_count && c.unread_count > 0"
+                        class="absolute left-0 top-0 bottom-0 w-1 bg-[#3e66ea]"></div>
 
-                            <span *ngIf="c.unread_count && c.unread_count > 0"
-                                class="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full font-semibold min-w-[22px] text-center">
-                                {{ c.unread_count }}
+                    <div class="flex items-start gap-3">
+
+                        <!-- Icono del canal -->
+                        <div class="relative shrink-0">
+                            <img [src]="channelIcon(c.channel_code!)" alt="canal"
+                                class="h-10 w-10 rounded-full object-cover bg-white p-0.5 shadow-sm border border-gray-100 dark:border-gray-700" />
+
+                            <span *ngIf="c.is_non_commercial"
+                                class="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-100 border border-white dark:border-gray-900"
+                                title="No comercial">
+                                <span class="text-[8px]">💼</span>
                             </span>
                         </div>
 
                         <!-- Contenido -->
-                        <div class="flex-1 min-w-0 space-y-1">
+                        <div class="flex-1 min-w-0">
+                            <!-- Header Row: Name & Time -->
+                            <div class="flex items-center justify-between mb-0.5">
+                                <span class="text-sm font-semibold text-gray-900 dark:text-white truncate pr-2">
+                                    {{ c.client_name || 'Desconocido' }}
+                                </span>
+                                <span *ngIf="c.last_message_at" class="text-[10px] text-gray-400 shrink-0">
+                                    {{ c.last_message_at | date:'shortTime' }}
+                                </span>
+                            </div>
 
-                            <!-- Integration name + badge -->
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs font-semibold text-primary dark:text-blue-300 truncate">
+                            <!-- Subheader Row: Last Message & Unread Badge -->
+                            <div class="flex items-center justify-between gap-2">
+                                <div
+                                    class="text-xs text-gray-500 dark:text-gray-400 truncate group-hover:text-gray-700 dark:group-hover:text-gray-300 transition-colors">
+                                    <span *ngIf="c.sender_id" class="text-gray-400 mr-1">@</span>{{
+                                    c.last_message_preview || 'Nueva conversación' }}
+                                </div>
+
+                                <span *ngIf="c.unread_count && c.unread_count > 0" class="unread-badge shadow-sm">
+                                    {{ c.unread_count }}
+                                </span>
+                            </div>
+
+                            <!-- Integration Tag (Mini) -->
+                            <div *ngIf="c.integration_name" class="mt-1 flex">
+                                <span
+                                    class="text-[9px] px-1.5 py-0.5 rounded bg-gray-100 dark:bg-gray-800 text-gray-500 dark:text-gray-400 font-medium tracking-wide uppercase">
                                     {{ c.integration_name }}
                                 </span>
-
-                                <span *ngIf="c.is_non_commercial" class="text-[10px] font-semibold text-blue-700 dark:text-blue-300 
-                 bg-blue-100 dark:bg-blue-900/40 px-1.5 py-0.5 rounded">
-                                    No comercial
-                                </span>
                             </div>
-
-                            <!-- Cliente + Hora -->
-                            <div class="flex items-center justify-between">
-                                <div class="text-sm font-semibold text-gray-800 dark:text-white truncate">
-                                    {{ c.client_name }}
-                                </div>
-                                <div *ngIf="c.last_message_at" class="text-[10px] text-gray-400 whitespace-nowrap ml-2">
-                                    {{ c.last_message_at | date:'short' }}
-                                </div>
-                            </div>
-
-                            <!-- Último mensaje -->
-                            <div class="text-xs text-gray-500 dark:text-gray-400 truncate">
-                                {{ c.last_message_preview || '—' }}
-                            </div>
-
-                            <!-- Sender ID -->
-                            <div *ngIf="c.sender_id" class="text-[10px] text-gray-400 dark:text-gray-500 truncate pt-1">
-                                {{ c.sender_id }}
-                            </div>
-
                         </div>
-
                     </div>
-
                 </button>
 
-                <div *ngIf="filteredCases.length === 0" class="p-6 text-sm text-gray-500 dark:text-gray-400">
-                    Sin resultados.
+                <div *ngIf="filteredCases.length === 0"
+                    class="flex flex-col items-center justify-center py-12 text-center px-6">
+                    <div
+                        class="h-12 w-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-3">
+                        <svg class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+                    <p class="text-sm font-medium text-gray-900 dark:text-white">Sin resultados</p>
+                    <p class="text-xs text-gray-500 mt-1">Intenta con otro término de búsqueda.</p>
                 </div>
             </ng-container>
 
@@ -141,59 +133,54 @@
     </aside>
 
     <!-- ========== Columna central: chat ========== -->
-    <section class="flex-1 flex flex-col min-w-0">
+    <section class="flex-1 flex flex-col min-w-0 bg-white dark:bg-gray-900">
         <!-- Header del chat -->
-        <!-- Header tipo tarjeta, alto, con márgenes y textos grandes -->
-        <div class="mx-2 mt-3 mb-2 p-5 rounded-2xl shadow-md 
-          bg-[#4A1CFF] dark:bg-[#1e2a44]
-         border border-blue-100 dark:border-blue-900">
+        <div
+            class="h-16 px-6 flex items-center justify-between border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 sticky top-0 z-10">
 
-            <div class="flex items-center justify-between">
+            <div class="flex items-center gap-3 overflow-hidden">
+                <!-- Ícono canal -->
+                <img *ngIf="selectedCase" [src]="channelIcon(selectedCase.channel_code || '')"
+                    class="h-10 w-10 rounded-full bg-gray-50 p-1.5 border border-gray-200 dark:border-gray-700 object-cover shrink-0" />
 
-                <!-- Información del cliente -->
-                <div class="flex items-center gap-4">
-
-                    <!-- Ícono canal -->
-                    <img *ngIf="selectedCase" [src]="channelIcon(selectedCase.channel_code || '')"
-                        class="h-12 w-12 rounded-full bg-white p-2 shadow border border-blue-200 dark:border-blue-800" />
-
-                    <div class="leading-tight">
-
-                        <!-- Nombre cliente -->
-                        <div class="text-lg font-bold text-[#00113f] dark:text-white  text-white">
+                <div class="flex flex-col min-w-0">
+                    <div class="flex items-center gap-2">
+                        <span class="text-base font-bold text-gray-900 dark:text-white truncate">
                             {{ selectedCase?.client_name || 'Selecciona una conversación' }}
-                        </div>
-
-                        <!-- Sender ID (nuevo) -->
-                        <div *ngIf="selectedCase?.sender_id"
-                            class="text-sm font-semibold text-blue-700 dark:text-blue-300 mt-0.5  text-white">
+                        </span>
+                        <span *ngIf="selectedCase?.sender_id"
+                            class="text-xs text-gray-500 dark:text-gray-400 font-medium px-1.5 py-0.5 bg-gray-100 dark:bg-gray-800 rounded">
                             {{ selectedCase?.sender_id }}
-                        </div>
-
-                        <!-- Estado del caso -->
-                        <div *ngIf="selectedCase" class="text-xs  text-white dark:text-gray-300 mt-1">
-                            Caso #{{ selectedCase.case_id }} · {{ selectedCase.status }}
-                        </div>
-
+                        </span>
                     </div>
 
+                    <div *ngIf="selectedCase"
+                        class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
+                        <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
+                        Caso #{{ selectedCase.case_id }} · {{ selectedCase.status | titlecase }}
+                    </div>
                 </div>
+            </div>
 
-                <!-- Botones -->
-                <div *ngIf="selectedCase" class="flex items-center gap-2">
-                    <button id="case-button" (click)="viewCase()" class="chip-btn">Caso</button>
-                    <button class="chip-btn" (click)="toggleRightPanel()">
-                        {{ isRightPanelOpen ? 'Ocultar adjuntos' : 'Ver adjuntos' }}
-                    </button>
-                </div>
-
+            <!-- Botones -->
+            <div *ngIf="selectedCase" class="flex items-center gap-2">
+                <button id="case-button" (click)="viewCase()" class="chip-btn flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                    </svg>
+                    Caso
+                </button>
+                <button class="chip-btn" (click)="toggleRightPanel()">
+                    {{ isRightPanelOpen ? 'Ocultar info' : 'Ver info' }}
+                </button>
             </div>
 
         </div>
 
 
         <!-- Mensajes -->
-        <div class="flex-1 chat-scrollbox overflow-y-auto px-4 py-6 space-y-3 bg-gray-50 dark:bg-gray-900">
+        <div class="flex-1 chat-scrollbox overflow-y-auto px-4 py-6 space-y-4 bg-gray-50 dark:bg-gray-900/50">
 
             <ng-container *ngIf="selectedCase; else emptyState">
                 <ng-container *ngIf="!isLoadingMessages; else loadingMessages">
@@ -201,15 +188,18 @@
                     <div *ngFor="let m of messages" class="w-full flex" [class.justify-end]="isFromAgent(m)"
                         [class.justify-start]="!isFromAgent(m)">
 
-                        <div class="max-w-[75%] px-4 py-3 rounded-2xl shadow-md border
-                transition-all message-bubble
-                animate-fade-zoom" [class.bg-white]="isFromAgent(m)" [class.bg-[#d5ffd3]]="!isFromAgent(m)"
-                            [class.dark:bg-gray-800]="true" [class.border-gray-200]="isFromAgent(m)"
-                            [class.border-green-200]="!isFromAgent(m)" [class.animate-in]="m._justArrived">
+                        <div class="max-w-[75%] px-4 py-3 shadow-sm transition-all message-bubble animate-in relative group"
+                            [class.bg-[#3e66ea]]="isFromAgent(m)" [class.text-white]="isFromAgent(m)"
+                            [class.rounded-2xl]="true" [class.rounded-tr-sm]="isFromAgent(m)"
+                            [class.rounded-tl-sm]="!isFromAgent(m)" [class.bg-white]="!isFromAgent(m)"
+                            [class.dark:bg-gray-800]="!isFromAgent(m)" [class.border]="!isFromAgent(m)"
+                            [class.border-gray-200]="!isFromAgent(m)" [class.dark:border-gray-700]="!isFromAgent(m)"
+                            [class.text-gray-900]="!isFromAgent(m)" [class.dark:text-gray-100]="!isFromAgent(m)"
+                            [class.animate-in]="m._justArrived">
 
                             <!-- Texto -->
                             <div *ngIf="isText(m) && m.text_content?.trim()?.length"
-                                class="text-sm text-gray-900 dark:text-gray-100 whitespace-pre-wrap break-words"
+                                class="text-sm whitespace-pre-wrap break-words leading-relaxed"
                                 [innerHTML]="parseUrls(m.text_content || '')">
                             </div>
 
@@ -221,11 +211,10 @@
                                     <!-- IMAGEN -->
                                     <div *ngIf="m.message_type === 'image'" class="cursor-pointer"
                                         (click)="openAttachment(m)">
-                                        <img [src]="attachmentImageSrc(m)" class="rounded-lg max-h-64 object-cover"
+                                        <img [src]="attachmentImageSrc(m)"
+                                            class="rounded-lg max-h-72 object-cover border border-black/10"
                                             alt="Imagen" />
-                                        <div class="text-xs text-black mt-1 break-words 
-           bg-gray-100 border border-gray-300 
-           rounded-lg px-2 py-1" *ngIf="m.text_content">
+                                        <div class="text-xs mt-2 break-words opacity-90" *ngIf="m.text_content">
                                             {{ m.text_content }}
                                         </div>
                                     </div>
@@ -233,19 +222,19 @@
 
                                 <!-- Audio -->
                                 <ng-container *ngIf="m.message_type === 'audio'">
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <span
-                                            class="inline-flex items-center rounded-full bg-gray-200 dark:bg-gray-700 px-2 py-0.5 text-xs">
-                                            Audio
-                                        </span>
+                                    <div class="flex items-center gap-2 mb-2 opacity-80">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                                        </svg>
+                                        <span class="text-xs">Nota de voz</span>
                                     </div>
 
                                     <audio [src]="attachmentAudioSrc(m)" controls
-                                        class="w-full min-w-[220px] max-w-full mt-1 rounded-md shadow-sm">
+                                        class="w-full min-w-[240px] max-w-full h-10 rounded-lg shadow-sm">
                                     </audio>
 
-                                    <div *ngIf="m.text_content"
-                                        class="mt-1 text-gray-700 dark:text-gray-200 whitespace-pre-wrap">
+                                    <div *ngIf="m.text_content" class="mt-2 opacity-90 whitespace-pre-wrap">
                                         {{ m.text_content }}
                                     </div>
                                 </ng-container>
@@ -254,50 +243,55 @@
                                 <ng-container *ngIf="m.message_type !== 'image'
                               && m.message_type !== 'audio'
                               && m.message_type !== 'text'">
-                                    <div class="flex items-center gap-2 mb-1">
-                                        <span
-                                            class="inline-flex items-center rounded-full bg-gray-200 dark:bg-gray-700 px-2 py-0.5 text-xs">
-                                            Archivo
-                                        </span>
-                                        <a (click)="downloadFile(m)"
-                                            class="text-blue-600 dark:text-blue-300 underline cursor-pointer">
-                                            Descargar
-                                        </a>
+                                    <div
+                                        class="flex items-center gap-3 p-3 rounded-lg bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5">
+                                        <div class="p-2 bg-white dark:bg-gray-700 rounded-lg shadow-sm">
+                                            <svg class="w-6 h-6 text-gray-500 dark:text-gray-300" fill="none"
+                                                viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="text-xs font-medium truncate opacity-90">Archivo adjunto</div>
+                                            <a (click)="downloadFile(m)"
+                                                class="text-xs underline cursor-pointer hover:opacity-80 truncate block">
+                                                Descargar
+                                            </a>
+                                        </div>
                                     </div>
 
-                                    <div *ngIf="m.text_content"
-                                        class="mt-1 text-gray-700 dark:text-gray-200 whitespace-pre-wrap">
+                                    <div *ngIf="m.text_content" class="mt-2 opacity-90 whitespace-pre-wrap">
                                         {{ m.text_content }}
                                     </div>
                                 </ng-container>
 
                             </div>
 
-                            <div class="mt-2 flex items-center justify-end gap-1">
-                                <span class="text-[10px] text-gray-500 dark:text-gray-400">
-                                    {{ m.created_at | date:'short' }}
+                            <div class="mt-1 flex items-center justify-end gap-1 opacity-70 select-none">
+                                <span class="text-[10px]">
+                                    {{ m.created_at | date:'shortTime' }}
                                 </span>
 
                                 <!-- Status Icons (only for agent/system messages) -->
                                 <ng-container *ngIf="isFromAgent(m)">
                                     <!-- Pending / Null / Empty -> Clock -->
-                                    <svg *ngIf="!m.status" xmlns="http://www.w3.org/2000/svg"
-                                        class="h-4 w-4 text-gray-400" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor" stroke-width="2">
+                                    <svg *ngIf="!m.status" xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5"
+                                        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                     </svg>
 
                                     <!-- Delivered -> Single Check -->
                                     <svg *ngIf="m.status === 'delivered' || m.status === 'sent'"
-                                        xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-400" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none"
                                         viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                                     </svg>
 
                                     <!-- Read -> Double Check (Blue) -->
                                     <svg *ngIf="m.status === 'read'" xmlns="http://www.w3.org/2000/svg"
-                                        class="h-4 w-4 text-blue-500" fill="none" viewBox="0 0 24 24"
+                                        class="h-3.5 w-3.5 text-blue-200" fill="none" viewBox="0 0 24 24"
                                         stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M16 6L9 13L6.5 10.5M21 6L14 13L11.5 10.5" />
@@ -305,7 +299,7 @@
 
                                     <!-- Failed -> Error -->
                                     <svg *ngIf="m.status === 'failed' || m.status === 'fail'"
-                                        xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-red-500" fill="none"
+                                        xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-red-300" fill="none"
                                         viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                                         <path stroke-linecap="round" stroke-linejoin="round"
                                             d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -315,21 +309,22 @@
 
                             <!-- Error -->
                             <div *ngIf="m.has_error"
-                                class="flex items-center gap-1 mt-1 text-red-600 cursor-pointer group select-none relative">
+                                class="absolute -left-8 top-1/2 -translate-y-1/2 flex items-center justify-center cursor-pointer group">
 
-                                <!-- Icono triangular -->
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                                    class="w-4 h-4 text-red-600">
-                                    <path fill-rule="evenodd"
-                                        d="M12 2c-.38 0-.73.21-.9.55L1.18 20.4c-.18.33-.17.73.02 1.05.2.32.54.55.92.55h19.78c.38 0 .72-.23.92-.55.19-.32.2-.72.02-1.05L12.9 2.55A1 1 0 0 0 12 2Zm0 6c.55 0 1 .45 1 1v4a1 1 0 1 1-2 0V9c0-.55.45-1 1-1Zm1 10a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"
-                                        clip-rule="evenodd" />
-                                </svg>
+                                <div class="p-1 rounded-full bg-red-100 hover:bg-red-200 transition-colors">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                        class="w-5 h-5 text-red-600">
+                                        <path fill-rule="evenodd"
+                                            d="M12 2c-.38 0-.73.21-.9.55L1.18 20.4c-.18.33-.17.73.02 1.05.2.32.54.55.92.55h19.78c.38 0 .72-.23.92-.55.19-.32.2-.72.02-1.05L12.9 2.55A1 1 0 0 0 12 2Zm0 6c.55 0 1 .45 1 1v4a1 1 0 1 1-2 0V9c0-.55.45-1 1-1Zm1 10a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"
+                                            clip-rule="evenodd" />
+                                    </svg>
+                                </div>
 
-                                <!-- Tooltip a la IZQUIERDA -->
-                                <span class="hidden group-hover:flex items-center bg-red-600 text-white px-2 py-1 rounded text-xs shadow-lg
-               whitespace-pre-line z-50 absolute left-0 -translate-x-[105%] top-1/2 -translate-y-1/2 min-w-[120px]">
+                                <!-- Tooltip -->
+                                <div
+                                    class="hidden group-hover:block absolute left-full ml-2 top-1/2 -translate-y-1/2 z-50 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg">
                                     {{ m.message_error }}
-                                </span>
+                                </div>
                             </div>
 
                         </div>
@@ -339,183 +334,234 @@
             </ng-container>
 
             <ng-template #loadingMessages>
-                <div class="text-sm text-gray-500 dark:text-gray-400">Cargando mensajes…</div>
+                <div class="flex items-center justify-center h-full">
+                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#3e66ea]"></div>
+                </div>
             </ng-template>
 
             <ng-template #emptyState>
                 <div class="h-full w-full flex flex-col items-center justify-center text-gray-500 dark:text-gray-400">
 
                     <!-- Imagen del empty state -->
-                    <img src="assets/chatbubble.png" alt="Sin conversación"
-                        class="w-[200px] h-auto opacity-80 mb-4 select-none" />
+                    <div
+                        class="w-24 h-24 bg-gray-100 dark:bg-gray-800 rounded-full flex items-center justify-center mb-6">
+                        <svg class="w-10 h-10 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                        </svg>
+                    </div>
 
                     <!-- Texto -->
-                    <div class="text-sm text-center px-4">
-                        Selecciona una conversación para comenzar.
-                    </div>
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white mb-1">Tu espacio de mensajería</h3>
+                    <p class="text-sm text-center px-4 max-w-xs text-gray-500">
+                        Selecciona una conversación de la lista para comenzar a chatear.
+                    </p>
                 </div>
             </ng-template>
         </div>
 
         @if(selectedCase?.manual_starting_lead && selectedCase?.client_messages === 0) {
         <div
-            class="h-16 px-4 border-t border-gray-200 text-blue-700 dark:border-gray-800 flex items-center gap-2 bg-white dark:bg-gray-900">
+            class="p-4 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 flex flex-col gap-3">
 
-            <!-- Template -->
-            <div>
-                <select [(ngModel)]="selectedTemplate" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
-                   focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f]
-                   dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            <div class="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-300">
+                <svg class="w-5 h-5 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>Esta es una conversación iniciada manualmente (Outbound). Debes enviar una plantilla para
+                    iniciar.</span>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <select [(ngModel)]="selectedTemplate" class="block flex-1 px-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none
+                    focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f]
+                    dark:bg-gray-800 dark:border-gray-600 dark:text-white transition-all">
                     <option [ngValue]="null">{{t('whatsapp_template.select_template')}}</option>
                     <option *ngFor="let t of templates" [ngValue]="t.id">
                         {{ t.template_name }} ({{ t.language || '—' }})
                     </option>
                 </select>
-            </div>
 
-            <button (click)="sendTemplate()" [disabled]="!selectedCase || !selectedTemplate"
-                class="px-4 py-2 rounded-md text-sm font-medium text-white bg-[#00113f] hover:bg-[#3e66ea] disabled:opacity-50">
-                Abrir conversación
-            </button>
+                <button (click)="sendTemplate()" [disabled]="!selectedCase || !selectedTemplate"
+                    class="px-6 py-2 rounded-lg text-sm font-semibold text-white bg-[#00113f] hover:bg-[#3e66ea] disabled:opacity-50 transition shadow-sm">
+                    Iniciar
+                </button>
+            </div>
         </div>
         }@else {
         <!-- Caja de texto -->
         @if(selectedCase ) {
-        <!-- Footer tipo tarjeta redondeada -->
-        <div class="mx-2 mb-3 mt-2 p-4 rounded-2xl shadow-md 
-     bg-[#E9F0FA] dark:bg-gray-900
-     border border-[#d2dbe8] flex items-center gap-3">
+        <!-- Input area -->
+        <div class="p-4 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex items-end gap-2">
 
-            <!-- CONTENEDOR DEL BOTÓN DE TEMPLATES -->
-            <div class="relative">
-                <!-- Botón Templates -->
-                <button (click)="toggleTemplateMenu()" class="p-2 rounded hover:bg-gray-200">
-                    🧩
-                </button>
+            <!-- Botones izquierda -->
+            <div class="flex items-center gap-1 mb-1">
+                <!-- Templates -->
+                <div class="relative">
+                    <button (click)="toggleTemplateMenu()"
+                        class="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                        title="Plantillas">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+                        </svg>
+                    </button>
 
-                <!-- MENÚ DE TEMPLATES POSICIONADO ARRIBA Y A LA DERECHA -->
-                <div *ngIf="showTemplateMenu"
-                    class="absolute bottom-full right-0 mb-2 w-96 bg-white shadow-lg rounded border p-2 z-70">
-                    <div class="font-semibold text-sm mb-2 text-black">Templates disponibles</div>
+                    <!-- Menu Templates -->
+                    <div *ngIf="showTemplateMenu"
+                        class="absolute bottom-full left-0 mb-2 w-80 bg-white dark:bg-gray-800 shadow-xl rounded-xl border border-gray-200 dark:border-gray-700 p-2 z-50">
+                        <div
+                            class="flex items-center justify-between px-2 py-1 mb-2 border-b border-gray-100 dark:border-gray-700">
+                            <span class="font-semibold text-xs text-gray-500 uppercase tracking-wider">Plantillas</span>
+                            <button (click)="toggleTemplateMenu()"
+                                class="text-gray-400 hover:text-gray-600">&times;</button>
+                        </div>
 
-                    <div *ngFor="let t of templates" (click)="sendSelectedTemplate(t)" class="p-2 hover:bg-gray-100 rounded cursor-pointer text-sm text-black 
-           break-words whitespace-normal">
-                        {{ t.template_name }}
-                    </div>
-
-                    <div class="text-right mt-2">
-                        <button (click)="toggleTemplateMenu()" class="text-xs text-gray-500 hover:underline">
-                            Cerrar
-                        </button>
+                        <div class="max-h-64 overflow-y-auto space-y-1">
+                            <div *ngFor="let t of templates" (click)="sendSelectedTemplate(t)"
+                                class="p-2.5 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg cursor-pointer text-sm text-gray-700 dark:text-gray-200 transition-colors">
+                                {{ t.template_name }}
+                            </div>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Archivo -->
+                <button (click)="openFilePicker()"
+                    class="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                    title="Adjuntar archivo">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
+                    </svg>
+                </button>
+
+                <!-- Imagen -->
+                <button (click)="openImageModal()"
+                    class="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                    title="Imagen">
+                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                </button>
             </div>
 
-            <!-- Botón archivo 📎 -->
-            <button (click)="openFilePicker()"
-                class="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-400 shadow-md flex items-center justify-center transition">
-                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path
-                        d="M16.5 6.75V15a4.5 4.5 0 1 1-9 0V6.75a3 3 0 1 1 6 0v7.5a1.5 1.5 0 1 1-3 0V7.5h-1.5v6.75a3 3 0 1 0 6 0V6.75a4.5 4.5 0 1 0-9 0V15a6 6 0 1 0 12 0V6.75h-1.5Z" />
-                </svg>
-            </button>
+            <!-- Input Principal -->
+            <div class="flex-1 relative">
+                <textarea [(ngModel)]="draft" (keydown.enter)="send()" [disabled]="!selectedCase" rows="1"
+                    placeholder="Escribe un mensaje…" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800
+                           focus:ring-2 focus:ring-[#3e66ea]/50 focus:border-[#3e66ea] focus:bg-white dark:focus:bg-gray-800
+                           text-sm text-gray-900 dark:text-white placeholder-gray-400
+                           resize-none shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                </textarea>
 
-            <!-- Botón audio 🎤 -->
-            <button (click)="startAudioRecording()"
-                class="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-400 shadow-md flex items-center justify-center transition">
-                <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                    <path
-                        d="M12 1.5a3 3 0 0 0-3 3V12a3 3 0 1 0 6 0V4.5a3 3 0 0 0-3-3Zm-6 9a.75.75 0 0 1 1.5 0A4.5 4.5 0 0 0 12 15a4.5 4.5 0 0 0 4.5-4.5.75.75 0 0 1 1.5 0 6 6 0 0 1-5.25 5.964V18h3a.75.75 0 0 1 0 1.5h-7.5A.75.75 0 0 1 9 18h3v-1.536A6 6 0 0 1 6 10.5Z" />
-                </svg>
-            </button>
-
-
-            <!-- Botón imagen -->
-            <button (click)="openImageModal()" class="p-2 rounded-full bg-blue-500 text-white hover:bg-blue-400 shadow-md 
-               flex items-center justify-center transition">
-                <svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor">
-                    <path
-                        d="M4.5 5.25A2.25 2.25 0 0 1 6.75 3h10.5A2.25 2.25 0 0 1 19.5 5.25v13.5A2.25 2.25 0 0 1 17.25 21H6.75A2.25 2.25 0 0 1 4.5 18.75V5.25Zm11.69 5.81a.75.75 0 0 0-1.38 0l-2.03 4.87-1.08-2.58a.75.75 0 0 0-1.35-.07l-1.52 2.54a.75.75 0 0 0 .64 1.14h8.25a.75.75 0 0 0 .68-1.07l-2.91-4.83ZM9 8.25a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3Z" />
-                </svg>
-            </button>
-
-            <!-- Input -->
-            <input [(ngModel)]="draft" (keydown.enter)="send()" [disabled]="!selectedCase" type="text"
-                placeholder="Escribe un mensaje…" class="flex-1 px-4 py-3 rounded-xl border border-gray-300 bg-gray-50
-             shadow-sm placeholder-gray-400 text-sm text-[#00113f]
-             focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent
-             dark:bg-gray-800 dark:border-gray-700 dark:text-white disabled:opacity-50" />
+                <!-- Botón audio absoluto derecha input -->
+                <button (click)="startAudioRecording()"
+                    class="absolute right-2 bottom-2 p-1.5 text-gray-400 hover:text-[#3e66ea] rounded-full hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors"
+                    title="Grabar audio">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                    </svg>
+                </button>
+            </div>
 
             <!-- Botón enviar -->
-            <button (click)="send()" [disabled]="!selectedCase || !draft.trim()" class="px-5 py-3 rounded-xl text-sm font-semibold text-white
-             bg-[#00113f] hover:bg-[#3e66ea] transition shadow-md
-             disabled:opacity-15 disabled:cursor-not-allowed">
-                Enviar
+            <button (click)="send()" [disabled]="!selectedCase || !draft.trim()"
+                class="mb-1 p-3 rounded-xl bg-[#3e66ea] hover:bg-blue-600 text-white shadow-lg shadow-blue-500/30 transition-all disabled:opacity-50 disabled:shadow-none disabled:cursor-not-allowed">
+                <svg class="w-5 h-5 translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
             </button>
 
         </div>
-
-
-
         }
         }
     </section>
 
     <!-- ========== Columna derecha: adjuntos (colapsable) ========== -->
-    <aside class="hidden lg:flex flex-col border-l border-gray-200 dark:border-gray-800 transition-all duration-200"
+    <aside
+        class="hidden lg:flex flex-col border-l border-gray-200 dark:border-gray-800 transition-all duration-300 ease-in-out bg-white dark:bg-gray-900"
         [style.width.px]="isRightPanelOpen ? 320 : 0" [style.minWidth.px]="isRightPanelOpen ? 320 : 0"
-        [style.opacity]="isRightPanelOpen ? 1 : 0">
+        [style.opacity]="isRightPanelOpen ? 1 : 0" [class.overflow-hidden]="!isRightPanelOpen">
 
-        <div class="p-4 border-b border-gray-200 dark:border-gray-800">
-            <div class="text-sm font-semibold text-[#00113f] dark:text-white">Adjuntos</div>
-            <div class="text-xs text-gray-500 dark:text-gray-400">Selecciona un adjunto para verlo</div>
+        <div class="h-16 flex items-center px-6 border-b border-gray-200 dark:border-gray-800">
+            <h3 class="font-bold text-gray-900 dark:text-white">Información</h3>
+        </div>
+
+        <div class="p-6 border-b border-gray-200 dark:border-gray-800">
+            <!-- Info del cliente duplicada para mayor contexto -->
+            <div class="flex flex-col items-center text-center">
+                <div
+                    class="h-20 w-20 rounded-full bg-gray-100 dark:bg-gray-800 text-2xl font-bold flex items-center justify-center text-gray-400 mb-3">
+                    {{ (selectedCase?.client_name || '?').charAt(0) }}
+                </div>
+                <h4 class="font-bold text-lg text-gray-900 dark:text-white mb-1">
+                    {{ selectedCase?.client_name || 'Desconocido' }}
+                </h4>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                    {{ selectedCase?.sender_id || 'Sin teléfono' }}
+                </p>
+
+                <div class="w-full grid grid-cols-2 gap-2 text-center">
+                    <div class="p-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
+                        <div class="text-[10px] uppercase text-gray-500 font-semibold tracking-wider">Estado</div>
+                        <div class="text-sm font-medium text-gray-900 dark:text-white mt-1">{{ selectedCase?.status ||
+                            '—' }}</div>
+                    </div>
+                    <div class="p-2 rounded-lg bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700">
+                        <div class="text-[10px] uppercase text-gray-500 font-semibold tracking-wider">Creado</div>
+                        <div class="text-sm font-medium text-gray-900 dark:text-white mt-1">{{ selectedCase?.created_at
+                            | date:'dd/MM' }}</div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div class="flex-1 overflow-y-auto">
-            <ng-container *ngIf="selectedCase; else noCase">
-                <div *ngIf="attachmentList.length === 0" class="p-4 text-sm text-gray-500 dark:text-gray-400">
-                    No hay adjuntos.
-                </div>
+            <div class="px-6 py-4">
+                <h4 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Adjuntos recientes</h4>
 
-                <button *ngFor="let a of attachmentList" (click)="openAttachment(a)"
-                    class="w-full text-left px-4 py-3 border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50/60 dark:hover:bg-gray-800/60 flex items-center gap-3">
-
-                    <!-- Thumbnail para imágenes -->
-                    <ng-container *ngIf="a.mime_type?.startsWith('image/'); else fileIconBlock">
-                        <img [src]="attachmentImageSrc(a)" alt="miniatura"
-                            class="w-[52px] h-[52px] rounded-md object-cover border border-gray-300 dark:border-gray-600 shadow-sm" />
-                    </ng-container>
-
-                    <!-- Otros archivos -->
-                    <ng-template #fileIconBlock>
-                        <div class="w-[52px] h-[52px] flex items-center justify-center rounded-md
-                    bg-gray-200 dark:bg-gray-700 text-xl">
-                            {{ getFileIcon(a.mime_type) }}
-                        </div>
-                    </ng-template>
-
-                    <!-- Información del adjunto -->
-                    <div class="flex-1 min-w-0">
-                        <!-- Nombre del archivo -->
-                        <div class="text-sm text-[#00113f] dark:text-white font-medium truncate">
-                            {{ a.text_content || 'Archivo' }}
-                        </div>
-
-                        <!-- Tipo de archivo -->
-                        <div class="text-xs text-gray-500 dark:text-gray-400 truncate">
-                            {{ a.mime_type || a.message_type | uppercase }}
-                        </div>
-
-                        <!-- Fecha -->
-                        <div class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">
-                            {{ a.created_at | date:'short' }}
-                        </div>
+                <ng-container *ngIf="selectedCase; else noCase">
+                    <div *ngIf="attachmentList.length === 0" class="text-sm text-gray-500 dark:text-gray-400 italic">
+                        No hay archivos compartidos.
                     </div>
-                </button>
-            </ng-container>
+
+                    <div class="space-y-3">
+                        <button *ngFor="let a of attachmentList" (click)="openAttachment(a)"
+                            class="w-full text-left p-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 flex items-start gap-3 transition-colors group">
+
+                            <!-- Thumbnail -->
+                            <div
+                                class="relative shrink-0 w-10 h-10 rounded bg-gray-100 dark:bg-gray-700 overflow-hidden border border-gray-200 dark:border-gray-600 flex items-center justify-center text-gray-400">
+                                <img *ngIf="a.mime_type?.startsWith('image/')" [src]="attachmentImageSrc(a)"
+                                    class="w-full h-full object-cover">
+                                <svg *ngIf="!a.mime_type?.startsWith('image/')" class="w-5 h-5" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 2H7a2 2 0 00-2 2v15a2 2 0 002 2z" />
+                                </svg>
+                            </div>
+
+                            <div class="flex-1 min-w-0">
+                                <div
+                                    class="text-sm font-medium text-gray-900 dark:text-white truncate group-hover:text-blue-600 transition-colors">
+                                    {{ a.text_content || 'Archivo' }}
+                                </div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400 truncate mt-0.5">
+                                    {{ a.created_at | date:'mediumDate' }}
+                                </div>
+                            </div>
+                        </button>
+                    </div>
+                </ng-container>
+            </div>
 
             <ng-template #noCase>
-                <div class="p-4 text-sm text-gray-500 dark:text-gray-400">Sin conversación seleccionada.</div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">Sin conversación seleccionada.</div>
             </ng-template>
         </div>
     </aside>
@@ -525,7 +571,7 @@
 <!-- ========== Modal de adjunto ========== -->
 <div *ngIf="isAttachmentModalOpen" class="fixed inset-0 z-50" (click)="closeAttachmentModal()">
     <!-- Backdrop -->
-    <div class="absolute inset-0 bg-black/60"></div>
+    <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
 
     <!-- Contenedor del modal (centrado) -->
     <div class="absolute inset-0 flex items-center justify-center p-4" (click)="$event.stopPropagation()">
@@ -651,47 +697,49 @@
                 </div>
 
                 <!-- Panel lateral: caption/metadata -->
-                <div class="lg:w-1/3 p-4 overflow-auto">
-                    <div class="space-y-3">
+                <div
+                    class="lg:w-1/3 p-4 overflow-auto bg-gray-50 dark:bg-gray-900 border-l border-gray-200 dark:border-gray-800">
+                    <div class="space-y-4">
                         <div class="text-sm font-semibold text-[#00113f] dark:text-white">
                             Detalles del adjunto
                         </div>
 
                         <div
-                            class="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-800/60 p-3">
+                            class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3 shadow-sm">
                             <div class="text-xs text-gray-500 dark:text-gray-400">Tipo</div>
-                            <div class="text-sm text-[#00113f] dark:text-gray-200">
-                                {{ viewingAttachment?.message_type | uppercase }} ({{ viewingAttachment?.mime_type ||
-                                '—' }})
+                            <div class="text-sm text-[#00113f] dark:text-gray-200 font-medium">
+                                {{ viewingAttachment?.message_type | uppercase }}
+                                <span class="text-xs text-gray-400 font-normal">({{ viewingAttachment?.mime_type || '—'
+                                    }})</span>
                             </div>
                         </div>
 
                         <div
-                            class="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-800/60 p-3">
+                            class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3 shadow-sm">
                             <div class="text-xs text-gray-500 dark:text-gray-400">Fecha</div>
-                            <div class="text-sm text-[#00113f] dark:text-gray-200">
+                            <div class="text-sm text-[#00113f] dark:text-gray-200 font-medium">
                                 {{ viewingAttachment?.created_at | date:'medium' }}
                             </div>
                         </div>
 
                         <!-- Caption -->
                         <div
-                            class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3">
-                            <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">Caption</div>
+                            class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3 shadow-sm">
+                            <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">Nota / Caption</div>
                             <div class="text-sm text-[#00113f] dark:text-gray-100 whitespace-pre-wrap break-words"
                                 *ngIf="(viewingAttachment?.text_content || '').trim().length > 0; else noCaption">
                                 {{ viewingAttachment?.text_content }}
                             </div>
                             <ng-template #noCaption>
-                                <div class="text-xs text-gray-400">— Sin caption —</div>
+                                <div class="text-xs text-gray-400 italic">— Sin nota —</div>
                             </ng-template>
                         </div>
 
                         <div *ngIf="viewingAttachment?.file_url"
-                            class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3">
+                            class="rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3 shadow-sm">
                             <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">Enlace</div>
                             <a [href]="viewingAttachment?.file_url || undefined" target="_blank" rel="noopener"
-                                class="text-[#3e66ea] hover:underline break-all">
+                                class="text-[#3e66ea] hover:underline break-all text-sm">
                                 {{ viewingAttachment?.file_url }}
                             </a>
                         </div>
@@ -815,1002 +863,317 @@
                             <div class="flex items-center gap-2">
                                 @if(selectedCase?.unread_count ) {
                                 <span
-                                    class="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300">
-                                    {{ selectedCase?.status || '—' }}
-                                </span>
-                                <span class="px-2 py-1 rounded-full text-xs font-semibold bg-[#3e66ea] text-white">
+                                    class="px-2 py-1 text-xs font-bold text-red-600 bg-red-100 rounded-full flex items-center gap-1">
+                                    <span class="w-2 h-2 rounded-full bg-red-600"></span>
                                     {{ selectedCase?.unread_count }} sin leer
                                 </span>
                                 }
-                                <!-- Cerrar caso -->
-                                <button id="close-case-button" class="w-full chip-btn bg-red-600 text-white hover:bg-red-700 border border-red-700 
-         dark:bg-red-700 dark:hover:bg-red-800 dark:border-red-800" (click)="openCloseCaseModal()">
-                                    Cerrar caso
-                                </button>
-                            </div>
-
-
-                        </div>
-
-                        <div class="p-4 grid grid-cols-1 md:grid-cols-3 gap-4">
-                            <div
-                                class="rounded-lg bg-blue-50 dark:bg-blue-900/40 border border-gray-200 dark:border-gray-700 p-3">
-                                <div class="text-xs text-gray-500 dark:text-gray-400">Canal</div>
-                                <div class="text-sm text-[#00113f] dark:text-gray-100">
-                                    {{ selectedCase?.channel_code?.toUpperCase() || '—' }}
-                                </div>
-                            </div>
-                            <div
-                                class="rounded-lg bg-blue-50 dark:bg-blue-900/40 border border-gray-200 dark:border-gray-700 p-3">
-                                <div class="text-xs text-gray-500 dark:text-gray-400">Último mensaje</div>
-                                <div class="text-sm text-[#00113f] dark:text-gray-100 line-clamp-2">
-                                    {{ selectedCase?.last_message_preview || '—' }}
-                                </div>
-                            </div>
-
-                            <div
-                                class="rounded-lg bg-blue-50 dark:bg-blue-900/40 border border-gray-200 dark:border-gray-700 p-3">
-                                <div class="text-xs text-gray-500 dark:text-gray-400">Actualizado</div>
-                                <div class="text-sm text-[#00113f] dark:text-gray-100">
-                                    @if (messages.length > 0) {
-                                    {{ messages[messages.length - 1].created_at | date:'short' }}
-                                    } @else {
-                                    —
-                                    }
-                                </div>
+                                <span class="px-2 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded-full">
+                                    {{ selectedCase?.status | uppercase }}
+                                </span>
                             </div>
                         </div>
-                    </div>
 
-
-                    <!-- TARJETA DE ARTÍCULOS PARA EL CASO -->
-                    @if (!selectedCase?.is_non_commercial){
-                    <div
-                        class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
-                        <div
-                            class="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
-                            <div class="text-sm font-semibold text-[#00113f] dark:text-white">
-                                Artículos del caso
+                        <!-- Detalles rápidos -->
+                        <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                            <div>
+                                <span class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Lead ID /
+                                    Sender</span>
+                                <div class="font-medium text-[#00113f] dark:text-gray-200">
+                                    {{ selectedCase?.sender_id || '—' }}
+                                </div>
                             </div>
-                            <button class="chip-btn" (click)="openAddItemModal()">Agregar</button>
-                        </div>
-
-                        <!-- Tabla o lista -->
-                        <div class="p-4 space-y-2">
-                            <ng-container *ngIf="!isLoadingCaseItems; else loadingItems">
-                                <div *ngIf="caseItems.length > 0; else emptyItems" class="overflow-x-auto">
-                                    <table class="min-w-full text-sm text-left border-collapse">
-                                        <thead>
-                                            <tr
-                                                class="border-b border-gray-200 dark:border-gray-700 text-gray-600 dark:text-gray-800">
-                                                <th class="px-3 py-2 font-medium">Artículo</th>
-                                                <th class="px-3 py-2 font-medium text-right">Cantidad</th>
-                                                <th class="px-3 py-2 font-medium text-right">Precio</th>
-                                                <th class="px-3 py-2 font-medium text-right">Total</th>
-                                                <th class="px-3 py-2 font-medium text-center">Acciones</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr *ngFor="let i of caseItems"
-                                                class="border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50/40 dark:hover:bg-gray-800/40">
-                                                <td class="px-3 py-2 text-[#00113f] dark:text-gray-100">{{ i.item_name
-                                                    }}</td>
-                                                <td class="px-3 py-2 text-right text-black">{{ i.quantity }}</td>
-                                                <td class="px-3 py-2 text-right text-black">{{ i.price |
-                                                    currency:'CRC':'symbol-narrow' }}</td>
-                                                <td class="px-3 py-2 text-right font-medium text-black">
-                                                    {{ i.total_amount | currency:'CRC':'symbol-narrow' }}
-                                                </td>
-                                                <td class="px-3 py-2 text-center">
-                                                    <button class="chip-btn" (click)="editItem(i)">Editar</button>
-                                                    <button class="chip-btn"
-                                                        (click)="openDeleteModal(i.case_item_id)">Quitar</button>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
+                            <div>
+                                <span class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Fecha de
+                                    creación</span>
+                                <div class="font-medium text-[#00113f] dark:text-gray-200">
+                                    {{ selectedCase?.created_at | date:'medium' }}
                                 </div>
-
-                                <ng-template #emptyItems>
-                                    <div class="text-sm text-gray-500 dark:text-gray-400">
-                                        No hay artículos vinculados a este caso.
-                                    </div>
-                                </ng-template>
-                            </ng-container>
-
-                            <ng-template #loadingItems>
-                                <div class="text-sm text-gray-500 dark:text-gray-400">
-                                    Cargando artículos…
+                            </div>
+                            <div>
+                                <span class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Canal</span>
+                                <div class="font-medium text-[#00113f] dark:text-gray-200 flex items-center gap-1">
+                                    {{ selectedCase?.channel_code || '—' }}
+                                    <span *ngIf="selectedCase?.integration_name" class="text-xs text-gray-400">
+                                        ({{ selectedCase?.integration_name }})
+                                    </span>
                                 </div>
-                            </ng-template>
+                            </div>
+                            <div>
+                                <span class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Última
+                                    interacción</span>
+                                <div class="font-medium text-[#00113f] dark:text-gray-200">
+                                    {{ selectedCase?.last_message_at | date:'short' }}
+                                </div>
+                            </div>
                         </div>
                     </div>
 
-                    }
-
-
-                    <!-- Notas -->
+                    <!-- Notas del Caso -->
                     <div
-                        class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
+                        class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 flex flex-col h-[400px]">
                         <div
-                            class="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
-                            <div class="text-sm font-semibold text-[#00113f] dark:text-white">Notas</div>
+                            class="p-3 border-b border-gray-200 dark:border-gray-800 font-semibold text-gray-700 dark:text-gray-200">
+                            Notas internas
                         </div>
 
-                        <!-- Editor de nota -->
-                        <div class="p-4 space-y-3">
-                            <textarea [(ngModel)]="newNote" rows="3" placeholder="Escribe una nota para este caso…"
-                                class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400
-             focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent
-             text-sm text-[#00113f] dark:bg-gray-800 dark:border-gray-700 dark:text-white"></textarea>
+                        <div class="flex-1 overflow-y-auto p-3 space-y-3 bg-gray-50 dark:bg-gray-900/50">
+                            <div *ngIf="isLoadingNotes" class="flex justify-center py-4">
+                                <div
+                                    class="animate-spin h-5 w-5 border-2 border-blue-500 rounded-full border-t-transparent">
+                                </div>
+                            </div>
 
-                            <div class="flex items-center justify-end">
-                                <button
-                                    class="px-4 py-2 rounded-md text-sm font-medium text-white bg-[#00113f] hover:bg-[#3e66ea] disabled:opacity-50"
-                                    (click)="addNote()" [disabled]="!newNote.trim() || isSavingNote">
-                                    {{ isSavingNote ? 'Guardando…' : 'Añadir nota' }}
+                            <div *ngIf="!isLoadingNotes && notes.length === 0"
+                                class="text-center py-8 text-gray-400 text-sm">
+                                No hay notas aún.
+                            </div>
+
+                            <div *ngFor="let n of notes"
+                                class="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
+                                <div class="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap mb-1">{{ n.note
+                                    }}</div>
+                                <div class="text-xs text-gray-400 flex justify-between items-center">
+                                    <span>{{ n.author_name || 'Agente' }}</span>
+                                    <span>{{ n.created_at | date:'short' }}</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div
+                            class="p-3 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-b-xl">
+                            <textarea [(ngModel)]="newNote" rows="2"
+                                class="w-full text-sm p-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none resize-none mb-2"
+                                placeholder="Escribe una nota..."></textarea>
+                            <div class="flex justify-end">
+                                <button (click)="addNote()" [disabled]="!newNote.trim() || isSavingNote"
+                                    class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1">
+                                    <span *ngIf="isSavingNote"
+                                        class="animate-spin h-3 w-3 border-2 border-white rounded-full border-t-transparent"></span>
+                                    Agregar nota
                                 </button>
                             </div>
                         </div>
-
-                        <!-- Lista de notas -->
-                        <div class="px-4 pb-4">
-                            @if (isLoadingNotes) {
-                            <div class="text-sm text-gray-500 dark:text-gray-400">Cargando notas…</div>
-                            } @else if (!isLoadingNotes && notes.length === 0) {
-                            <div class="text-sm text-gray-500 dark:text-gray-400">Aún no hay notas.</div>
-                            } @else {
-                            <div
-                                class="max-h-72 overflow-auto divide-y divide-gray-100 dark:divide-gray-800 rounded-md border border-gray-200 dark:border-gray-800">
-                                @for (n of notes; track n.id) {
-                                <div class="p-3">
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">
-                                        {{ n.created_at | date:'short' }}
-                                        <span class="ml-1" *ngIf="n.author_id">· autor #{{ n.author_name }}</span>
-                                    </div>
-                                    <div
-                                        class="mt-1 text-sm text-[#00113f] dark:text-gray-100 whitespace-pre-wrap break-words">
-                                        {{ n.note }}
-                                    </div>
-                                </div>
-                                }
-                            </div>
-                            }
-                        </div>
                     </div>
+
                 </div>
 
                 <!-- Columna derecha (1/3) -->
                 <div class="space-y-4">
-                    <!-- Cliente -->
+                    <!-- Acciones rápidas -->
                     <div
-                        class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
-                        <div
-                            class="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
-
-                            <!-- Texto a la izquierda -->
-                            <div class="text-sm font-semibold text-[#00113f] dark:text-white flex-1">
-                                Cliente
-                            </div>
-
-                            <!-- Botones a la derecha -->
-                            <div class="flex gap-2">
-                                <button id="new-client" class="chip-btn" (click)="addNewClient()">Nuevo cliente</button>
-
-                                @if (selectedCase?.client_name) {
-                                <button class="chip-btn" (click)="openAssignClientModal()">Cambiar</button>
-                                } @else {
-                                <button class="chip-btn" (click)="openAssignClientModal()">Asignar</button>
-                                }
-                            </div>
-                        </div>
-
-                        <div class="p-4">
-                            @if (selectedCase?.client_name) {
-                            <div class="flex items-center gap-3">
-                                <div
-                                    class="h-10 w-10 rounded-full bg-blue-800 dark:bg-blue-800 flex items-center justify-center text-sm font-semibold text-white">
-                                    {{ (selectedCase?.client_name || 'C')[0] || 'C' }}
-                                </div>
-                                <div class="min-w-0">
-                                    <div class="text-sm text-[#00113f] dark:text-gray-100 truncate">
-                                        {{ selectedCase?.client_name }}
-                                    </div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">
-                                        Identificación: {{currentClient?.external_id }}
-                                    </div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">
-                                        Teléfono: {{currentClient?.phone }}
-                                    </div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">
-                                        Email: {{currentClient?.email }}
-                                    </div>
-                                </div>
-                            </div>
-                            } @else {
-                            <div class="text-sm text-gray-500 dark:text-gray-400">
-                                Este caso aún no está vinculado a un cliente.
-                            </div>
-                            }
+                        class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-4">
+                        <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Acciones</h4>
+                        <div class="flex flex-col gap-2">
+                            <button (click)="isCaseMode = false"
+                                class="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-sm font-medium text-blue-600 transition-colors flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                                </svg>
+                                Ir al chat
+                            </button>
+                            <button (click)="closeCase()"
+                                class="w-full text-left px-3 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium text-red-600 transition-colors flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
+                                </svg>
+                                Cerrar caso (Resolver)
+                            </button>
                         </div>
                     </div>
-
-
-                    <!-- Departamento -->
-
-                    <div
-                        class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
-                        <div class="p-4 border-b border-gray-100 dark:border-gray-800 text-sm font-semibold 
-              text-[#00113f] dark:text-white flex items-center justify-between">
-                            <span>{{t('case.detail.department')}}</span>
-                            <button class="chip-btn" (click)="openAssignDepartmentModal()">{{
-                                t('case.detail.assign_department')
-                                }}</button>
-                        </div>
-                        <div class="p-4 text-base text-[#00113f] dark:text-gray-100">
-                            {{ selectedDepartment?.description! || t('case.detail.department_none') }}
-                        </div>
-                    </div>
-
-                    @if (!selectedCase?.is_non_commercial){
-                    <!-- Campaña -->
-                    <div
-                        class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
-                        <div
-                            class="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
-                            <div class="text-sm font-semibold text-[#00113f] dark:text-white">Campaña</div>
-                            <div class="flex items-center gap-2">
-                                <button class="chip-btn" (click)="openAssignCampaignModal()">Vincular a campaña</button>
-                                <button *ngIf="selectedCase" class="chip-btn" (click)="openHistoryModal()">
-                                    Ver historial
-                                </button>
-                            </div>
-                        </div>
-
-                        <div class="p-4 space-y-3">
-                            <!-- Nombre de campaña actual -->
-                            <div class="text-sm text-[#00113f] dark:text-gray-100">
-                                {{ currentCampaign?.campaign_name ?? $any(selectedCase)?.campaign_name ?? '—' }}
-                            </div>
-
-                            <!-- Estado actual del funnel -->
-                            <div class="mt-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-blue-50 dark:bg-blue-900/40 p-3"
-                                *ngIf="currentCaseFunnel; else noFunnelState">
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-
-                                    <div>
-                                        <div class="text-xs text-gray-500 dark:text-gray-400">Funnel</div>
-                                        <div class="mt-1">
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold
-             bg-blue-100 text-blue-800 dark:bg-blue-900/40 dark:text-blue-200">
-                                                {{ currentCaseFunnel.funnel_name || '—' }}
-                                            </span>
-                                        </div>
-                                    </div>
-
-
-                                    <div>
-                                        <div class="text-xs text-gray-500 dark:text-gray-400">Etapa</div>
-                                        <div class="mt-1">
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-semibold
-                 bg-indigo-100 text-indigo-800 dark:bg-indigo-900/40 dark:text-indigo-200">
-                                                {{ currentCaseFunnel.current_stage_name }}
-                                            </span>
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="text-xs text-gray-500 dark:text-gray-400">Asignado</div>
-                                        <div class="text-sm text-[#00113f] dark:text-gray-100">
-                                            {{ currentCaseFunnel.last_changed_at| date:'short' }}
-                                        </div>
-                                    </div>
-                                    <div>
-                                        <div class="text-xs text-gray-500 dark:text-gray-400">Por</div>
-                                        <div class="text-sm text-[#00113f] dark:text-gray-100">
-                                            {{
-                                            currentCaseFunnel.last_changed_by_label }}
-                                        </div>
-                                    </div>
-                                </div>
-
-
-                                <!-- <div *ngIf="(currentCaseFunnel? || '').trim().length" class="mt-3">
-                                    
-                                    <div class="text-xs text-gray-500 dark:text-gray-400 mb-1">Nota</div>
-                                    <div
-                                        class="text-sm text-[#00113f] dark:text-gray-100 whitespace-pre-wrap break-words">
-                                        {{ currentCaseFunnel.note }}
-                                    </div>
-                                </div> -->
-                            </div>
-
-                            <div *ngIf="currentCampaign" class="p-4 space-y-2">
-                                <!-- <button class="w-full chip-btn">Asignar a agente</button> -->
-                                <button class="w-full chip-btn" (click)="openChangeStatusModal()">Cambiar
-                                    estado</button>
-                                <!-- <button class="w-full chip-btn" (click)="isCaseMode = false">Volver al chat</button> -->
-                            </div>
-
-
-
-                            <ng-template #noFunnelState>
-                                <div class="text-xs text-gray-400">Sin estado de funnel registrado.</div>
-                            </ng-template>
-                        </div>
-                    </div>
-
-
-                    }
-
-
-                    <!-- Acciones -->
-                    <!-- <div
-                        class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
-                        <div class="p-4 border-b border-gray-100 dark:border-gray-800">
-                            <div class="text-sm font-semibold text-[#00113f] dark:text-white">Acciones</div>
-                        </div>
-                        <div class="p-4 space-y-2">
-                         
-                            <button class="w-full chip-btn" (click)="openChangeStatusModal()">Cambiar estado</button>
-                           
-                        </div>
-                    </div> -->
                 </div>
 
             </div>
         </div>
-
     </section>
-
-    <!-- ========== MODAL CONFIRMAR ELIMINACIÓN ========== -->
-    <div *ngIf="isDeleteModalOpen" class="fixed inset-0 z-[90]" (click)="closeDeleteModal()">
-        <!-- Fondo oscuro -->
-        <div class="absolute inset-0 bg-black/60"></div>
-
-        <!-- Contenedor modal -->
-        <div class="absolute inset-0 flex items-center justify-center p-4" (click)="$event.stopPropagation()">
-            <div
-                class="w-full max-w-sm bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col">
-                <!-- Header -->
-                <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-800">
-                    <div class="text-sm font-semibold text-[#00113f] dark:text-white">
-                        Confirmar eliminación
-                    </div>
-                </div>
-
-                <!-- Body -->
-                <div class="p-4 text-sm text-gray-700 dark:text-gray-300">
-                    ¿Seguro que deseas eliminar este artículo del caso?
-                </div>
-
-                <!-- Footer -->
-                <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-800 flex justify-end gap-2">
-                    <button class="chip-btn" (click)="closeDeleteModal()">Cancelar</button>
-                    <button class="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700"
-                        (click)="confirmDeleteItem()">
-                        Eliminar
-                    </button>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
 }
 
-<!-- ========== MODAL ASIGNAR/CAMBIAR CLIENTE ========== -->
-@if (isAssignClientOpen) {
-<div class="fixed inset-0 z-[60]" (click)="closeAssignClientModal()">
-    <!-- Backdrop -->
-    <div class="absolute inset-0 bg-black/60"></div>
+<!-- ========== Modals ========== -->
 
-    <!-- Contenedor centrado -->
-    <div class="absolute inset-0 flex items-center justify-center p-4" (click)="$event.stopPropagation()">
-        <!-- Caja del modal: altura máx + layout en columna -->
-        <div
-            class="w-full max-w-3xl max-h-[85vh] bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col">
+<!-- Modal Client Form -->
+<app-client-form *ngIf="isFormOpen" [client]="currentClient" (cancel)="closeDialog()" (success)="onSuccess($event)">
+</app-client-form>
 
-            <!-- Header (fijo) -->
-            <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
-                <div class="text-sm font-semibold text-[#00113f] dark:text-white">
-                    Asignar cliente al caso
-                </div>
-                <button class="chip-btn" (click)="closeAssignClientModal()">Cerrar</button>
-            </div>
-
-            <!-- Body (scroll propio) -->
-            <div class="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-3">
-                <!-- Buscador -->
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                    </span>
-                    <input [(ngModel)]="clientSearch" (ngModelChange)="onClientSearchChange($event)" type="text"
-                        placeholder="Buscar por nombre…" class="pl-9 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400
-                   focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent
-                   text-sm text-[#00113f] dark:bg-gray-800 dark:border-gray-700 dark:text-white" />
-                </div>
-
-                <!-- Estados -->
-                @if (isLoadingClients) {
-                <div class="text-sm text-gray-500 dark:text-gray-400">Cargando clientes…</div>
-                } @else if (filteredClients.length === 0) {
-                <div class="text-sm text-gray-500 dark:text-gray-400">Sin resultados.</div>
-                }
-
-                <!-- Resultados (scroll propio) -->
-                @if (filteredClients.length > 0) {
-                <div class="max-h-[50vh] overflow-y-auto rounded-md border border-gray-200 dark:border-gray-800">
-                    @for (cli of filteredClients; track cli.id) {
-                    <button (click)="selectClientCandidate(cli)" class="w-full text-left px-4 py-3 border-b last:border-b-0 border-gray-100 dark:border-gray-800
-                       hover:bg-gray-50/60 dark:hover:bg-gray-800/60 focus:outline-none flex items-center gap-3"
-                        [ngClass]="{ 'bg-[#e8efff]': selectedClientCandidate?.id === cli.id }">
-
-                        <div class="h-10 w-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center
-                         text-sm font-semibold text-gray-600 dark:text-gray-200">
-                            {{ cli.full_name?.[0] || 'C' }}
-                        </div>
-
-                        <div class="min-w-0">
-                            <div class="text-sm font-medium text-[#00113f] dark:text-white truncate">
-                                {{ cli.full_name }}
-                            </div>
-                            <div class="text-xs text-gray-500 dark:text-gray-400 truncate">
-                                {{ cli.email || '—' }} · {{ cli.phone || '—' }}
-                            </div>
-                        </div>
-                    </button>
-                    }
-                </div>
-                }
-            </div>
-
-            <!-- Footer (fijo) -->
-            <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-800 flex items-center justify-end gap-2">
-
-                <button
-                    class="px-4 py-2 rounded-md text-sm font-medium text-white bg-[#00113f] hover:bg-[#3e66ea] disabled:opacity-50"
-                    [disabled]="!selectedClientCandidate || isAssigningClient" (click)="confirmAssignClient()">
-                    {{ isAssigningClient ? 'Asignando…' : 'Asignar' }}
-                </button>
-            </div>
-
-        </div>
-    </div>
-</div>
-
-}
-
-@if (isFormOpen){
-<!-- <app-client-form [client]="currentClient" (success)="onSuccess($event)" (cancel)="closeDialog()">
-</app-client-form> -->
-
-<div *ngIf="isFormOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900 bg-opacity-50">
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full p-6" (click)="$event.stopPropagation()">
-        <app-client-form [client]="currentClient" (success)="onSuccess($event)" (cancel)="closeDialog()">
-        </app-client-form>
-    </div>
-</div>
-
-}
-
-
-
-
-<!-- ========== MODAL VINCULAR CAMPAÑA ========== -->
-@if (isAssignCampaignOpen) {
-<div class="fixed inset-0 z-[60]" (click)="closeAssignCampaignModal()">
-    <!-- Backdrop -->
-    <div class="absolute inset-0 bg-black/60"></div>
-
-    <!-- Contenedor centrado -->
-    <div class="absolute inset-0 flex items-center justify-center p-4" (click)="$event.stopPropagation()">
-        <!-- Caja del modal -->
-        <div
-            class="w-full max-w-3xl max-h-[85vh] bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col">
-
-            <!-- Header -->
-            <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
-                <div class="text-sm font-semibold text-[#00113f] dark:text-white">
-                    Vincular a campaña
-                </div>
-                <button class="chip-btn" (click)="closeAssignCampaignModal()">Cerrar</button>
-            </div>
-
-            <!-- Body -->
-            <div class="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-3">
-                <!-- Buscador -->
-                <div class="relative">
-                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                    </span>
-                    <input [(ngModel)]="campaignSearch" (ngModelChange)="onCampaignSearchChange($event)" type="text"
-                        placeholder="Buscar campaña…" class="pl-9 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400
-                   focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent
-                   text-sm text-[#00113f] dark:bg-gray-800 dark:border-gray-700 dark:text-white" />
-                </div>
-
-                <!-- Estados -->
-                @if (isLoadingCampaigns) {
-                <div class="text-sm text-gray-500 dark:text-gray-400">Cargando campañas…</div>
-                } @else if (filteredCampaigns.length === 0) {
-                <div class="text-sm text-gray-500 dark:text-gray-400">Sin resultados.</div>
-                }
-
-                <!-- Resultados -->
-                @if (filteredCampaigns.length > 0) {
-                <div class="max-h-[50vh] overflow-y-auto rounded-md border border-gray-200 dark:border-gray-800">
-                    @for (camp of filteredCampaigns; track camp.campaign_id) {
-                    <button (click)="selectCampaignCandidate(camp)" class="w-full text-left px-4 py-3 border-b last:border-b-0 border-gray-100 dark:border-gray-800
-                       hover:bg-gray-50/60 dark:hover:bg-gray-800/60 focus:outline-none flex items-center gap-3"
-                        [ngClass]="{ 'bg-[#e8efff]': selectedCampaignCandidate?.campaign_id === camp.campaign_id }">
-
-                        <div class="h-10 w-10 rounded-full bg-indigo-200 dark:bg-indigo-700 flex items-center justify-center
-                            text-sm font-semibold text-indigo-900 dark:text-white">
-                            {{ (camp.campaign_name || 'C')[0] }}
-                        </div>
-
-                        <div class="min-w-0">
-                            <div class="text-sm font-medium text-[#00113f] dark:text-white truncate">
-                                {{ camp.campaign_name }}
-                            </div>
-                            <div class="text-xs text-gray-500 dark:text-gray-400 truncate">
-                                {{ camp.start_date || '—' }} — {{ camp.end_date || '—' }}
-                                <span class="ml-2" [class]="camp.is_active ? 'text-green-600' : 'text-gray-500'">
-                                    {{ camp.is_active ? 'Activa' : 'Inactiva' }}
-                                </span>
-                            </div>
-                            <div class="text-xs text-gray-400 dark:text-gray-500 truncate">
-                                Embudo: {{ camp.funnel_name || '—' }}
-                            </div>
-                        </div>
-                    </button>
-                    }
-                </div>
-                }
-            </div>
-
-            <!-- Footer -->
-            <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-800 flex items-center justify-end gap-2">
-                <button
-                    class="px-4 py-2 rounded-md text-sm font-medium text-white bg-[#00113f] hover:bg-[#3e66ea] disabled:opacity-50"
-                    [disabled]="!selectedCampaignCandidate || isAssigningCampaign" (click)="confirmAssignCampaign()">
-                    {{ isAssigningCampaign ? 'Vinculando…' : 'Vincular' }}
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-}
-
-
-<!-- ========== MODAL HISTORIAL FUNNEL/ETAPAS ========== -->
-<div *ngIf="isHistoryOpen" class="fixed inset-0 z-[60]" (click)="closeHistoryModal()">
-    <div class="absolute inset-0 bg-black/60"></div>
-
-    <div class="absolute inset-0 flex items-center justify-center p-4" (click)="$event.stopPropagation()">
-        <div
-            class="w-full max-w-3xl max-h-[85vh] bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col">
-            <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
-                <div class="text-sm font-semibold text-[#00113f] dark:text-white">Historial de etapas</div>
-                <button class="chip-btn" (click)="closeHistoryModal()">Cerrar</button>
-            </div>
-
-            <div class="flex-1 min-h-0 overflow-y-auto">
-                <div *ngIf="isLoadingHistory" class="p-4 text-sm text-gray-500 dark:text-gray-400">
-                    Cargando historial…
-                </div>
-
-                <div *ngIf="!isLoadingHistory && history.length === 0"
-                    class="p-4 text-sm text-gray-500 dark:text-gray-400">
-                    Sin registros.
-                </div>
-
-                <div *ngIf="!isLoadingHistory && history.length > 0"
-                    class="divide-y divide-gray-100 dark:divide-gray-800">
-                    <div *ngFor="let h of history" class="p-3">
-                        <div class="flex items-center justify-between">
-                            <div class="text-sm text-[#00113f] dark:text-gray-100">
-                                <span class="font-medium">{{ h.stage_name || '—' }}</span>
-                                <span class="ml-2 text-xs px-2 py-0.5 rounded-full border
-                             border-gray-300 dark:border-gray-700 text-gray-600 dark:text-gray-300">
-                                    {{ h.action }}
-                                </span>
-                            </div>
-                            <div class="text-xs text-gray-500 dark:text-gray-400">
-                                {{ h.changed_at | date:'short' }}
-                            </div>
-                        </div>
-                        <div class="text-xs text-gray-500 dark:text-gray-400">
-                            Por: {{ h.changed_by_name || ('#' + h.changed_by) }}
-                        </div>
-                        <div *ngIf="(h.note || '').trim().length"
-                            class="mt-1 text-sm text-[#00113f] dark:text-gray-100 whitespace-pre-wrap">
-                            {{ h.note }}
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-800 flex items-center justify-end">
-                <button class="chip-btn" (click)="closeHistoryModal()">Cerrar</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-<!-- ========== MODAL CERRAR CASO ========== -->
-<div *ngIf="isCloseCaseOpen" class="fixed inset-0 z-[70]" (click)="closeCloseCaseModal()">
-    <!-- Backdrop -->
-    <div class="absolute inset-0 bg-black/60"></div>
-
-    <!-- Contenedor -->
-    <div class="absolute inset-0 flex items-center justify-center p-4" (click)="$event.stopPropagation()">
-        <div
-            class="w-full max-w-md bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col">
-
-            <!-- Header -->
-            <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
-                <div class="text-sm font-semibold text-[#00113f] dark:text-white">Cerrar caso</div>
-                <button class="chip-btn" (click)="closeCloseCaseModal()">Cancelar</button>
-            </div>
-
-            <!-- Body -->
-            <div class="p-4 space-y-3">
-                <div class="text-sm text-gray-600 dark:text-gray-300">
-                    Estás a punto de cerrar el caso
-                    <span class="font-medium text-[#00113f] dark:text-white">#{{ selectedCase?.case_id }}</span>.
-                </div>
-
-                <textarea [(ngModel)]="closeNote" rows="3" placeholder="Añade una nota (opcional)…" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400
-                 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent
-                 text-sm text-[#00113f] dark:bg-gray-800 dark:border-gray-700 dark:text-white"></textarea>
-            </div>
-
-            <!-- Footer -->
-            <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-800 flex items-center justify-end gap-2">
-                <!-- <button class="chip-btn" (click)="closeCloseCaseModal()">Cancelar</button> -->
-                <button class="px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700"
-                    (click)="confirmCloseCase()" [disabled]="isClosingCase">
-                    {{ isClosingCase ? 'Cerrando…' : 'Cerrar caso' }}
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ========== MODAL AGREGAR / EDITAR ARTÍCULO ========== -->
-<div *ngIf="isItemModalOpen" class="fixed inset-0 z-[80]" (click)="closeItemModal()">
-    <!-- Fondo oscuro -->
-    <div class="absolute inset-0 bg-black/60"></div>
-
-    <!-- Contenedor del modal -->
-    <div class="absolute inset-0 flex items-center justify-center p-4" (click)="$event.stopPropagation()">
-        <!-- Caja del modal -->
-        <div
-            class="w-full max-w-md bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col">
-            <!-- Header -->
-            <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
-                <div class="text-sm font-semibold text-[#00113f] dark:text-white">
-                    {{ editingItem ? 'Editar artículo' : 'Agregar artículo' }}
-                </div>
-                <button class="chip-btn" (click)="closeItemModal()">Cerrar</button>
-            </div>
-
-            <!-- Body -->
-            <div class="p-4 space-y-3">
-                <!-- Selección de artículo -->
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Artículo</label>
-                <select [(ngModel)]="itemForm.item_id" (change)="onItemSelected()" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-[#00113f]
-                 dark:bg-gray-800 dark:border-gray-700 dark:text-white">
-                    <option [ngValue]="null">Seleccione un artículo...</option>
-                    <option *ngFor="let it of itemsList" [ngValue]="it.id">
-                        {{ it.name }}
-                    </option>
-                </select>
-
-                <!-- Precio unitario -->
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Precio unitario</label>
-                <input type="number" [(ngModel)]="itemForm.price" step="0.01" readonly class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-[#00113f]
-                 dark:bg-gray-800 dark:border-gray-700 dark:text-white bg-gray-50 dark:bg-gray-700" />
-
-                <!-- Cantidad -->
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Cantidad</label>
-                <input type="number" [(ngModel)]="itemForm.quantity" (input)="updateTotal()" min="1" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-[#00113f]
-                 dark:bg-gray-800 dark:border-gray-700 dark:text-white" />
-
-                <!-- Total -->
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Total</label>
-                <div class="px-3 py-2 border border-gray-300 rounded-md text-sm text-right text-[#00113f]
-                  dark:bg-gray-800 dark:border-gray-700 dark:text-white bg-gray-50 dark:bg-gray-700">
-                    {{ total | currency: 'CRC' : 'symbol-narrow' }}
-                </div>
-
-                <!-- Comprado -->
-                <div class="flex items-center gap-2 pt-2">
-                    <input type="checkbox" id="acquired" [(ngModel)]="itemForm.acquired"
-                        class="w-4 h-4 text-[#00113f] border-gray-300 rounded focus:ring-[#3e66ea]" />
-                    <label for="acquired" class="text-sm text-gray-700 dark:text-gray-300">Cliente adquirió el
-                        producto</label>
-                </div>
-
-                <!-- Notas -->
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Notas</label>
-                <textarea [(ngModel)]="itemForm.notes" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-[#00113f]
-                 dark:bg-gray-800 dark:border-gray-700 dark:text-white"></textarea>
-            </div>
-
-            <!-- Footer -->
-            <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-800 flex items-center justify-end gap-2">
-                <button
-                    class="px-4 py-2 rounded-md text-sm font-medium text-white bg-[#00113f] hover:bg-[#3e66ea] disabled:opacity-50"
-                    (click)="saveItem()">
-                    {{ editingItem ? 'Actualizar' : 'Guardar' }}
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- ========== MODAL VINCULAR DEPARTAMENTO ========== -->
-@if (isAssignDepartmentOpen) {
-<div class="fixed inset-0 z-[60]" (click)="closeAssignDepartmentModal()">
-    <!-- Backdrop -->
-    <div class="absolute inset-0 bg-black/60"></div>
-
-    <!-- Contenedor centrado -->
-    <div class="absolute inset-0 flex items-center justify-center p-4" (click)="$event.stopPropagation()">
-        <!-- Caja -->
-        <div
-            class="w-full max-w-3xl max-h-[85vh] bg-white dark:bg-gray-900 rounded-xl shadow-2xl border border-gray-200 dark:border-gray-700 overflow-hidden flex flex-col">
-
-            <!-- Header -->
-            <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex items-center justify-between">
-                <div class="text-sm font-semibold text-[#00113f] dark:text-white">
-                    Asignar departamento
-                </div>
-                <button class="chip-btn" (click)="closeAssignDepartmentModal()">Cerrar</button>
-            </div>
-
-            <!-- Body -->
-            <div class="flex-1 min-h-0 overflow-y-auto px-4 py-3 space-y-3">
-                <!-- Buscador -->
-                <input [(ngModel)]="departmentSearch" (ngModelChange)="onDepartmentSearchChange($event)" type="text"
-                    placeholder="Buscar departamento…" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm
-                 focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent
-                 text-sm text-[#00113f] dark:bg-gray-800 dark:border-gray-700 dark:text-white" />
-
-                <!-- Estados -->
-                @if (isLoadingDepartments) {
-                <div class="text-sm text-gray-500 dark:text-gray-400">Cargando departamentos…</div>
-                } @else if (filteredDepartments.length === 0) {
-                <div class="text-sm text-gray-500 dark:text-gray-400">Sin resultados.</div>
-                }
-
-                <!-- Resultados -->
-                @if (filteredDepartments.length > 0) {
-                <div class="max-h-[50vh] overflow-y-auto rounded-md border border-gray-200 dark:border-gray-800">
-                    @for (dep of filteredDepartments; track dep.id) {
-                    <button (click)="selectDepartmentCandidate(dep)" class="w-full text-left px-4 py-3 border-b last:border-b-0 border-gray-100 dark:border-gray-800
-                   hover:bg-gray-50/60 dark:hover:bg-gray-800/60 focus:outline-none flex items-center gap-3"
-                        [ngClass]="{ 'bg-[#e8efff]': selectedDepartmentCandidate?.id === dep.id }">
-
-                        <div class="h-10 w-10 rounded-full bg-indigo-200 dark:bg-indigo-700 flex items-center justify-center
-                          text-sm font-semibold text-indigo-900 dark:text-white">
-                            {{ (dep.description || 'D')[0] }}
-                        </div>
-
-                        <div class="min-w-0">
-                            <div class="text-sm font-medium text-[#00113f] dark:text-white truncate">
-                                {{ dep.description }}
-                            </div>
-                        </div>
-                    </button>
-                    }
-                </div>
-                }
-            </div>
-
-            <!-- Footer -->
-            <div class="px-4 py-3 border-t border-gray-200 dark:border-gray-800 flex items-center justify-end gap-2">
-                <button
-                    class="px-4 py-2 rounded-md text-sm font-medium text-white bg-[#00113f] hover:bg-[#3e66ea] disabled:opacity-50"
-                    [disabled]="!selectedDepartmentCandidate || isAssigningDepartment"
-                    (click)="confirmAssignDepartment()">
-                    {{ isAssigningDepartment ? 'Asignando…' : 'Asignar' }}
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-}
-
-<app-move-stage-modal [isOpen]="isMoveStageOpen" [caseId]="selectedCase?.case_id!" [current]="currentStage!"
-    [funnelId]="currentCampaign?.funnel_id!" (cancel)="isMoveStageOpen = false" (moved)="onMoveStage($event)">
+<!-- Modal Move Stage -->
+<app-move-stage-modal *ngIf="isMoveStageOpen" [current]="currentStage!" [caseId]="selectedCase?.case_id!"
+    [funnelId]="selectedCase?.funnel_id!" (cancel)="closeMoveStageModal()" (moved)="onMoveStage($event)">
 </app-move-stage-modal>
 
-<app-send-image-modal *ngIf="isImageModalOpen" [isOpen]="isImageModalOpen" (close)="closeImageModal()"
-    (send)="onImageSend($event)"></app-send-image-modal>
+<!-- Modal Send Image -->
+<app-send-image-modal *ngIf="isImageModalOpen" (close)="closeImageModal()" (send)="onSendImage($event)">
+</app-send-image-modal>
+
+<!-- Modal Send File -->
+<app-send-file-modal *ngIf="isFileModalOpen" (close)="closeFileModal()" (send)="onSendFile($event)">
+</app-send-file-modal>
+
+<!-- Audio Recorder -->
+<app-audio-recorder *ngIf="isAudioModalOpen" (cancel)="closeAudioModal()" (send)="onSendAudio($event)">
+</app-audio-recorder>
+
+
+<!-- Modal Close Case -->
+<div *ngIf="isCloseCaseOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+    (click)="closeCloseCaseModal()">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md p-6 m-4"
+        (click)="$event.stopPropagation()">
+        <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Cerrar Caso</h3>
+
+        <p class="text-sm text-gray-500 dark:text-gray-400 mb-4">
+            ¿Estás seguro de que deseas cerrar este caso? Puedes agregar una nota final opcional.
+        </p>
+
+        <textarea [(ngModel)]="closeNote"
+            class="w-full h-24 p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-gray-50 dark:bg-gray-700 text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none resize-none mb-4"
+            placeholder="Nota de cierre (opcional)..."></textarea>
+
+        <div class="flex items-center justify-end gap-3">
+            <button (click)="closeCloseCaseModal()"
+                class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                Cancelar
+            </button>
+            <button (click)="confirmCloseCase()" [disabled]="isClosingCase"
+                class="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 rounded-lg shadow-sm transition-colors flex items-center gap-2">
+                <svg *ngIf="isClosingCase" class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
+                    </path>
+                </svg>
+                {{ isClosingCase ? 'Cerrando...' : 'Cerrar Caso' }}
+            </button>
+        </div>
+    </div>
+</div>
 
 <!-- Modal Nueva Conversación -->
 <div *ngIf="isNewConversationOpen"
-    class="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-[9999]">
+    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+    (click)="isNewConversationOpen = false">
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-lg p-6 m-4 flex flex-col max-h-[90vh]"
+        (click)="$event.stopPropagation()">
 
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg p-6 animate-fadeIn space-y-4">
-
-        <!-- Header -->
-        <div class="flex justify-between items-center">
-            <h2 class="text-xl font-semibold text-[#00113f]">
-                Nueva Conversación
-            </h2>
-
-            <button (click)="isNewConversationOpen = false" class="text-gray-400 hover:text-gray-600">
-                ✕
+        <div class="flex items-center justify-between mb-4">
+            <h3 class="text-lg font-bold text-gray-900 dark:text-white">Nueva Conversación</h3>
+            <button (click)="isNewConversationOpen = false"
+                class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
             </button>
         </div>
 
-        <!-- ======================= CLIENTE ======================= -->
-
-        <!-- Input para buscar cliente SOLO si no hay uno seleccionado -->
-        <div *ngIf="!newConvSelectedClient" class="space-y-2">
-
-            <label class="block text-sm font-medium text-gray-700">Cliente</label>
-
-            <input type="text" [(ngModel)]="newConvClientSearch" (input)="searchNewConvClient()"
-                placeholder="Buscar cliente por nombre, correo o teléfono"
-                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3e66ea] focus:border-[#3e66ea]" />
-
-            <!-- Lista de clientes -->
-            <div *ngIf="newConvClientResults.length > 0" class="border rounded-lg max-h-40 overflow-auto">
-
-                <div *ngFor="let c of newConvClientResults; trackBy: trackByClientId" (click)="selectNewConvClient(c)"
-                    class="px-3 py-2 cursor-pointer hover:bg-gray-100" [class.bg-blue-50]="selectedClient?.id === c.id">
-
-                    <div class="font-medium text-gray-800">{{ c.full_name }}</div>
-                    <div class="text-sm text-black">{{ c.phone }}</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Cliente seleccionado -->
-        <div *ngIf="newConvSelectedClient" class="flex items-center justify-between p-3 border rounded-lg bg-blue-50">
-
+        <div class="flex-1 overflow-y-auto space-y-4 px-4 py-2 custom-scrollbar">
+            <!-- Buscar Cliente -->
             <div>
-                <div class="font-semibold text-[#00113f]">
-                    {{ newConvSelectedClient.full_name }}
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Buscar Cliente
+                    (Opcional)</label>
+                <input type="text" [(ngModel)]="newConvClientSearch" (ngModelChange)="searchNewConvClient()"
+                    placeholder="Escribe el nombre o teléfono..."
+                    class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none">
+
+                <!-- Resultados búsqueda -->
+                <div *ngIf="newConvClientResults.length > 0"
+                    class="mt-1 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                    <div *ngFor="let c of newConvClientResults"
+                        (click)="selectNewConvClient(c); newConvClientResults = []"
+                        class="px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 cursor-pointer text-sm text-gray-700 dark:text-gray-200">
+                        {{ c.full_name }} <span class="text-xs text-gray-400">({{ c.phone }})</span>
+                    </div>
                 </div>
-                <div class="text-sm text-gray-600">
-                    {{ newConvSelectedClient.phone }}
+                <!-- Cliente seleccionado -->
+                <div *ngIf="newConvSelectedClient"
+                    class="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded text-sm text-blue-800 dark:text-blue-200 flex justify-between items-center">
+                    <span>Cliente: <strong>{{ newConvSelectedClient.full_name }}</strong></span>
+                    <button (click)="newConvSelectedClient = null; newConvPhone = ''"
+                        class="text-blue-600 hover:text-blue-800 dark:hover:text-blue-300 text-xs">Desvincular</button>
                 </div>
             </div>
 
-            <button (click)="clearNewConvClient()"
-                class="text-xs px-3 py-1 rounded-full bg-red-100 text-red-600 hover:bg-red-200">
-                Limpiar
+            <!-- Teléfono -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Teléfono <span
+                        class="text-red-500">*</span></label>
+                <input type="text" [(ngModel)]="newConvPhone" (input)="onPhoneInput()" placeholder="Ej: 521234567890"
+                    class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                <p class="text-xs text-gray-500 mt-1">Ingresa el número con código de país (sin +)</p>
+            </div>
+
+            <!-- Selección de Integración -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Canal de Salida <span
+                        class="text-red-500">*</span></label>
+                <select [(ngModel)]="selectedIntegration"
+                    class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none">
+                    <option [ngValue]="null" disabled>Selecciona un canal</option>
+                    <option *ngFor="let i of integrations" [ngValue]="i.channel_integration_id">
+                        {{ i.integration_name }} ({{ i.channel_name }})
+                    </option>
+                </select>
+            </div>
+
+
+            <!-- Selección de Template -->
+            <div>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                    Template Inicial <span class="text-red-500">*</span>
+                </label>
+
+                <div
+                    class="grid grid-cols-1 gap-2 max-h-60 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-xl p-3 bg-gray-50 dark:bg-gray-900/50 custom-scrollbar">
+                    <div *ngFor="let t of templates" (click)="newConvSelectedTemplate = t"
+                        class="relative p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 group"
+                        [class.border-blue-500]="newConvSelectedTemplate?.id === t.id"
+                        [class.bg-white]="newConvSelectedTemplate?.id === t.id"
+                        [class.dark:bg-gray-800]="newConvSelectedTemplate?.id === t.id"
+                        [class.shadow-md]="newConvSelectedTemplate?.id === t.id"
+                        [class.border-transparent]="newConvSelectedTemplate?.id !== t.id"
+                        [class.bg-white]="newConvSelectedTemplate?.id !== t.id"
+                        [class.dark:bg-gray-800]="newConvSelectedTemplate?.id !== t.id"
+                        [class.hover:border-blue-300]="newConvSelectedTemplate?.id !== t.id"
+                        [class.hover:shadow-sm]="newConvSelectedTemplate?.id !== t.id">
+
+                        <div class="flex justify-between items-start gap-2">
+                            <div>
+                                <div
+                                    class="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                    {{ t.template_name }}
+                                </div>
+                                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
+                                    {{ t.language }}
+                                </div>
+                            </div>
+
+                            <!-- Check icon for selected state -->
+                            <div *ngIf="newConvSelectedTemplate?.id === t.id" class="text-blue-500">
+                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div *ngIf="templates.length === 0" class="text-center py-6 text-gray-500">
+                        <div class="mb-2">📄</div>
+                        <p class="text-sm">No hay plantillas disponibles.</p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mt-6 flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-gray-700">
+            <button (click)="isNewConversationOpen = false"
+                class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+                Cancelar
             </button>
-        </div>
-
-        <!-- ======================= TELÉFONO ======================= -->
-        <!-- <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Teléfono</label>
-            <input type="text" [(ngModel)]="newConvPhone" placeholder="Ingresar número 506XXXXXXXX"
-                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3e66ea] focus:border-[#3e66ea] text-black" />
-        </div> -->
-
-        <input type="text" [(ngModel)]="newConvPhone" (input)="onPhoneInput()" placeholder="Ingresar número 506XXXXXXXX"
-            class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3e66ea] text-black" />
-
-        <!-- ======================= COMPAÑÍA / DEPARTAMENTO ======================= -->
-        <div class="flex gap-3">
-
-            <!-- Selector de compañía -->
-            <div class="relative flex-1">
-                <select [(ngModel)]="selectedCompanyId" (change)="onCompanyChange()"
-                    class="w-full px-3 py-2 border rounded-lg bg-white text-black">
-
-                    <option *ngFor="let company of companies" [value]="company.company_id">
-                        {{ company.company_name }}
-                    </option>
-                </select>
-            </div>
-
-            <!-- Selector de departamento -->
-            <div class="relative flex-1" *ngIf="showDepartments.length > 0">
-                <select [(ngModel)]="selectedShowDepartmentId" (change)="onShowDepartmentSelected()"
-                    class="w-full px-3 py-2 border rounded-lg bg-white text-black">
-
-                    <option *ngFor="let department of showDepartments" [value]="department.id">
-                        {{ department.description }}
-                    </option>
-                </select>
-            </div>
-
-        </div>
-
-        <!-- ======================= INTEGRACIÓN WHATSAPP ======================= -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Integración de WhatsApp</label>
-
-            <select [(ngModel)]="selectedIntegration" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
-                       focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f]
-                       bg-white" [disabled]="!selectedShowDepartmentId">
-
-                <option [ngValue]="null">Seleccione una integración</option>
-                <option *ngFor="let i of integrations" [ngValue]="i.channel_integration_id">
-                    {{ i.integration_name }}
-                </option>
-            </select>
-        </div>
-
-        <!-- ======================= TEMPLATE ======================= -->
-        <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Template</label>
-
-            <select [(ngModel)]="newConvSelectedTemplate"
-                class="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-[#3e66ea] text-black">
-
-                <option [ngValue]="null">Seleccionar plantilla...</option>
-
-                <option *ngFor="let t of templates" [ngValue]="t">
-                    {{ t.template_name }} ({{ t.language }})
-                </option>
-            </select>
-        </div>
-
-        <!-- ======================= BOTÓN PRINCIPAL ======================= -->
-        <div>
             <button (click)="confirmNewConversation()"
-                class="w-full py-3 rounded-xl text-white font-semibold text-center bg-[#00113f] hover:bg-[#3e66ea] transition">
+                class="px-4 py-2 text-sm font-medium text-white bg-[#00113f] hover:bg-blue-700 rounded-lg shadow-sm transition-colors">
                 Iniciar Conversación
-            </button>
-        </div>
-
-    </div>
-</div>
-
-<app-send-file-modal *ngIf="isFileModalOpen" [startInAudioMode]="startInAudioMode" (close)="closeFileModal()"
-    (send)="onFileSend($event)">
-</app-send-file-modal>
-
-<div *ngIf="isAudioModalOpen" class="fixed inset-0 z-[9999] bg-black/50 flex items-center justify-center"
-    (click)="isAudioModalOpen = false">
-
-    <div (click)="$event.stopPropagation()">
-        <app-audio-recorder (send)="onAudioSend($event)" (cancel)="closeAudioModal()">
-        </app-audio-recorder>
-    </div>
-
-</div>
-
-
-<!-- Modal de mensaje -->
-<div *ngIf="uiMessage" class="fixed inset-0 z-[9999] flex items-center justify-center">
-    <div class="absolute inset-0 bg-black/50"></div>
-
-    <div class="relative bg-white dark:bg-gray-900 rounded-xl shadow-2xl
-              w-full max-w-sm p-6 animate-fadeIn">
-
-        <div class="text-lg font-semibold mb-2" [ngClass]="{
-           'text-red-600': uiMessageType === 'error',
-           'text-blue-600': uiMessageType === 'info',
-           'text-green-600': uiMessageType === 'success'
-         }">
-            {{ uiMessageType === 'error' ? 'Atención' : 'Mensaje' }}
-        </div>
-
-        <div class="text-sm text-gray-700 dark:text-gray-300 mb-4">
-            {{ uiMessage }}
-        </div>
-
-        <div class="text-right">
-            <button class="chip-btn bg-[#00113f] text-white" (click)="closeMessage()">
-                Aceptar
             </button>
         </div>
     </div>
