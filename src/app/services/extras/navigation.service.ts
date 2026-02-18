@@ -10,6 +10,7 @@ export class NavigationService {
     { type: 'item', name: 'menu.conversations', href: '/conversations', icon: 'MessageCircle', permission: 'conversations.access' },
     { type: 'item', name: 'menu.whatsapp-campaign-push', href: '/whatsapp-campaign-push', icon: 'UserPlus', permission: 'whatsapp-campaign-push.access' },
     { type: 'item', name: 'menu.cases', href: '/cases', icon: 'Package', permission: 'cases.access' },
+    { type: 'item', name: 'menu.cases-mass-reassignment', href: '/cases/mass-reassignment', icon: 'Package', permission: 'mass-reassignment.access' },
     {
       type: 'group',
       name: 'menu.sales',

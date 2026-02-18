@@ -581,4 +581,63 @@ export const enTranslations = {
   'no_processed_tasks': 'No processed tasks',
   'get_started_by_creating_task': 'Get started by creating a new receiving task',
   'completed_tasks_will_appear_here': 'Completed tasks will appear here',
+  'menu.cases-mass-reassignment': 'Bulk Reassignment',
+  'mass-reassignment.title': 'Bulk Case Reassignment',
+  'mass-reassignment.description': 'Bulk reassignment of cases',
+
+  // Mass Reassignment Component
+  'mass_reassignment.company': 'Company',
+  'mass_reassignment.department': 'Department',
+  'mass_reassignment.select_department': 'Select a department',
+  'mass_reassignment.search_label': 'Search Cases',
+  'mass_reassignment.search_placeholder': 'Search by client, agent, or ID...',
+  'mass_reassignment.btn_reassign': 'Reassign',
+  'mass_reassignment.loading_cases': 'Loading cases...',
+  'mass_reassignment.no_cases_found': 'No assigned cases in this department.',
+  'mass_reassignment.table.id': 'ID',
+  'mass_reassignment.table.client': 'Client',
+  'mass_reassignment.table.current_agent': 'Current Agent',
+  'mass_reassignment.table.channel': 'Channel',
+  'mass_reassignment.table.last_message': 'Last Message',
+
+  // Wizard Steps
+  'mass_reassignment.modal.title': 'Reassign Cases',
+  'mass_reassignment.step': 'Step {current} of {total}',
+  'mass_reassignment.cancel': 'Cancel',
+  'mass_reassignment.close': 'Close',
+
+  // Step 1: Source
+  'mass_reassignment.step1.title': 'Select Source Agent',
+  'mass_reassignment.step1.subtitle': 'From which agent do you want to move cases?',
+
+  // Step 2: Cases
+  'mass_reassignment.step2.title': 'Select cases to reassign',
+  'mass_reassignment.step2.selected_count': '{count} selected',
+  'mass_reassignment.step2.no_cases': 'This agent has no assigned cases.',
+  'mass_reassignment.step2.next_btn': 'Next: Select Target',
+
+  // Step 3: Target
+  'mass_reassignment.step3.title': 'Select Target Agent',
+  'mass_reassignment.step3.subtitle': 'To which agent will the {count} selected cases be assigned?',
+  'mass_reassignment.step3.source_tag': 'Source',
+
+  // Step 4: Confirm
+  'mass_reassignment.step4.title': 'Confirm Reassignment?',
+  'mass_reassignment.step4.source_agent': 'Source Agent:',
+  'mass_reassignment.step4.target_agent': 'Target Agent:',
+  'mass_reassignment.step4.total_cases': 'Total Cases:',
+  'mass_reassignment.step4.confirm_btn': 'Confirm',
+  'mass_reassignment.step4.processing': 'Processing...',
+
+  // Step 5: Summary
+  'mass_reassignment.step5.title': 'Reassignment Completed',
+  'mass_reassignment.step5.success_count': 'Successful',
+  'mass_reassignment.step5.failed_count': 'Failed',
+  'mass_reassignment.step5.details_header.case_id': 'Case ID',
+  'mass_reassignment.step5.details_header.status': 'Status',
+  'mass_reassignment.step5.details_header.detail': 'Detail',
+
+  // Alerts
+  'mass_reassignment.error.same_agent': 'Target agent must be different from source agent.',
+  'mass_reassignment.error.unknown': 'Unknown error',
 };

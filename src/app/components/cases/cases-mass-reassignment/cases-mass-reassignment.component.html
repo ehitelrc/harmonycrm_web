@@ -1,0 +1,309 @@
+<app-main-layout>
+    <div class="p-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-6">{{ t('mass-reassignment.title') }}</h2>
+
+        <!-- Filtros Superiores -->
+        <div class="bg-white rounded-lg shadow p-4 mb-6 flex flex-wrap gap-4 items-end">
+
+            <!-- Selector Compañía -->
+            <div class="w-64">
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('mass_reassignment.company') }}</label>
+                <select [(ngModel)]="selectedCompanyId" (change)="onCompanyChange()"
+                    class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                    <option *ngFor="let c of companies" [value]="c.company_id">{{ c.company_name }}</option>
+                </select>
+            </div>
+
+            <!-- Selector Departamento -->
+            <div class="w-64">
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('mass_reassignment.department')
+                    }}</label>
+                <select [(ngModel)]="selectedDepartmentId" (change)="onDepartmentDetailChange()"
+                    [disabled]="!selectedCompanyId"
+                    class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100">
+                    <option [value]="null" disabled selected>{{ t('mass_reassignment.select_department') }}</option>
+                    <option *ngFor="let d of departments" [value]="d.id">{{ d.name }}</option>
+                </select>
+            </div>
+
+            <!-- Buscador -->
+            <div class="flex-1">
+                <label class="block text-sm font-medium text-gray-700 mb-1">{{ t('mass_reassignment.search_label')
+                    }}</label>
+                <input type="text" [(ngModel)]="searchTerm" [placeholder]="t('mass_reassignment.search_placeholder')"
+                    class="w-full border rounded-md px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+            </div>
+
+            <!-- Botón Reasignar -->
+            <div>
+                <button (click)="openReassignModal()" [disabled]="!selectedDepartmentId || cases.length === 0"
+                    class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-sm flex items-center gap-2">
+                    <span>🔄</span> {{ t('mass_reassignment.btn_reassign') }}
+                </button>
+            </div>
+        </div>
+
+        <!-- Lista Principal de Casos -->
+        <div class="bg-white rounded-lg shadow overflow-hidden">
+
+            <!-- Loading State -->
+            <div *ngIf="loading" class="p-8 text-center">
+                <div class="animate-spin text-4xl text-blue-500 mb-2">↻</div>
+                <p class="text-gray-500">{{ t('mass_reassignment.loading_cases') }}</p>
+            </div>
+
+            <!-- Empty State -->
+            <div *ngIf="!loading && cases.length === 0" class="p-8 text-center text-gray-500">
+                {{ t('mass_reassignment.no_cases_found') }}
+            </div>
+
+            <!-- Tabla de Casos -->
+            <div *ngIf="!loading && cases.length > 0" class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {{ t('mass_reassignment.table.id') }}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {{ t('mass_reassignment.table.client') }}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {{ t('mass_reassignment.table.current_agent') }}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {{ t('mass_reassignment.table.channel') }}</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                {{ t('mass_reassignment.table.last_message') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <tr *ngFor="let c of filteredCases" class="hover:bg-gray-50">
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">#{{c.case_id}}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{c.client_name}}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{c.agent_full_name}}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                                    {{c.integration_name}}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-500 max-w-xs truncate" [title]="c.last_message_text">
+                                {{c.last_message_text || '—'}}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: Reasignación Masiva (Wizard) -->
+    <div *ngIf="showReassignModal"
+        class="fixed inset-0 bg-gray-900 bg-opacity-50 flex items-center justify-center z-50 p-4">
+        <div
+            class="bg-white rounded-xl shadow-2xl w-full max-w-4xl max-h-[90vh] flex flex-col overflow-hidden animate-fadeIn">
+
+            <!-- Header Modal -->
+            <div class="bg-gray-50 p-4 border-b flex justify-between items-center">
+                <div>
+                    <h3 class="text-lg font-bold text-gray-800">{{ t('mass_reassignment.modal.title') }}</h3>
+                    <p class="text-xs text-gray-500">{{ t('mass_reassignment.step').replace('{current}',
+                        step.toString()).replace('{total}', '5') }}</p>
+                </div>
+                <button (click)="closeReassignModal()"
+                    class="text-gray-400 hover:text-gray-600 font-bold text-xl">&times;</button>
+            </div>
+
+            <!-- Content Area -->
+            <div class="flex-1 overflow-y-auto p-6">
+
+                <!-- PASO 1: Seleccionar Agente ORIGEN -->
+                <div *ngIf="step === 1" class="space-y-4">
+                    <h4 class="text-md font-semibold text-gray-700">{{ t('mass_reassignment.step1.title') }}</h4>
+                    <p class="text-sm text-gray-500">{{ t('mass_reassignment.step1.subtitle') }}</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                        <button *ngFor="let agent of agents"
+                            (click)="sourceAgentId = agent.agent_id; onSourceAgentSelected()"
+                            class="p-4 border rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-all text-left group">
+                            <div class="font-medium text-gray-800 group-hover:text-blue-700">{{agent.agent_name}}</div>
+                            <div class="text-xs text-gray-500">ID: {{agent.agent_id}}</div>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- PASO 2: Seleccionar CASOS -->
+                <div *ngIf="step === 2" class="space-y-4 h-full flex flex-col">
+                    <div class="flex justify-between items-center">
+                        <h4 class="text-md font-semibold text-gray-700">{{ t('mass_reassignment.step2.title') }}</h4>
+                        <span class="text-sm bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
+                            {{ t('mass_reassignment.step2.selected_count').replace('{count}',
+                            selectedCaseIds.size.toString()) }}
+                        </span>
+                    </div>
+
+                    <div class="border rounded-md flex-1 overflow-hidden flex flex-col">
+                        <!-- Table Header -->
+                        <div class="bg-gray-100 p-3 border-b flex font-semibold text-xs text-gray-600 uppercase">
+                            <div class="w-10 text-center">
+                                <input type="checkbox" [checked]="isAllSelected()" (change)="toggleAllCases($event)"
+                                    class="cursor-pointer">
+                            </div>
+                            <div class="w-20">{{ t('mass_reassignment.table.id') }}</div>
+                            <div class="flex-1">{{ t('mass_reassignment.table.client') }}</div>
+                            <div class="flex-1">{{ t('mass_reassignment.table.channel') }}</div>
+                        </div>
+
+                        <!-- Scrollable List -->
+                        <div class="overflow-y-auto flex-1 bg-white">
+                            <div *ngFor="let c of sourceAgentCases"
+                                class="flex items-center p-3 border-b hover:bg-gray-50 transition-colors text-sm">
+                                <div class="w-10 text-center">
+                                    <input type="checkbox" [checked]="selectedCaseIds.has(c.case_id)"
+                                        (change)="toggleCaseSelection(c.case_id)" class="cursor-pointer">
+                                </div>
+                                <div class="w-20 text-gray-500 font-mono">#{{c.case_id}}</div>
+                                <div class="flex-1 font-medium text-gray-900">{{c.client_name}}</div>
+                                <div class="flex-1 text-gray-600">{{c.integration_name}}</div>
+                            </div>
+
+                            <div *ngIf="sourceAgentCases.length === 0" class="p-8 text-center text-gray-400">
+                                {{ t('mass_reassignment.step2.no_cases') }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PASO 3: Seleccionar Agente DESTINO -->
+                <div *ngIf="step === 3" class="space-y-4">
+                    <h4 class="text-md font-semibold text-gray-700">{{ t('mass_reassignment.step3.title') }}</h4>
+                    <p class="text-sm text-gray-500">{{ t('mass_reassignment.step3.subtitle').replace('{count}',
+                        selectedCaseIds.size.toString()) }}</p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-4">
+                        <button *ngFor="let agent of agents" [disabled]="agent.agent_id === sourceAgentId"
+                            (click)="targetAgentId = agent.agent_id; goToConfirmation()"
+                            class="p-4 border rounded-lg text-left transition-all relative"
+                            [ngClass]="{'opacity-50 cursor-not-allowed bg-gray-100': agent.agent_id === sourceAgentId, 
+                                    'hover:border-green-500 hover:bg-green-50 cursor-pointer': agent.agent_id !== sourceAgentId}">
+                            <div class="font-medium text-gray-800">{{agent.agent_name}}</div>
+                            <div class="text-xs text-gray-500">ID: {{agent.agent_id}}</div>
+                            <span *ngIf="agent.agent_id === sourceAgentId"
+                                class="absolute top-2 right-2 text-xs text-red-500 font-bold">{{
+                                t('mass_reassignment.step3.source_tag') }}</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- PASO 4: CONFIRMACIÓN -->
+                <div *ngIf="step === 4"
+                    class="flex flex-col items-center justify-center space-y-6 py-8 text-center animate-fadeIn">
+                    <div
+                        class="w-20 h-20 bg-yellow-100 text-yellow-600 rounded-full flex items-center justify-center shadow-sm">
+                        <span class="text-4xl">⚠️</span>
+                    </div>
+
+                    <h4 class="text-2xl font-bold text-gray-800">{{ t('mass_reassignment.step4.title') }}</h4>
+
+                    <div class="bg-gray-50 p-6 rounded-lg border w-full max-w-md space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">{{ t('mass_reassignment.step4.source_agent') }}</span>
+                            <span class="font-semibold">{{ getAgentName(sourceAgentId) }}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-500">{{ t('mass_reassignment.step4.target_agent') }}</span>
+                            <span class="font-semibold text-green-600">{{ getAgentName(targetAgentId) }}</span>
+                        </div>
+                        <div class="border-t my-2"></div>
+                        <div class="flex justify-between text-lg font-bold">
+                            <span>{{ t('mass_reassignment.step4.total_cases') }}</span>
+                            <span>{{selectedCaseIds.size}}</span>
+                        </div>
+                    </div>
+
+                    <div *ngIf="isProcessing" class="w-full max-w-md space-y-2">
+                        <div class="flex justify-between text-xs text-gray-500">
+                            <span>{{ t('mass_reassignment.step4.processing') }}</span>
+                            <span>{{progress}}%</span>
+                        </div>
+                        <div class="w-full bg-gray-200 rounded-full h-2.5">
+                            <div class="bg-green-600 h-2.5 rounded-full transition-all duration-300"
+                                [style.width.%]="progress"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PASO 5: RESUMEN FINAL -->
+                <div *ngIf="step === 5" class="space-y-6 text-center py-4">
+                    <div
+                        class="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <span class="text-4xl">✅</span>
+                    </div>
+
+                    <h4 class="text-2xl font-bold text-gray-800">{{ t('mass_reassignment.step5.title') }}</h4>
+
+                    <div class="grid grid-cols-2 gap-4 max-w-lg mx-auto">
+                        <div class="bg-green-50 p-4 rounded-lg border border-green-200">
+                            <div class="text-green-800 text-sm font-semibold">{{
+                                t('mass_reassignment.step5.success_count') }}</div>
+                            <div class="text-2xl font-bold text-green-600">{{reassignmentSummary?.success}}</div>
+                        </div>
+                        <div class="bg-red-50 p-4 rounded-lg border border-red-200">
+                            <div class="text-red-800 text-sm font-semibold">{{ t('mass_reassignment.step5.failed_count')
+                                }}</div>
+                            <div class="text-2xl font-bold text-red-600">{{reassignmentSummary?.failed}}</div>
+                        </div>
+                    </div>
+
+                    <div class="text-left mt-6 border rounded-lg overflow-hidden max-h-60 overflow-y-auto"
+                        *ngIf="reassignmentSummary?.details?.length">
+                        <table class="min-w-full text-sm">
+                            <thead class="bg-gray-100 text-gray-600">
+                                <tr>
+                                    <th class="px-4 py-2">{{ t('mass_reassignment.step5.details_header.case_id') }}</th>
+                                    <th class="px-4 py-2">{{ t('mass_reassignment.step5.details_header.status') }}</th>
+                                    <th class="px-4 py-2">{{ t('mass_reassignment.step5.details_header.detail') }}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr *ngFor="let detail of reassignmentSummary?.details"
+                                    [class.bg-red-50]="!detail.success">
+                                    <td class="px-4 py-2 border-b">#{{detail.caseId}}</td>
+                                    <td class="px-4 py-2 border-b font-semibold"
+                                        [ngClass]="detail.success ? 'text-green-600' : 'text-red-600'">
+                                        {{ detail.success ? 'OK' : 'Error' }}
+                                    </td>
+                                    <td class="px-4 py-2 border-b text-gray-500">{{ detail.error || '-' }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Footer Modal -->
+            <div class="bg-gray-50 p-4 border-t flex justify-end gap-3">
+                <button *ngIf="step < 5" (click)="closeReassignModal()"
+                    class="px-4 py-2 rounded text-gray-600 hover:bg-gray-200 transition-colors">
+                    {{ t('mass_reassignment.cancel') }}
+                </button>
+
+                <button *ngIf="step === 2" (click)="goToTargetAgentSelection()" [disabled]="selectedCaseIds.size === 0"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded shadow transition-colors disabled:opacity-50">
+                    {{ t('mass_reassignment.step2.next_btn') }}
+                </button>
+
+                <button *ngIf="step === 4" (click)="executeReassignment()" [disabled]="isProcessing"
+                    class="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded shadow transition-colors disabled:opacity-50 flex items-center gap-2">
+                    <span *ngIf="isProcessing">↻</span>
+                    {{ isProcessing ? t('mass_reassignment.step4.processing') : t('mass_reassignment.step4.confirm_btn')
+                    }}
+                </button>
+
+                <button *ngIf="step === 5" (click)="closeReassignModal()"
+                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded shadow transition-colors">
+                    {{ t('mass_reassignment.close') }}
+                </button>
+            </div>
+        </div>
+    </div>
+</app-main-layout>

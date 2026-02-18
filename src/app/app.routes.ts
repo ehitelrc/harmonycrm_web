@@ -75,6 +75,11 @@ export const routes: Routes = [
     loadComponent: () => import('./components/cases/cases-management/cases-management.component').then(m => m.CasesManagementComponent),
     canActivate: [AuthGuard]
   },
+  {
+    path: 'cases/mass-reassignment',
+    loadComponent: () => import('./components/cases/cases-mass-reassignment/cases-mass-reassignment.component').then(m => m.CasesMassReassignmentComponent),
+    canActivate: [AuthGuard]
+  },
 
   // Inventory Management route - requires authentication
   {
@@ -202,7 +207,7 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   // Dynamic Lists Management
-  { 
+  {
     path: 'custom-lists',
     loadComponent: () => import('./components/dynamic-list/dymamic-list-maintenance/dynamic-list-maintenance.component').then(m => m.DynamicListsManagementComponent),
     canActivate: [AuthGuard]

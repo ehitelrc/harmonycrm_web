@@ -5,8 +5,8 @@ export const esTranslations = {
   // Campaigns pushin
   "push.management_title": "Gestión de envios masivos de WhatsApp",
   "push.management_description": "Administra los envios masivos de WhatsApp para las compañías",
-  
-  
+
+
   // Leads reg
   'menu.sales': 'Ventas',
   'menu.lead-registration': 'Registar mis Leads',
@@ -25,7 +25,7 @@ export const esTranslations = {
   "channel.select_integration": "Seleccionar integración",
   "item.select_integration_lead": "Selecciona una integración para cargar los leads",
   "channel.select_channel_integration_placeholder": "Seleccionar integración...",
-  "leads.confirm_delete_title" : "Confirmar eliminación",
+  "leads.confirm_delete_title": "Confirmar eliminación",
   "leads.confirm_delete_message": "¿Está seguro de que desea eliminar este lead? Esta acción no se puede deshacer.",
 
   // Auth
@@ -242,7 +242,7 @@ export const esTranslations = {
   "dynamic_lists.confirm.delete_message": "¿Está seguro de que desea eliminar este valor?",
   "dynamic_lists.confirm.delete": "Eliminar",
   "dynamic_lists.confirm.cancel": "Cancelar",
- 
+
   // Departments
 
   "department.management_title": "Gestión de Departamentos",
@@ -574,7 +574,7 @@ export const esTranslations = {
   "whatsapp_template.active": "Activo",
   "whatsapp_template.template_url_webhook": "Webhook de URL de plantilla",
   "whatsapp_template.template_status": "Estado de la plantilla",
-  "whatsapp_template.select_department": "Seleccionar departamento",  
+  "whatsapp_template.select_department": "Seleccionar departamento",
 
 
 
@@ -800,7 +800,7 @@ export const esTranslations = {
   "case.apply_change": "Aplicar cambio",
   "cases.no_data": "No hay casos disponibles.",
   "case.detail.no_stage": "Sin etapa",
- 
+
 
   // Agents
 
@@ -1449,4 +1449,65 @@ export const esTranslations = {
   'no_processed_tasks': 'No hay tareas procesadas',
   'get_started_by_creating_task': 'Comienza creando una nueva tarea de recepción',
   'completed_tasks_will_appear_here': 'Las tareas completadas aparecerán aquí',
+
+
+  'menu.cases-mass-reassignment': 'Reasignación masiva',
+  'mass-reassignment.title': 'Reasignación masiva',
+  'mass-reassignment.description': 'Reasignación masiva de casos',
+
+  // Mass Reassignment Component
+  'mass_reassignment.company': 'Compañía',
+  'mass_reassignment.department': 'Departamento',
+  'mass_reassignment.select_department': 'Seleccione un departamento',
+  'mass_reassignment.search_label': 'Buscar Casos',
+  'mass_reassignment.search_placeholder': 'Buscar por cliente, agente o ID...',
+  'mass_reassignment.btn_reassign': 'Reasignar',
+  'mass_reassignment.loading_cases': 'Cargando casos...',
+  'mass_reassignment.no_cases_found': 'No hay casos asignados en este departamento.',
+  'mass_reassignment.table.id': 'ID',
+  'mass_reassignment.table.client': 'Cliente',
+  'mass_reassignment.table.current_agent': 'Agente Actual',
+  'mass_reassignment.table.channel': 'Canal',
+  'mass_reassignment.table.last_message': 'Último Mensaje',
+
+  // Wizard Steps
+  'mass_reassignment.modal.title': 'Reasignar Casos',
+  'mass_reassignment.step': 'Paso {current} de {total}',
+  'mass_reassignment.cancel': 'Cancelar',
+  'mass_reassignment.close': 'Cerrar',
+
+  // Step 1: Source
+  'mass_reassignment.step1.title': 'Seleccione el Agente Origen',
+  'mass_reassignment.step1.subtitle': '¿De qué agente desea mover los casos?',
+
+  // Step 2: Cases
+  'mass_reassignment.step2.title': 'Seleccione los casos a reasignar',
+  'mass_reassignment.step2.selected_count': '{count} seleccionados',
+  'mass_reassignment.step2.no_cases': 'Este agente no tiene casos asignados.',
+  'mass_reassignment.step2.next_btn': 'Siguiente: Seleccionar Destino',
+
+  // Step 3: Target
+  'mass_reassignment.step3.title': 'Seleccione el Agente Destino',
+  'mass_reassignment.step3.subtitle': '¿A qué agente se asignarán los {count} casos seleccionados?',
+  'mass_reassignment.step3.source_tag': 'Origen',
+
+  // Step 4: Confirm
+  'mass_reassignment.step4.title': '¿Confirmar Reasignación?',
+  'mass_reassignment.step4.source_agent': 'Agente Origen:',
+  'mass_reassignment.step4.target_agent': 'Agente Destino:',
+  'mass_reassignment.step4.total_cases': 'Total Casos:',
+  'mass_reassignment.step4.confirm_btn': 'Confirmar',
+  'mass_reassignment.step4.processing': 'Procesando...',
+
+  // Step 5: Summary
+  'mass_reassignment.step5.title': 'Reasignación Completada',
+  'mass_reassignment.step5.success_count': 'Exitosos',
+  'mass_reassignment.step5.failed_count': 'Fallidos',
+  'mass_reassignment.step5.details_header.case_id': 'Caso ID',
+  'mass_reassignment.step5.details_header.status': 'Estado',
+  'mass_reassignment.step5.details_header.detail': 'Detalle',
+
+  // Alerts
+  'mass_reassignment.error.same_agent': 'El agente destino debe ser diferente al origen.',
+  'mass_reassignment.error.unknown': 'Error desconocido',
 };

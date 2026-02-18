@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Incrementar versión
+echo "Incrementando versión..."
+node increase-version.js
+
 # Compilar proyecto Angular
 echo "Compilando proyecto Angular..."
 ng build
