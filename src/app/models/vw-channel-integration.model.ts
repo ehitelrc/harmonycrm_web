@@ -12,4 +12,5 @@ export interface VWChannelIntegration {
   created_at: string; // viene de PostgreSQL como timestamp → string ISO
   updated_at: string; // idem
   integration_name?: string | null;
+  department_id: number | null;
 }

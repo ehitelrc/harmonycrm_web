@@ -1,6 +1,5 @@
 export interface ChannelWhatsAppTemplate {
   id: number;
-  deparment_id: number;
   template_name: string;
   language: string;
   active: boolean;

@@ -84,7 +84,7 @@
                                     {{ c.client_name || 'Desconocido' }}
                                 </span>
                                 <span *ngIf="c.last_message_at" class="text-[10px] text-gray-400 shrink-0">
-                                    {{ c.last_message_at | date:'shortTime' }}
+                                    {{ c.last_message_at | date:'dd/MM/yyyy HH:mm' }}
                                 </span>
                             </div>
 
@@ -1106,10 +1106,10 @@
             <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Canal de Salida <span
                         class="text-red-500">*</span></label>
-                <select [(ngModel)]="selectedIntegration"
+                <select [(ngModel)]="selectedIntegration" (ngModelChange)="onIntegrationChange()"
                     class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none">
                     <option [ngValue]="null" disabled>Selecciona un canal</option>
-                    <option *ngFor="let i of integrations" [ngValue]="i.channel_integration_id">
+                    <option *ngFor="let i of integrations" [ngValue]="i">
                         {{ i.integration_name }} ({{ i.channel_name }})
                     </option>
                 </select>
@@ -1158,8 +1158,14 @@
                     </div>
 
                     <div *ngIf="templates.length === 0" class="text-center py-6 text-gray-500">
-                        <div class="mb-2">📄</div>
-                        <p class="text-sm">No hay plantillas disponibles.</p>
+                        <ng-container *ngIf="!selectedIntegration; else noTemplates">
+                            <div class="mb-2">�</div>
+                            <p class="text-sm">Selecciona un canal para ver las plantillas disponibles.</p>
+                        </ng-container>
+                        <ng-template #noTemplates>
+                            <div class="mb-2">�📄</div>
+                            <p class="text-sm">No hay plantillas disponibles para este canal.</p>
+                        </ng-template>
                     </div>
                 </div>
             </div>

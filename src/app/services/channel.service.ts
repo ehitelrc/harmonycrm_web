@@ -17,7 +17,7 @@ export const CHANNEL_URL = returnCompleteURI({
 
 @Injectable({ providedIn: 'root' })
 export class ChannelService {
-  constructor(private fetch: FetchService) {}
+  constructor(private fetch: FetchService) { }
 
   getAll() {
     return this.fetch.get<ApiResponse<Channel[]>>({
@@ -61,25 +61,26 @@ export class ChannelService {
     });
   }
 
-  getWhatsappIntegrationsByCompany(company: number) : Promise<ApiResponse<VWChannelIntegration[]>>  {
+  getWhatsappIntegrationsByCompany(company: number): Promise<ApiResponse<VWChannelIntegration[]>> {
     return this.fetch.get<ApiResponse<VWChannelIntegration[]>>({
       API_Gateway: `${CHANNEL_URL}/integrations/whatsapp/company/${company}`,
     });
   }
 
-    getWhatsappIntegrationsByDepartment(department_id: number) : Promise<ApiResponse<VWChannelIntegration[]>>  {
+  getWhatsappIntegrationsByDepartment(department_id: number): Promise<ApiResponse<VWChannelIntegration[]>> {
+    console.log(`${CHANNEL_URL}/integrations/whatsapp/department/${department_id}`);
     return this.fetch.get<ApiResponse<VWChannelIntegration[]>>({
       API_Gateway: `${CHANNEL_URL}/integrations/whatsapp/department/${department_id}`,
     });
   }
 
   // Get intgrations by company and channel
-  getIntegrationsByCompanyAndChannel(companyId: number, channelId: number) : Promise<ApiResponse<ChannelIntegrationDTO[]>>  {
+  getIntegrationsByCompanyAndChannel(companyId: number, channelId: number): Promise<ApiResponse<ChannelIntegrationDTO[]>> {
     return this.fetch.get<ApiResponse<ChannelIntegrationDTO[]>>({
       API_Gateway: `${CHANNEL_URL}/integrations/company/${companyId}/channel/${channelId}`,
     });
   }
-  
+
 
   UpdateIntegration(id: number, data: Partial<ChannelIntegrationDTO>) {
     const payload = { ...data, "id": id };
@@ -90,8 +91,8 @@ export class ChannelService {
   }
 
   CreateIntegration(data: Partial<ChannelIntegrationDTO>) {
-      return this.fetch.post<ApiResponse<ChannelIntegrationDTO>>({
-        API_Gateway: `${environment.API.BASE}/channels/integrations`,
+    return this.fetch.post<ApiResponse<ChannelIntegrationDTO>>({
+      API_Gateway: `${environment.API.BASE}/channels/integrations`,
       values: data,
     });
   }
@@ -102,18 +103,24 @@ export class ChannelService {
     });
   }
 
-	///channels/whatsapp/templates/integration/:channel_integration_id
+  ///channels/whatsapp/templates/integration/:channel_integration_id
   getWhatsappTemplatesByIntegration(integrationId: number): Promise<ApiResponse<ChannelWhatsAppTemplate[]>> {
     return this.fetch.get<ApiResponse<ChannelWhatsAppTemplate[]>>({
       API_Gateway: `${CHANNEL_URL}/whatsapp/templates/integration/${integrationId}`,
     });
   }
 
-    getWhatsappTemplatesByDepartmentId(departmentId: number): Promise<ApiResponse<ChannelWhatsAppTemplate[]>> {
+  getWhatsappTemplatesByDepartmentId(departmentId: number): Promise<ApiResponse<ChannelWhatsAppTemplate[]>> {
     return this.fetch.get<ApiResponse<ChannelWhatsAppTemplate[]>>({
       API_Gateway: `${CHANNEL_URL}/whatsapp/templates/department/${departmentId}`,
     });
   }
 
+  ///templates/channel/1
+  getTemplatesByChannel(channelId: number): Promise<ApiResponse<ChannelWhatsAppTemplate[]>> {
+    return this.fetch.get<ApiResponse<ChannelWhatsAppTemplate[]>>({
+      API_Gateway: `${CHANNEL_URL}/templates/channel/${channelId}`,
+    });
+  }
 
 }

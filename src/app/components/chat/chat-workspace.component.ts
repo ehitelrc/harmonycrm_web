@@ -377,7 +377,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
         unread_count: Number(c.unread_count ?? 0),
         last_message_preview: c.last_message_preview ?? '',
         last_message_at: c.last_message_at ?? null,
-      }));
+      })).filter(c => c.status !== 'closed');
 
       // Order by last_message_at descending
       this.cases.sort((a, b) => {
@@ -1529,10 +1529,16 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
 
       if (res.success) {
         this.alert.success('Caso cerrado correctamente');
-        this.selectedCase.status = 'closed';
-        this.isCaseMode = false;
-        this.loadCases();
+
+        // Remover de la lista local inmediatamente
+        this.cases = this.cases.filter(c => c.case_id !== this.selectedCase?.case_id);
+        this.filteredCases = this.filteredCases.filter(c => c.case_id !== this.selectedCase?.case_id);
+
         this.selectedCase = null;
+        this.isCaseMode = false;
+
+        // Recargar para asegurar consistencia
+        this.loadCases();
 
         this.closeCloseCaseModal();
       } else {
@@ -1939,12 +1945,53 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
     // limpia los campos del modal
     this.newConvPhone = '506';
     this.newConvSelectedClient = null;
-    if (!this.templates.length) {
-      this.loadCompanyTemplates();
-    }
+    this.selectedIntegration = null;
+    this.templates = []; // Reset templates so user must select channel first
+    this.newConvSelectedTemplate = null;
+
     // Carga integraciones si no hay
     if (!this.integrations.length) {
       this.loadIntegrations();
+    }
+  }
+
+  async onIntegrationChange() {
+    this.newConvSelectedTemplate = null;
+    this.templates = [];
+
+    if (!this.selectedIntegration) return;
+
+    console.log(this.selectedIntegration);
+
+    try {
+      this.templateLoading = true;
+      // selectedIntegration es el objeto completo
+
+      let deparment_id = this.selectedIntegration?.department_id;
+
+      console.log("departamento", deparment_id);
+
+      const res = await this.channelService.getWhatsappTemplatesByDepartmentId(deparment_id || 0); // Ajustar tipo si es necesario
+
+      const rawTemplates = (Array.isArray(res?.data) ? res.data : []).map((t: any) => ({
+        ...t,
+        id: t.id || t.template_id
+      }));
+
+      // Deduplicate by name + language
+      const uniqueMap = new Map();
+      for (const t of rawTemplates) {
+        const key = `${t.template_name}-${t.language}`;
+        if (!uniqueMap.has(key)) {
+          uniqueMap.set(key, t);
+        }
+      }
+      this.templates = Array.from(uniqueMap.values());
+
+    } catch (error) {
+      console.error('Error loading channel templates:', error);
+    } finally {
+      this.templateLoading = false;
     }
   }
 
@@ -2034,7 +2081,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
 
       const payload = {
         template_id: this.newConvSelectedTemplate.id,
-        channel_integration_id: this.selectedIntegration,
+        channel_integration_id: this.selectedIntegration.channel_integration_id,
         contact_phone: contactPhone.startsWith("+")
           ? contactPhone.replace("+", "")
           : contactPhone,
@@ -2127,6 +2174,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
       const res = await this.channelService.getWhatsappIntegrationsByCompany(companyId);
       if (res?.data) {
         this.integrations = Array.isArray(res.data) ? res.data : [];
+        console.log("Integraciones", this.integrations);
       }
     } catch (err) {
       console.error("Error loading integrations", err);
