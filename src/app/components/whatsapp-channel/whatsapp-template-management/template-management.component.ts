@@ -5,203 +5,168 @@ import { FormsModule } from '@angular/forms';
 import { MainLayoutComponent } from '@app/components/layout/main-layout.component';
 import { CompanyUser } from '@app/models/companies_user_view';
 import { Channel } from '@app/models/channel.model';
-import { WhatsAppTemplate } from '@app/models/whatsapp-template.model';
+import { MessageTemplate } from '@app/models/message-template.model';
 import { AuthService, LanguageService } from '@app/services';
 import { CompanyService } from '@app/services/company.service';
 import { ChannelService } from '@app/services/channel.service';
 import { AlertService } from '@app/services/extras/alert.service';
 import { WhatsAppTemplateService } from '@app/services/whatsapp-template.service';
-import { VWChannelIntegration } from '@app/models/vw-channel-integration.model';
-import { TemplatesListComponent } from '../whatsapp-template-list/templates-list.component';
-import { TemplateFormComponent } from '../whatsapp-template-form/template-form.component';
-import { Department } from '@app/models/department.model';
-import { DepartmentService } from '@app/services/department.service';
+import { MessageTemplateFormComponent } from '../message-template-form/message-template-form.component';
+import { TemplateIntegrationPanelComponent } from '../template-integration-panel/template-integration-panel.component';
 
-// 👇 importa el listado standalone 
 @Component({
-    selector: 'app-template-management',
-    standalone: true,
-    imports: [
-        CommonModule, 
-        FormsModule, 
-        MainLayoutComponent, 
-        TemplatesListComponent,
-        TemplateFormComponent
-    ], // 👈 aquí
-    templateUrl: './template-management.component.html',
-    styleUrls: ['./template-management.component.css'],
+  selector: 'app-template-management',
+  standalone: true,
+  imports: [
+    CommonModule,
+    FormsModule,
+    MainLayoutComponent,
+    MessageTemplateFormComponent,
+    TemplateIntegrationPanelComponent,
+  ],
+  templateUrl: './template-management.component.html',
+  styleUrls: ['./template-management.component.css'],
 })
 export class TemplateManagementComponent implements OnInit {
-    loggedUser: any = null;
+  loggedUser: any = null;
 
-    companies: CompanyUser[] = [];
-    channels: Channel[] = [];
-    templates: WhatsAppTemplate[] = [];
+  companies: CompanyUser[] = [];
+  channels: Channel[] = [];
 
-    selectedCompany: number | null = null;
+  messageTemplates: MessageTemplate[] = [];
+  loadingMessageTemplates = false;
+  selectedMessageTemplate: MessageTemplate | null = null;
 
-    loadingCompanies = false;
-    loadingChannels = false;
-    loadingTemplates = false;
+  selectedChannelId: number | null = null;
 
-    integrations: VWChannelIntegration[] = [];
-    selectedIntegration: VWChannelIntegration | null = null;
-    loadingIntegrations = false;
+  loadingCompanies = false;
+  loadingChannels = false;
 
-    isFormOpen = false;
-    selectedTemplate: WhatsAppTemplate | null = null;
+  // Form dialog (create / edit)
+  isFormOpen = false;
+  editingTemplate: MessageTemplate | null = null;
 
-    isDeleteOpen = false;
-    deletingId: number | null = null;
-    isDeleting = false;
+  // Delete modal
+  isDeleteOpen = false;
+  deletingId: number | null = null;
+  isDeleting = false;
 
+  constructor(
+    private auth: AuthService,
+    private i18n: LanguageService,
+    private companyService: CompanyService,
+    private channelService: ChannelService,
+    private templateService: WhatsAppTemplateService,
+    private alert: AlertService
+  ) { }
 
-    departments: Department[] = [];
-    selectedDepartment: number | null = null;
- 
-    
+  get t() { return this.i18n.t.bind(this.i18n); }
 
-    constructor(
-        private auth: AuthService,
-        private i18n: LanguageService,
-        private companyService: CompanyService,
-        private channelService: ChannelService,
-        private templateService: WhatsAppTemplateService,
-        private departmentService: DepartmentService,
-        private alert: AlertService
-    ) { }
-
-    get t() {
-        return this.i18n.t.bind(this.i18n);
-    }
-
-    ngOnInit(): void {
-        this.loggedUser = this.auth.getCurrentUser();
-        this.loadCompanies();
-        this.loadChannels();
-    }
-
-    loadCompanies() {
-        this.loadingCompanies = true;
-        const userId = this.loggedUser?.user_id!;
-        this.companyService.getCompaniesByUserId(userId)
-            .then(resp => this.companies = resp?.data || [])
-            .catch(() => this.alert.error('Error cargando compañías'))
-            .finally(() => this.loadingCompanies = false);
-    }
-
-    loadDepartments() {
-        if (!this.selectedCompany) return;
-        this.departmentService.getByCompany (this.selectedCompany)
-            .then(resp => this.departments = resp?.data || [])
-            .catch(() => this.alert.error('Error cargando departamentos'));
-    }
-
-    loadChannels() {
-        this.loadingChannels = true;
-        this.channelService.getAll()
-            .then(resp => this.channels = resp?.data || [])
-            .catch(() => this.alert.error('Error cargando canales'))
-            .finally(() => this.loadingChannels = false);
-    }
-
-    onFilterChanged() {
-        this.selectedIntegration = null;
-        this.templates = [];
-
-        if (!this.selectedCompany) return;
-        //this.loadIntegrations();
-        this.loadDepartments();
-    }
-
-    onChannelIntegrationSelected() {
-        this.templates = [];
-        if (!this.selectedIntegration) return;
-        this.loadTemplates();
-    }
-
-    onDepartmentChanged() {
-        this.templates = [];
-        if (!this.selectedDepartment) return;
-        this.loadTemplates();
-    }
-
-    loadIntegrations() {
-        this.loadingIntegrations = true;
-        this.channelService.getWhatsappIntegrationsByCompany(this.selectedCompany!)
-            .then(resp => this.integrations = resp?.data || [])
-            .catch(() => this.alert.error('Error cargando integraciones'))
-            .finally(() => this.loadingIntegrations = false);
-    }
-
-    loadTemplates() {
-        if (!this.selectedDepartment) return;
-        this.loadingTemplates = true;
-        this.templateService.getWhatsappTemplatesByDepartment(this.selectedDepartment!)
-            .then(resp => this.templates = resp?.data || [])
-            .catch(() => this.alert.error('Error cargando plantillas'))
-            .finally(() => this.loadingTemplates = false);
-    }
-
- 
-// abrir creación
-openCreateDialog(): void {
-  this.selectedTemplate = null;
-  this.isFormOpen = true;
-}
-
-// abrir edición
-openEditDialog(t: WhatsAppTemplate): void {
-  this.selectedTemplate = t;
-  this.isFormOpen = true;
-}
-
-closeDialog(): void {
-  this.isFormOpen = false;
-  this.selectedTemplate = null;
-}
-
-async onSuccess(saved: WhatsAppTemplate): Promise<void> {
-  this.closeDialog();
-  await this.loadTemplates();
-  this.alert.success(
-    this.selectedTemplate
-      ? `${this.t('whatsapp_template.updated_successfully')} (#${saved.id})`
-      : `${this.t('whatsapp_template.created_successfully')} (#${saved.id})`
-  );
-}
-
-// Delete modal
-askDelete(t: WhatsAppTemplate): void {
- 
-  this.deletingId = t.id;
-  this.isDeleteOpen = true;
-}
-cancelDelete(): void {
-  this.deletingId = null;
-  this.isDeleteOpen = false;
-}
-
-async confirmDelete(): Promise<void> {
-  if (!this.deletingId) return;
-  this.isDeleting = true;
-  try {
-    const r = await this.templateService.deleteWhatsappTemplate(this.deletingId);
-    if (r.success) {
-      this.alert.success(this.t('whatsapp_template.deleted_successfully'));
-      await this.loadTemplates();
-    } else {
-      this.alert.error(this.t('whatsapp_template.failed_to_delete_template'));
-    }
-  } finally {
-    this.isDeleting = false;
-    this.cancelDelete();
+  ngOnInit(): void {
+    this.loggedUser = this.auth.getCurrentUser();
+    this.loadChannels();
   }
-}
 
-// hooks del listado
-onEdit(t: WhatsAppTemplate) { this.openEditDialog(t); }
-onRemove(t: WhatsAppTemplate) { this.askDelete(t); }
-onView(t: WhatsAppTemplate) { /* opcional: detalle */ }
-    
+  loadChannels() {
+    this.loadingChannels = true;
+    this.channelService.getAll()
+      .then(resp => this.channels = resp?.data || [])
+      .catch(() => this.alert.error('Error cargando canales'))
+      .finally(() => this.loadingChannels = false);
+  }
+
+  onChannelChanged(): void {
+    this.messageTemplates = [];
+    this.selectedMessageTemplate = null;
+    if (!this.selectedChannelId) return;
+    this.loadMessageTemplates();
+  }
+
+  async loadMessageTemplates(): Promise<void> {
+    if (!this.selectedChannelId) return;
+    this.loadingMessageTemplates = true;
+    try {
+      const resp = await this.templateService.getAllTemplates(this.selectedChannelId);
+      this.messageTemplates = resp?.data || [];
+    } catch {
+      this.alert.error('Error cargando plantillas');
+    } finally {
+      this.loadingMessageTemplates = false;
+    }
+  }
+
+  selectMessageTemplate(t: MessageTemplate): void {
+    // Clicking selected template again deselects it
+    this.selectedMessageTemplate = this.selectedMessageTemplate?.id === t.id ? null : t;
+  }
+
+  isSelected(t: MessageTemplate): boolean {
+    return this.selectedMessageTemplate?.id === t.id;
+  }
+
+  // ── Form (create / edit) ──────────────────────────────────────────────────
+
+  openCreateDialog(): void {
+    this.editingTemplate = null;
+    this.isFormOpen = true;
+  }
+
+  openEditDialog(t: MessageTemplate, event: Event): void {
+    event.stopPropagation(); // don't trigger selectMessageTemplate
+    this.editingTemplate = { ...t };
+    this.isFormOpen = true;
+  }
+
+  closeDialog(): void {
+    this.isFormOpen = false;
+    this.editingTemplate = null;
+  }
+
+  async onFormSuccess(saved: MessageTemplate): Promise<void> {
+    this.closeDialog();
+    await this.loadMessageTemplates();
+    // Keep panel open on the saved template
+    const fresh = this.messageTemplates.find(t => t.id === saved.id) ?? saved;
+    this.selectedMessageTemplate = fresh;
+    this.alert.success(
+      this.editingTemplate
+        ? `Plantilla actualizada (#${saved.id})`
+        : `Plantilla creada (#${saved.id})`
+    );
+  }
+
+  // ── Delete ────────────────────────────────────────────────────────────────
+
+  askDelete(t: MessageTemplate, event: Event): void {
+    event.stopPropagation();
+    this.deletingId = t.id;
+    this.isDeleteOpen = true;
+  }
+
+  cancelDelete(): void {
+    this.deletingId = null;
+    this.isDeleteOpen = false;
+  }
+
+  async confirmDelete(): Promise<void> {
+    if (!this.deletingId) return;
+    this.isDeleting = true;
+    try {
+      const r = await this.templateService.deleteMessageTemplate(this.deletingId);
+      if (r?.success) {
+        this.alert.success('Plantilla eliminada');
+        if (this.selectedMessageTemplate?.id === this.deletingId) {
+          this.selectedMessageTemplate = null;
+        }
+        await this.loadMessageTemplates();
+        this.cancelDelete();
+      } else {
+        this.alert.error(r?.message || 'Error al eliminar la plantilla');
+      }
+    } catch (err: any) {
+      this.alert.error(err?.error?.message || err?.message || 'Error al eliminar la plantilla');
+    } finally {
+      this.isDeleting = false;
+    }
+  }
 }

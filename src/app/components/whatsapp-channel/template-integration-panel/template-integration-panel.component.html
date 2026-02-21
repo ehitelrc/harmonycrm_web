@@ -1,0 +1,95 @@
+<!-- Loading state -->
+<div *ngIf="isLoading" class="flex items-center justify-center py-12">
+  <svg class="animate-spin h-6 w-6 text-[#00113f] dark:text-blue-400" fill="none" viewBox="0 0 24 24">
+    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+  </svg>
+  <span class="ml-2 text-sm text-gray-500 dark:text-gray-400">Cargando integraciones…</span>
+</div>
+
+<!-- No template selected -->
+<div *ngIf="!template && !isLoading"
+  class="flex flex-col items-center justify-center py-16 text-center text-gray-400 dark:text-gray-500">
+  <svg class="h-12 w-12 mb-3 opacity-40" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+      d="M9 17v-2a4 4 0 014-4h6m-6 0V7a4 4 0 00-4-4H7a4 4 0 00-4 4v10a4 4 0 004 4h4" />
+  </svg>
+  <p class="text-sm">Selecciona una plantilla para ver sus integraciones</p>
+</div>
+
+<!-- Integrations list -->
+<div *ngIf="template && !isLoading" class="flex flex-col gap-1">
+  <!-- Panel header -->
+  <div class="flex items-center justify-between mb-3">
+    <div>
+      <h3 class="text-sm font-semibold text-gray-800 dark:text-white truncate max-w-xs">
+        {{ template.template_name }}
+      </h3>
+      <p class="text-xs text-gray-500 dark:text-gray-400">
+        {{ linkedCount() }} de {{ integrations.length }} integraciones vinculadas
+      </p>
+    </div>
+    <span class="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 dark:bg-blue-900 dark:text-blue-200 font-medium">
+      {{ template.language_code }}
+    </span>
+  </div>
+
+  <!-- Empty -->
+  <div *ngIf="integrations.length === 0"
+    class="text-center py-8 text-sm text-gray-400 dark:text-gray-500">
+    No hay integraciones disponibles para este canal.
+  </div>
+
+  <!-- Integration row -->
+  <div *ngFor="let item of integrations"
+    class="flex items-center justify-between px-3 py-2.5 rounded-md border transition-colors"
+    [class.border-blue-200]="item.is_linked"
+    [class.bg-blue-50]="item.is_linked"
+    [class.dark:bg-blue-900\/20]="item.is_linked"
+    [class.border-gray-200]="!item.is_linked"
+    [class.bg-white]="!item.is_linked"
+    [class.dark:bg-gray-800]="!item.is_linked"
+    [class.dark:border-gray-700]="!item.is_linked">
+
+    <!-- Integration info -->
+    <div class="flex items-center gap-2 min-w-0">
+      <!-- Channel badge -->
+      <span
+        class="flex-shrink-0 inline-flex items-center justify-center h-7 w-7 rounded-full bg-gray-100 dark:bg-gray-700">
+        <svg class="h-3.5 w-3.5 text-gray-500 dark:text-gray-300" fill="currentColor" viewBox="0 0 20 20">
+          <path d="M2 5a2 2 0 012-2h12a2 2 0 012 2v8a2 2 0 01-2 2H4l-2 2V5z" />
+        </svg>
+      </span>
+      <div class="min-w-0">
+        <p class="text-sm font-medium text-gray-800 dark:text-white truncate">
+          {{ item.integration_name }}
+        </p>
+        <p class="text-xs text-gray-400 dark:text-gray-500 truncate">
+          {{ item.channel_name }} · {{ item.channel_code }}
+        </p>
+      </div>
+    </div>
+
+    <!-- Toggle -->
+    <button type="button" (click)="toggle(item)"
+      [disabled]="togglingId === item.integration_id"
+      class="relative inline-flex flex-shrink-0 h-5 w-9 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-500 disabled:opacity-50"
+      [class.bg-blue-600]="item.is_linked"
+      [class.bg-gray-300]="!item.is_linked"
+      [class.dark:bg-gray-600]="!item.is_linked">
+      <!-- Spinner inside toggle when loading -->
+      <span *ngIf="togglingId === item.integration_id"
+        class="absolute inset-0 flex items-center justify-center">
+        <svg class="animate-spin h-3 w-3 text-white" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+        </svg>
+      </span>
+      <span *ngIf="togglingId !== item.integration_id"
+        class="inline-block h-3.5 w-3.5 transform rounded-full bg-white shadow transition-transform"
+        [class.translate-x-4]="item.is_linked"
+        [class.translate-x-0.5]="!item.is_linked">
+      </span>
+    </button>
+  </div>
+</div>

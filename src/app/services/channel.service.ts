@@ -123,4 +123,12 @@ export class ChannelService {
     });
   }
 
+  // Get by integration id
+  getTemplatesByIntegrationId(integrationId: number): Promise<ApiResponse<ChannelWhatsAppTemplate>> {
+    console.log(`${CHANNEL_URL}/whatsapp/templates/integration/${integrationId}`);
+    return this.fetch.get<ApiResponse<ChannelWhatsAppTemplate>>({
+      API_Gateway: `${CHANNEL_URL}/whatsapp/templates/integration/${integrationId}`,
+    });
+  }
+
 }

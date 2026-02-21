@@ -5,6 +5,8 @@ import { environment } from '@environment';
 import { returnCompleteURI } from '@app/utils';
 import { WhatsAppTemplate } from '@app/models/whatsapp-template.model';
 import { ChannelIntegrationShort } from '@app/models/channel-integration-short.model';
+import { MessageTemplate } from '@app/models/message-template.model';
+import { ChannelTemplateIntegration } from '@app/models/channel-template-integration.model';
 
 const GATEWAY = '/channels';
 export const TEMPLATE_URL = returnCompleteURI({
@@ -12,9 +14,15 @@ export const TEMPLATE_URL = returnCompleteURI({
   API_Gateway: GATEWAY,
 });
 
+// New endpoint for the MessageTemplate CRUD
+export const MSG_TEMPLATE_URL = returnCompleteURI({
+  URI: environment.API.BASE,
+  API_Gateway: '/templates',
+});
+
 @Injectable({ providedIn: 'root' })
 export class WhatsAppTemplateService {
-  constructor(private fetch: FetchService) {}
+  constructor(private fetch: FetchService) { }
 
   async getAll(params?: { companyId?: number; channelIntegrationId?: number }): Promise<ApiResponse<WhatsAppTemplate[]>> {
     return await this.fetch.get<ApiResponse<WhatsAppTemplate[]>>({
@@ -54,16 +62,14 @@ export class WhatsAppTemplateService {
     return await this.fetch.get<ApiResponse<WhatsAppTemplate[]>>({
       API_Gateway: `${TEMPLATE_URL}/whatsapp/templates/integration/${integrationId}`,
     });
-  } 
+  }
 
-    async getWhatsappTemplatesByDepartment(departmentId: number): Promise<ApiResponse<WhatsAppTemplate[]>> {
+  async getWhatsappTemplatesByDepartment(departmentId: number): Promise<ApiResponse<WhatsAppTemplate[]>> {
     return await this.fetch.get<ApiResponse<WhatsAppTemplate[]>>({
       API_Gateway: `${TEMPLATE_URL}/whatsapp/templates/department/${departmentId}`,
     });
-  } 
+  }
 
-
-  ///channels/whatsapp/templates
   async createWhatsappTemplate(data: Partial<WhatsAppTemplate>): Promise<ApiResponse<WhatsAppTemplate>> {
     return await this.fetch.post<ApiResponse<WhatsAppTemplate>>({
       API_Gateway: `${TEMPLATE_URL}/whatsapp/templates`,
@@ -71,7 +77,6 @@ export class WhatsAppTemplateService {
     });
   }
 
-  //Update Whatsapp Template
   async updateWhatsappTemplate(id: number, data: Partial<WhatsAppTemplate>): Promise<ApiResponse<WhatsAppTemplate>> {
     data.id = id;
     return await this.fetch.put<ApiResponse<WhatsAppTemplate>>({
@@ -80,10 +85,64 @@ export class WhatsAppTemplateService {
     });
   }
 
-  // Delete Whatsapp Template
   async deleteWhatsappTemplate(id: number): Promise<ApiResponse<void>> {
     return await this.fetch.delete<ApiResponse<void>>({
       API_Gateway: `${TEMPLATE_URL}/whatsapp/templates/${id}`,
+    });
+  }
+
+  // ── New /templates endpoint methods ──────────────────────────────────────
+
+  /** GET /templates/ — all message templates, optionally filtered by channel_id */
+  async getAllTemplates(channelId?: number): Promise<ApiResponse<MessageTemplate[]>> {
+    return await this.fetch.get<ApiResponse<MessageTemplate[]>>({
+      API_Gateway: `${MSG_TEMPLATE_URL}/`,
+      values: channelId ? { channel_id: channelId } : {},
+    });
+  }
+
+  /** POST /templates/ — create a new MessageTemplate */
+  async createMessageTemplate(data: Partial<MessageTemplate>): Promise<ApiResponse<MessageTemplate>> {
+    return await this.fetch.post<ApiResponse<MessageTemplate>>({
+      API_Gateway: `${MSG_TEMPLATE_URL}/`,
+      values: data,
+    });
+  }
+
+  /** PUT /templates/:id — update a MessageTemplate */
+  async updateMessageTemplate(id: number, data: Partial<MessageTemplate>): Promise<ApiResponse<MessageTemplate>> {
+    return await this.fetch.put<ApiResponse<MessageTemplate>>({
+      API_Gateway: `${MSG_TEMPLATE_URL}/${id}`,
+      values: { ...data, id },
+    });
+  }
+
+  /** DELETE /templates/:id — delete a MessageTemplate */
+  async deleteMessageTemplate(id: number): Promise<ApiResponse<void>> {
+    return await this.fetch.delete<ApiResponse<void>>({
+      API_Gateway: `${MSG_TEMPLATE_URL}/${id}`,
+    });
+  }
+
+  /** GET /templates/:id/integrations — all integrations with is_linked flag for the template */
+  async getIntegrationsForTemplate(templateId: number): Promise<ApiResponse<ChannelTemplateIntegration[]>> {
+    return await this.fetch.get<ApiResponse<ChannelTemplateIntegration[]>>({
+      API_Gateway: `${MSG_TEMPLATE_URL}/${templateId}/integrations`,
+    });
+  }
+
+  /** POST /templates/integration/:integrationId — link a template to an integration */
+  async assignIntegration(integrationId: number, templateId: number): Promise<ApiResponse<any>> {
+    return await this.fetch.post<ApiResponse<any>>({
+      API_Gateway: `${MSG_TEMPLATE_URL}/integration/${integrationId}`,
+      values: { template_id: templateId },
+    });
+  }
+
+  /** DELETE /templates/integration/:integrationId?template_id=X — unlink a template from an integration */
+  async unassignIntegration(integrationId: number, templateId: number): Promise<ApiResponse<void>> {
+    return await this.fetch.delete<ApiResponse<void>>({
+      API_Gateway: `${MSG_TEMPLATE_URL}/integration/${integrationId}?template_id=${templateId}`,
     });
   }
 }

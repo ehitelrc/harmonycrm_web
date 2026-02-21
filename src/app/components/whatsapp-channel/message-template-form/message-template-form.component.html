@@ -1,0 +1,125 @@
+<!-- Modal overlay -->
+<div class="fixed inset-0 z-50 overflow-y-auto" (click)="onCancel()">
+    <div class="flex items-center justify-center min-h-screen px-4">
+        <div class="fixed inset-0 bg-gray-900 bg-opacity-60 transition-opacity"></div>
+
+        <div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg z-10"
+            (click)="$event.stopPropagation()">
+
+            <!-- Header -->
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+                <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                    {{ isEditing ? 'Editar plantilla' : 'Nueva plantilla' }}
+                </h2>
+                <button type="button" (click)="onCancel()"
+                    class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 transition-colors">
+                    <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Form -->
+            <form [formGroup]="form" (ngSubmit)="submit()" class="px-6 py-5 space-y-4">
+
+
+                <!-- Nombre de la plantilla -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Nombre de la plantilla <span class="text-red-500">*</span>
+                    </label>
+                    <input type="text" formControlName="template_name" placeholder="ej. bienvenida_cliente"
+                        class="block w-full px-3 py-2 border rounded-md text-sm text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        [class.border-red-400]="form.get('template_name')?.invalid && form.get('template_name')?.touched"
+                        [class.border-gray-300]="!(form.get('template_name')?.invalid && form.get('template_name')?.touched)" />
+                    <p *ngIf="form.get('template_name')?.invalid && form.get('template_name')?.touched"
+                        class="mt-1 text-xs text-red-500">Nombre requerido (máx. 200 caracteres).</p>
+                </div>
+
+                <!-- Idioma + Categoría (2 columnas) -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Idioma <span class="text-red-500">*</span>
+                        </label>
+                        <input type="text" formControlName="language_code" placeholder="ej. es, en, pt"
+                            class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                        <p *ngIf="form.get('language_code')?.invalid && form.get('language_code')?.touched"
+                            class="mt-1 text-xs text-red-500">Idioma requerido.</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Categoría
+                        </label>
+                        <input type="text" formControlName="category" placeholder="ej. UTILITY, MARKETING"
+                            class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    </div>
+                </div>
+
+
+                <!-- Descripción -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Descripción
+                    </label>
+                    <textarea formControlName="description" rows="3" placeholder="Descripción opcional de la plantilla…"
+                        class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 resize-none">
+          </textarea>
+                </div>
+
+                <!-- Toggles -->
+                <div class="flex flex-col gap-3 pt-1">
+                    <!-- Activa -->
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <div class="relative">
+                            <input type="checkbox" formControlName="is_active" class="sr-only peer" />
+                            <div
+                                class="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:bg-blue-600 transition-colors dark:bg-gray-600">
+                            </div>
+                            <div
+                                class="absolute top-0.5 left-0.5 h-4 w-4 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4">
+                            </div>
+                        </div>
+                        <span class="text-sm text-gray-700 dark:text-gray-300">Plantilla activa</span>
+                    </label>
+
+                    <!-- Inicio de conversación -->
+                    <label class="flex items-center gap-3 cursor-pointer">
+                        <div class="relative">
+                            <input type="checkbox" formControlName="is_conversation_starter" class="sr-only peer" />
+                            <div
+                                class="w-9 h-5 bg-gray-200 rounded-full peer peer-checked:bg-purple-600 transition-colors dark:bg-gray-600">
+                            </div>
+                            <div
+                                class="absolute top-0.5 left-0.5 h-4 w-4 bg-white rounded-full shadow transition-transform peer-checked:translate-x-4">
+                            </div>
+                        </div>
+                        <span class="text-sm text-gray-700 dark:text-gray-300">
+                            Inicio de conversación
+                            <span class="ml-1 text-xs text-gray-400">(conversation starter)</span>
+                        </span>
+                    </label>
+                </div>
+
+                <!-- Acciones -->
+                <div class="flex justify-end gap-3 pt-2 border-t border-gray-100 dark:border-gray-700 mt-4">
+                    <button type="button" (click)="onCancel()" [disabled]="isSubmitting"
+                        class="px-4 py-2 text-sm rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors">
+                        Cancelar
+                    </button>
+                    <button type="submit" [disabled]="isSubmitting"
+                        class="px-4 py-2 text-sm rounded-md bg-[#00113f] text-white hover:bg-[#3e66ea] disabled:opacity-50 transition-colors flex items-center gap-2">
+                        <svg *ngIf="isSubmitting" class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4">
+                            </circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"></path>
+                        </svg>
+                        {{ isSubmitting ? 'Guardando…' : (isEditing ? 'Guardar cambios' : 'Crear plantilla') }}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

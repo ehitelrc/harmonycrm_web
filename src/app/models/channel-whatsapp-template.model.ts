@@ -7,4 +7,6 @@ export interface ChannelWhatsAppTemplate {
   company_id: number;
   channel_id: number;
   department_id: number;
+  integration_id: number;
+  template_description?: string | null;
 }

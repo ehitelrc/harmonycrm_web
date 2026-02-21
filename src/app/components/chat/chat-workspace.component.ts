@@ -1967,11 +1967,11 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
       this.templateLoading = true;
       // selectedIntegration es el objeto completo
 
-      let deparment_id = this.selectedIntegration?.department_id;
+      let integration_id = this.selectedIntegration?.channel_integration_id;
 
-      console.log("departamento", deparment_id);
+      console.log("integration_id", integration_id);
 
-      const res = await this.channelService.getWhatsappTemplatesByDepartmentId(deparment_id || 0); // Ajustar tipo si es necesario
+      const res = await this.channelService.getTemplatesByIntegrationId(integration_id || 0); // Ajustar tipo si es necesario
 
       const rawTemplates = (Array.isArray(res?.data) ? res.data : []).map((t: any) => ({
         ...t,
