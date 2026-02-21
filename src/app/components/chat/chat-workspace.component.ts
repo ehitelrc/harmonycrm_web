@@ -230,7 +230,8 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
   newConvClientResults: Client[] = [];
 
   newConvSelectedTemplate: MessageTemplate | null = null;
-  newConvTemplates: MessageTemplate[] = []; // templates filtered by channel for new conversation modal
+  newConvTemplates: MessageTemplate[] = [];
+  isTemplateDropdownOpen = false;
 
   selectedShowDepartmentId: number | null = null;
 
@@ -1950,8 +1951,9 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
     this.newConvCountryCode = '506';
     this.newConvSelectedClient = null;
     this.selectedIntegration = null;
-    this.newConvTemplates = []; // Reset al cambiar canal
+    this.newConvTemplates = [];
     this.newConvSelectedTemplate = null;
+    this.isTemplateDropdownOpen = false;
 
     // Carga integraciones si no hay
     if (!this.integrations.length) {
@@ -1962,6 +1964,8 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
   async onIntegrationChange() {
     this.newConvSelectedTemplate = null;
     this.newConvTemplates = [];
+    this.isTemplateDropdownOpen = false;
+
 
     if (!this.selectedIntegration) return;
 

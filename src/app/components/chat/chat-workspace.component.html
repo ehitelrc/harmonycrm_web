@@ -1053,7 +1053,7 @@
 <div *ngIf="isNewConversationOpen"
     class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
     (click)="isNewConversationOpen = false">
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-lg p-6 m-4 flex flex-col max-h-[90vh]"
+    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-lg p-6 m-4 flex flex-col max-h-[85vh]"
         (click)="$event.stopPropagation()">
 
         <div class="flex items-center justify-between mb-4">
@@ -1133,59 +1133,87 @@
             </div>
 
 
-            <!-- Selección de Template -->
-            <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <!-- Selección de Template (Dropdown) -->
+            <div class="relative">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Template Inicial <span class="text-red-500">*</span>
                 </label>
 
-                <div
-                    class="grid grid-cols-1 gap-2 max-h-60 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-xl p-3 bg-gray-50 dark:bg-gray-900/50 custom-scrollbar">
-                    <div *ngFor="let t of newConvTemplates" (click)="newConvSelectedTemplate = t"
-                        class="relative p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 group"
-                        [class.border-blue-500]="newConvSelectedTemplate?.id === t.id"
-                        [class.bg-white]="newConvSelectedTemplate?.id === t.id"
-                        [class.dark:bg-gray-800]="newConvSelectedTemplate?.id === t.id"
-                        [class.shadow-md]="newConvSelectedTemplate?.id === t.id"
-                        [class.border-transparent]="newConvSelectedTemplate?.id !== t.id"
-                        [class.bg-white]="newConvSelectedTemplate?.id !== t.id"
-                        [class.dark:bg-gray-800]="newConvSelectedTemplate?.id !== t.id"
-                        [class.hover:border-blue-300]="newConvSelectedTemplate?.id !== t.id"
-                        [class.hover:shadow-sm]="newConvSelectedTemplate?.id !== t.id">
+                <!-- Trigger button -->
+                <button type="button" (click)="isTemplateDropdownOpen = !isTemplateDropdownOpen"
+                    [disabled]="!selectedIntegration"
+                    class="w-full flex items-center justify-between p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-left focus:ring-2 focus:ring-blue-500 outline-none transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    [class.border-blue-500]="isTemplateDropdownOpen">
 
-                        <div class="flex justify-between items-start gap-2">
-                            <div>
-                                <div
-                                    class="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                    {{ t.description || t.template_name }}
-                                </div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
-                                    {{ t.language_code }}
-                                </div>
-                            </div>
+                    <span *ngIf="!newConvSelectedTemplate" class="text-gray-400 dark:text-gray-400">
+                        {{ selectedIntegration ? 'Selecciona una plantilla...' : 'Selecciona primero un canal' }}
+                    </span>
+                    <span *ngIf="newConvSelectedTemplate" class="text-gray-900 dark:text-white font-medium truncate">
+                        {{ newConvSelectedTemplate.description || newConvSelectedTemplate.template_name }}
+                        <span class="text-xs font-normal text-gray-400 ml-1">· {{ newConvSelectedTemplate.language_code
+                            }}</span>
+                    </span>
 
-                            <!-- Check icon for selected state -->
-                            <div *ngIf="newConvSelectedTemplate?.id === t.id" class="text-blue-500">
-                                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <!-- Chevron -->
+                    <svg class="w-4 h-4 text-gray-400 flex-shrink-0 ml-2 transition-transform duration-200"
+                        [class.rotate-180]="isTemplateDropdownOpen" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                    </svg>
+                </button>
+
+                <!-- Dropdown panel -->
+                <div *ngIf="isTemplateDropdownOpen"
+                    class="mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-xl overflow-hidden">
+
+                    <!-- Loading -->
+                    <div *ngIf="templateLoading" class="flex justify-center items-center py-6">
+                        <div class="animate-spin h-5 w-5 border-2 border-blue-500 rounded-full border-t-transparent">
+                        </div>
+                    </div>
+
+                    <!-- Empty -->
+                    <div *ngIf="!templateLoading && newConvTemplates.length === 0"
+                        class="text-center py-6 text-gray-500 text-sm">
+                        No hay plantillas disponibles para este canal.
+                    </div>
+
+                    <!-- Template cards -->
+                    <div *ngIf="!templateLoading && newConvTemplates.length > 0"
+                        class="max-h-56 overflow-y-auto custom-scrollbar p-2 space-y-1">
+                        <div *ngFor="let t of newConvTemplates"
+                            (click)="newConvSelectedTemplate = t; isTemplateDropdownOpen = false"
+                            class="relative p-3 rounded-lg border-2 cursor-pointer transition-all duration-150 group"
+                            [class.border-blue-500]="newConvSelectedTemplate?.id === t.id"
+                            [class.bg-blue-50]="newConvSelectedTemplate?.id === t.id"
+                            [class.dark:bg-blue-900\/20]="newConvSelectedTemplate?.id === t.id"
+                            [class.border-transparent]="newConvSelectedTemplate?.id !== t.id"
+                            [class.hover:bg-gray-50]="newConvSelectedTemplate?.id !== t.id"
+                            [class.dark:hover:bg-gray-700]="newConvSelectedTemplate?.id !== t.id">
+
+                            <div class="flex justify-between items-center gap-2">
+                                <div class="min-w-0">
+                                    <div
+                                        class="text-sm font-semibold text-gray-900 dark:text-white truncate
+                                                group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                                        {{ t.description || t.template_name }}
+                                    </div>
+                                    <div class="text-xs text-gray-400 dark:text-gray-500 mt-0.5">
+                                        {{ t.language_code }}
+                                    </div>
+                                </div>
+                                <svg *ngIf="newConvSelectedTemplate?.id === t.id"
+                                    class="w-5 h-5 text-blue-500 flex-shrink-0" fill="none" viewBox="0 0 24 24"
+                                    stroke="currentColor">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                         d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                                 </svg>
                             </div>
                         </div>
                     </div>
-
-                    <div *ngIf="newConvTemplates.length === 0" class="text-center py-6 text-gray-500">
-                        <ng-container *ngIf="!selectedIntegration; else noTemplates">
-                            <div class="mb-2">📢</div>
-                            <p class="text-sm">Selecciona un canal para ver las plantillas disponibles.</p>
-                        </ng-container>
-                        <ng-template #noTemplates>
-                            <div class="mb-2">📄</div>
-                            <p class="text-sm">No hay plantillas disponibles para este canal.</p>
-                        </ng-template>
-                    </div>
                 </div>
             </div>
+
 
         </div>
 
