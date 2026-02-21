@@ -1093,13 +1093,30 @@
                 </div>
             </div>
 
-            <!-- Teléfono -->
+            <!-- Teléfono Destino -->
             <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Teléfono <span
-                        class="text-red-500">*</span></label>
-                <input type="text" [(ngModel)]="newConvPhone" (input)="onPhoneInput()" placeholder="Ej: 521234567890"
-                    class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none">
-                <p class="text-xs text-gray-500 mt-1">Ingresa el número con código de país (sin +)</p>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Teléfono Destino <span class="text-red-500">*</span>
+                </label>
+                <div class="flex gap-2">
+                    <!-- Código de país -->
+                    <div class="flex-shrink-0 w-24">
+                        <div class="relative">
+                            <span
+                                class="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium select-none">+</span>
+                            <input type="text" [(ngModel)]="newConvCountryCode" (input)="onPhoneInput()"
+                                placeholder="506" maxlength="4"
+                                class="w-full pl-6 pr-2 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none text-center font-mono">
+                        </div>
+                    </div>
+                    <!-- Número local -->
+                    <input type="text" [(ngModel)]="newConvPhone" (input)="onPhoneInput()" placeholder="Ej: 88888888"
+                        class="flex-1 p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-lg text-sm text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none font-mono">
+                </div>
+                <p class="text-xs text-gray-500 mt-1">
+                    Número completo: <span class="font-mono font-medium text-gray-700 dark:text-gray-300">{{
+                        newConvCountryCode }}{{ newConvPhone }}</span>
+                </p>
             </div>
 
             <!-- Selección de Integración -->
@@ -1140,10 +1157,10 @@
                             <div>
                                 <div
                                     class="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                    {{ t.template_name }}
+                                    {{ t.description || t.template_name }}
                                 </div>
                                 <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
-                                    {{ t.language_code }}<span *ngIf="t.description"> · {{ t.description }}</span>
+                                    {{ t.language_code }}
                                 </div>
                             </div>
 

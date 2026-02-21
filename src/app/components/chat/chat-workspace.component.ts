@@ -221,6 +221,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
 
   isNewConversationOpen = false;
   newConvPhone = '';
+  newConvCountryCode = '506';
   newConvClientSearch = '';
 
 
@@ -1945,7 +1946,8 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
     this.isNewConversationOpen = true;
 
     // limpia los campos del modal
-    this.newConvPhone = '506';
+    this.newConvPhone = '';
+    this.newConvCountryCode = '506';
     this.newConvSelectedClient = null;
     this.selectedIntegration = null;
     this.newConvTemplates = []; // Reset al cambiar canal
@@ -2001,13 +2003,34 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
 
   selectNewConvClient(c: Client) {
     this.newConvSelectedClient = c;
-    this.newConvPhone = c.phone || '';
+
+    const raw = (c.phone || '').replace(/^\+/, '').replace(/\s+/g, '');
+    if (!raw) return;
+
+    // 1. Try to match the currently selected country code prefix
+    if (this.newConvCountryCode && raw.startsWith(this.newConvCountryCode)) {
+      this.newConvPhone = raw.slice(this.newConvCountryCode.length);
+      return;
+    }
+
+    // 2. Heuristic: try 3-digit, 2-digit, 1-digit country codes
+    for (const len of [3, 2, 1]) {
+      if (raw.length > len + 5) { // local part should be at least 6 digits
+        this.newConvCountryCode = raw.slice(0, len);
+        this.newConvPhone = raw.slice(len);
+        return;
+      }
+    }
+
+    // 3. Fallback: keep country code as-is, put full number in phone
+    this.newConvPhone = raw;
   }
+
 
   async confirmNewConversation() {
     try {
 
-      const phone = (this.newConvPhone || '').trim();
+      const phone = (this.newConvCountryCode.trim() + (this.newConvPhone || '').trim()).replace(/\s+/g, '');
 
       // 🔴 Validaciones duras
 
@@ -2373,9 +2396,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
 
 
   onPhoneInput(): void {
-    if (!this.newConvPhone) return;
-
-    // elimina espacios, tabs, saltos
-    this.newConvPhone = this.newConvPhone.replace(/\s+/g, '');
+    this.newConvPhone = (this.newConvPhone || '').replace(/\s+/g, '');
+    this.newConvCountryCode = (this.newConvCountryCode || '').replace(/\s+/g, '');
   }
 }
