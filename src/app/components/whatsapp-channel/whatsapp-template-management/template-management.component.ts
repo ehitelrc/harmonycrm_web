@@ -133,13 +133,14 @@ export class TemplateManagementComponent implements OnInit {
   }
 
   async onFormSuccess(saved: MessageTemplate): Promise<void> {
+    const wasEditing = !!this.editingTemplate;
     this.closeDialog();
     await this.loadMessageTemplates();
     // Keep panel open on the saved template
     const fresh = this.messageTemplates.find(t => t.id === saved.id) ?? saved;
     this.selectedMessageTemplate = fresh;
     this.alert.success(
-      this.editingTemplate
+      wasEditing
         ? `Plantilla actualizada (#${saved.id})`
         : `Plantilla creada (#${saved.id})`
     );

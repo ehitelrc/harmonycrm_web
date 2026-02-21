@@ -41,6 +41,8 @@ import { VWChannelIntegration } from '@app/models/vw-channel-integration.model';
 import { SendFileModalComponent } from './send-file-modal/send-file-modal.component';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AudioRecorderComponent } from './send-audio-modal/audio-recorder.component';
+import { WhatsAppTemplateService } from '@app/services/whatsapp-template.service';
+import { MessageTemplate } from '@app/models/message-template.model';
 
 type MessageUI = Message & {
   _justArrived?: boolean;
@@ -226,7 +228,8 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
   newConvSelectedClient: Client | null = null;
   newConvClientResults: Client[] = [];
 
-  newConvSelectedTemplate: ChannelWhatsAppTemplate | null = null;
+  newConvSelectedTemplate: MessageTemplate | null = null;
+  newConvTemplates: MessageTemplate[] = []; // templates filtered by channel for new conversation modal
 
   selectedShowDepartmentId: number | null = null;
 
@@ -274,9 +277,8 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
     private pushService: CampaignPushService,
     private companyService: CompanyService,
     private sanitizer: DomSanitizer,
-    private cdr: ChangeDetectorRef
-
-
+    private cdr: ChangeDetectorRef,
+    private whatsappTemplateService: WhatsAppTemplateService,
   ) { }
 
   ngOnInit(): void {
@@ -1946,7 +1948,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
     this.newConvPhone = '506';
     this.newConvSelectedClient = null;
     this.selectedIntegration = null;
-    this.templates = []; // Reset templates so user must select channel first
+    this.newConvTemplates = []; // Reset al cambiar canal
     this.newConvSelectedTemplate = null;
 
     // Carga integraciones si no hay
@@ -1957,37 +1959,18 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
 
   async onIntegrationChange() {
     this.newConvSelectedTemplate = null;
-    this.templates = [];
+    this.newConvTemplates = [];
 
     if (!this.selectedIntegration) return;
 
-    console.log(this.selectedIntegration);
+    const channelId = this.selectedIntegration.channel_id;
+    if (!channelId) return;
 
     try {
       this.templateLoading = true;
-      // selectedIntegration es el objeto completo
-
-      let integration_id = this.selectedIntegration?.channel_integration_id;
-
-      console.log("integration_id", integration_id);
-
-      const res = await this.channelService.getTemplatesByIntegrationId(integration_id || 0); // Ajustar tipo si es necesario
-
-      const rawTemplates = (Array.isArray(res?.data) ? res.data : []).map((t: any) => ({
-        ...t,
-        id: t.id || t.template_id
-      }));
-
-      // Deduplicate by name + language
-      const uniqueMap = new Map();
-      for (const t of rawTemplates) {
-        const key = `${t.template_name}-${t.language}`;
-        if (!uniqueMap.has(key)) {
-          uniqueMap.set(key, t);
-        }
-      }
-      this.templates = Array.from(uniqueMap.values());
-
+      const res = await this.whatsappTemplateService.getAllTemplates(channelId);
+      this.newConvTemplates = (Array.isArray(res?.data) ? res.data : [])
+        .filter(t => t.is_active && t.is_conversation_starter);
     } catch (error) {
       console.error('Error loading channel templates:', error);
     } finally {

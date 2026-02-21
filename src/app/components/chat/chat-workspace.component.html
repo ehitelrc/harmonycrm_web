@@ -1124,7 +1124,7 @@
 
                 <div
                     class="grid grid-cols-1 gap-2 max-h-60 overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-xl p-3 bg-gray-50 dark:bg-gray-900/50 custom-scrollbar">
-                    <div *ngFor="let t of templates" (click)="newConvSelectedTemplate = t"
+                    <div *ngFor="let t of newConvTemplates" (click)="newConvSelectedTemplate = t"
                         class="relative p-3 rounded-lg border-2 cursor-pointer transition-all duration-200 group"
                         [class.border-blue-500]="newConvSelectedTemplate?.id === t.id"
                         [class.bg-white]="newConvSelectedTemplate?.id === t.id"
@@ -1140,10 +1140,10 @@
                             <div>
                                 <div
                                     class="text-sm font-semibold text-gray-900 dark:text-white group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
-                                    {{ t.template_description }}
+                                    {{ t.template_name }}
                                 </div>
                                 <div class="text-xs text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
-                                    {{ t.language }}
+                                    {{ t.language_code }}<span *ngIf="t.description"> · {{ t.description }}</span>
                                 </div>
                             </div>
 
@@ -1157,13 +1157,13 @@
                         </div>
                     </div>
 
-                    <div *ngIf="templates.length === 0" class="text-center py-6 text-gray-500">
+                    <div *ngIf="newConvTemplates.length === 0" class="text-center py-6 text-gray-500">
                         <ng-container *ngIf="!selectedIntegration; else noTemplates">
-                            <div class="mb-2">�</div>
+                            <div class="mb-2">📢</div>
                             <p class="text-sm">Selecciona un canal para ver las plantillas disponibles.</p>
                         </ng-container>
                         <ng-template #noTemplates>
-                            <div class="mb-2">�📄</div>
+                            <div class="mb-2">📄</div>
                             <p class="text-sm">No hay plantillas disponibles para este canal.</p>
                         </ng-template>
                     </div>

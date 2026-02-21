@@ -83,8 +83,9 @@ export class MessageTemplateFormComponent implements OnInit {
                 resp = await this.templateService.createMessageTemplate(payload);
             }
 
-            if (resp.success && resp.data) {
-                this.success.emit(resp.data);
+            if (resp.success) {
+                // On create resp.data has the new template; on update it may be null
+                this.success.emit((resp.data ?? this.template ?? {}) as MessageTemplate);
             } else {
                 this.alert.error(resp.message || 'Error al guardar la plantilla');
             }
