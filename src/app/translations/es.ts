@@ -517,8 +517,8 @@ export const esTranslations = {
 
   // Whatsapp Templates
 
-  "whatsapp_template.management_title": "Gestión de Plantillas de WhatsApp",
-  "whatsapp_template.management_description": "Administra las plantillas de WhatsApp para las compañías",
+  "whatsapp_template.management_title": "Gestión de Plantillas de Mensajes",
+  "whatsapp_template.management_description": "Administra las plantillas de mensajes para las compañías",
 
   "whatsapp_template.select_template": "Seleccionar plantilla",
   "whatsapp_template.select_company": "Seleccionar compañía",
@@ -527,7 +527,7 @@ export const esTranslations = {
   "whatsapp_template.select_campaign": "Seleccionar campaña",
   "whatsapp_template.select_campaign_placeholder": "Seleccionar campaña...",
   "whatsapp_template.campaign_required": "La campaña es requerida para gestionar plantillas",
-  "whatsapp_template.failed_to_load_templates": "Error al cargar las plantillas de WhatsApp",
+  "whatsapp_template.failed_to_load_templates": "Error al cargar las plantillas de mensajes",
   "whatsapp_template.description": "Descripción",
   "whatsapp_template.description_placeholder": "Ej: Notificación de envío, Alerta de entrega, etc.",
   "whatsapp_template.file_selection": "Selección de archivo",

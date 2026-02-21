@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, EventEmitter, Input, OnChanges, Output, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ChannelTemplateIntegration } from '@app/models/channel-template-integration.model';
 import { MessageTemplate } from '@app/models/message-template.model';
@@ -14,6 +14,7 @@ import { LanguageService } from '@app/services';
 })
 export class TemplateIntegrationPanelComponent implements OnChanges {
     @Input() template: MessageTemplate | null = null;
+    @Output() integrationToggled = new EventEmitter<number>(); // +1 linked, -1 unlinked
 
     integrations: ChannelTemplateIntegration[] = [];
     isLoading = false;
@@ -55,10 +56,12 @@ export class TemplateIntegrationPanelComponent implements OnChanges {
             if (item.is_linked) {
                 await this.templateService.unassignIntegration(item.integration_id, this.template.id);
                 item.is_linked = false;
+                this.integrationToggled.emit(-1);
                 this.alert.success(`Integración desvinculada: ${item.integration_name}`);
             } else {
                 await this.templateService.assignIntegration(item.integration_id, this.template.id);
                 item.is_linked = true;
+                this.integrationToggled.emit(+1);
                 this.alert.success(`Integración vinculada: ${item.integration_name}`);
             }
         } catch {

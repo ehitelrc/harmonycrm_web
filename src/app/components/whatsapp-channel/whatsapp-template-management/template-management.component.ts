@@ -104,6 +104,16 @@ export class TemplateManagementComponent implements OnInit {
     return this.selectedMessageTemplate?.id === t.id;
   }
 
+  // Actualiza el contador del badge en tiempo real al vincular/desvincular
+  onIntegrationToggled(delta: number): void {
+    if (!this.selectedMessageTemplate) return;
+    // Actualiza en la lista
+    const inList = this.messageTemplates.find(t => t.id === this.selectedMessageTemplate!.id);
+    if (inList) inList.linked_count = Math.max(0, (inList.linked_count || 0) + delta);
+    // Actualiza la referencia seleccionada
+    this.selectedMessageTemplate.linked_count = Math.max(0, (this.selectedMessageTemplate.linked_count || 0) + delta);
+  }
+
   // ── Form (create / edit) ──────────────────────────────────────────────────
 
   openCreateDialog(): void {

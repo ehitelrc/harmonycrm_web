@@ -93,11 +93,13 @@ export class WhatsAppTemplateService {
 
   // ── New /templates endpoint methods ──────────────────────────────────────
 
-  /** GET /templates/ — all message templates, optionally filtered by channel_id */
+  /** GET /templates/?channel_id=X — all message templates, optionally filtered by channel_id */
   async getAllTemplates(channelId?: number): Promise<ApiResponse<MessageTemplate[]>> {
+    const url = channelId
+      ? `${MSG_TEMPLATE_URL}/?channel_id=${channelId}`
+      : `${MSG_TEMPLATE_URL}/`;
     return await this.fetch.get<ApiResponse<MessageTemplate[]>>({
-      API_Gateway: `${MSG_TEMPLATE_URL}/`,
-      values: channelId ? { channel_id: channelId } : {},
+      API_Gateway: url,
     });
   }
 
