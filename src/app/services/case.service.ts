@@ -283,6 +283,14 @@ export class CaseService {
     });
   }
 
+  // POST /entry/send-template/template/:template_id/case/:case_id
+  sendTemplateToCase(templateId: number, caseId: number): Promise<ApiResponse<{ message: string }>> {
+    return this.fetch.post<ApiResponse<{ message: string }>>({
+      API_Gateway: `${CASE_URL}/entry/send-template/template/${templateId}/case/${caseId}`,
+      values: {},
+    });
+  }
+
 
   getOpenCasesMV(
     companyId: number,

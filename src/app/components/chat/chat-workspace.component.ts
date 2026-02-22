@@ -43,6 +43,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import { AudioRecorderComponent } from './send-audio-modal/audio-recorder.component';
 import { WhatsAppTemplateService } from '@app/services/whatsapp-template.service';
 import { MessageTemplate } from '@app/models/message-template.model';
+import { ChannelTemplateIntegration } from '@app/models/channel-template-integration.model';
 
 type MessageUI = Message & {
   _justArrived?: boolean;
@@ -204,8 +205,8 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
   stateUser: UserAuthModel | null = null;
 
   selectedTemplate: number | null = null;
-  selectedTemplateObj: ChannelWhatsAppTemplate | null = null;
-  templates: ChannelWhatsAppTemplate[] = [];
+  selectedTemplateObj: ChannelTemplateIntegration | null = null;
+  templates: ChannelTemplateIntegration[] = [];
 
   // 
 
@@ -229,8 +230,8 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
   newConvSelectedClient: Client | null = null;
   newConvClientResults: Client[] = [];
 
-  newConvSelectedTemplate: MessageTemplate | null = null;
-  newConvTemplates: MessageTemplate[] = [];
+  newConvSelectedTemplate: ChannelTemplateIntegration | null = null;
+  newConvTemplates: ChannelTemplateIntegration[] = [];
   isTemplateDropdownOpen = false;
 
   selectedShowDepartmentId: number | null = null;
@@ -1582,7 +1583,8 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
   toggleTemplateMenu() {
     this.showTemplateMenu = !this.showTemplateMenu;
 
-    if (this.showTemplateMenu && !this.templates.length) {
+    if (this.showTemplateMenu) {
+      // Always reload when opening to ensure templates match the current case's channel
       this.loadTemplates();
     }
   }
@@ -1722,25 +1724,24 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
         // filtra solo los que tengan template_id
         let data = resp?.data || [];
 
-        this.templates = (resp?.data || []).filter(t => t.id);
+        this.templates = (resp?.data || []).filter(t => t.id) as any[];
       })
       .catch(err => console.error('Error loading templates:', err))
       .finally(() => this.templateLoading = false);
   }
 
   loadTemplates() {
+    const integrationId = Number(this.selectedCase?.channel_integration_id);
+    if (!integrationId) return;
+
     this.templateLoading = true;
     this.templates = [];
-    this.channelService.getWhatsappTemplatesByDepartmentId(this.selectedCase?.department_id || 0)
-      .then(resp => {
-        // filtra solo los que tengan template_id
-
-        this.templates = (resp?.data || []).filter(t => t.id);
-
-        console.log(this.templates);
-
+    this.whatsappTemplateService.getTemplatesByIntegration(integrationId)
+      .then(res => {
+        const data = Array.isArray(res?.data) ? res.data : [];
+        this.templates = data.filter(t => t.is_linked);
       })
-      .catch(err => console.error('Error loading templates:', err))
+      .catch(err => console.error('Error loading templates for integration:', err))
       .finally(() => this.templateLoading = false);
   }
 
@@ -1807,9 +1808,9 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  sendSelectedTemplate(t: ChannelWhatsAppTemplate) {
+  sendSelectedTemplate(t: ChannelTemplateIntegration) {
 
-    this.selectedTemplate = t.id;
+    this.selectedTemplate = t.template_id;
 
     this.selectedTemplateObj = t;
 
@@ -1826,10 +1827,9 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
       try {
 
 
-        const resp = await this.pushService.sendWhatsappTemplateMessage(
+        const resp = await this.chatService.sendTemplateToCase(
           this.selectedTemplate,
           this.selectedCase?.case_id || 0,
-
         );
 
         if (resp?.success) {
@@ -1969,16 +1969,13 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
 
     if (!this.selectedIntegration) return;
 
-    const channelId = this.selectedIntegration.channel_id;
-    if (!channelId) return;
-
     try {
       this.templateLoading = true;
-      const res = await this.whatsappTemplateService.getAllTemplates(channelId);
-      this.newConvTemplates = (Array.isArray(res?.data) ? res.data : [])
-        .filter(t => t.is_active && t.is_conversation_starter);
+      const res = await this.whatsappTemplateService.getTemplatesByIntegration(this.selectedIntegration.channel_integration_id);
+      const data = Array.isArray(res?.data) ? res.data : [];
+      this.newConvTemplates = data.filter(t => t.is_linked);
     } catch (error) {
-      console.error('Error loading channel templates:', error);
+      console.error('Error loading integration templates:', error);
     } finally {
       this.templateLoading = false;
     }
@@ -2085,7 +2082,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
       }
 
       const payload = {
-        template_id: this.newConvSelectedTemplate.id,
+        template_id: this.newConvSelectedTemplate.template_id,
         channel_integration_id: this.selectedIntegration.channel_integration_id,
         contact_phone: phone,
         agent_id: this.agent_id,
@@ -2246,7 +2243,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
       .then(resp => {
         // filtra solo los que tengan template_id
 
-        this.templates = (resp?.data || []).filter(t => t.id);
+        this.templates = (resp?.data || []).filter(t => t.id) as any[];
 
         console.log(this.templates);
 

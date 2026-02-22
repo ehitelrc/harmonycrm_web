@@ -7,6 +7,7 @@ export interface ChannelTemplateIntegration {
     channel_name: string;
     template_id: number;
     template_name: string;
+    description?: string | null;
     language_code: string;
     integration_id: number;
     integration_name: string;

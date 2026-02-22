@@ -10,7 +10,7 @@ const BASE = returnCompleteURI({ URI: environment.API.BASE, API_Gateway: '' });
 
 @Injectable({ providedIn: 'root' })
 export class CampaignPushService {
-  constructor(private fetch: FetchService) {}
+  constructor(private fetch: FetchService) { }
 
   // Ajusta el endpoint a tu routing real si difiere
   getCompanyTemplates(companyId: number) {
@@ -27,10 +27,10 @@ export class CampaignPushService {
     });
   }
 
-  //r.POST("/campaigns/whatsapp/send-template/template/:template_id/case/:case_id", ctrl.SendWhatsappTemplateMessage)
+  // POST /entry/send-template/template/:template_id/case/:case_id
   sendWhatsappTemplateMessage(templateId: number, caseId: number) {
 
-    const url = `${BASE}campaigns/whatsapp/send-template/template/${templateId}/case/${caseId}`;
+    const url = `${BASE}entry/send-template/template/${templateId}/case/${caseId}`;
 
     return this.fetch.post<ApiResponse<{ message: string }>>({
       API_Gateway: url,

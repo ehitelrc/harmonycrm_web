@@ -141,6 +141,13 @@ export class WhatsAppTemplateService {
     });
   }
 
+  /** GET /templates/integration/:integrationId — all templates linked to an integration */
+  async getTemplatesByIntegration(integrationId: number): Promise<ApiResponse<ChannelTemplateIntegration[]>> {
+    return await this.fetch.get<ApiResponse<ChannelTemplateIntegration[]>>({
+      API_Gateway: `${MSG_TEMPLATE_URL}/integration/${integrationId}`,
+    });
+  }
+
   /** DELETE /templates/integration/:integrationId?template_id=X — unlink a template from an integration */
   async unassignIntegration(integrationId: number, templateId: number): Promise<ApiResponse<void>> {
     return await this.fetch.delete<ApiResponse<void>>({
