@@ -2067,8 +2067,6 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
         return;
       }
 
-      // ✔️ normalizado
-      this.newConvPhone = phone;
 
       if (!this.newConvSelectedTemplate) {
         this.alert.error("Debe seleccionar un template");
@@ -2080,22 +2078,17 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
         return;
       }
 
-      // teléfono: cliente seleccionado o ingresado
-      const contactPhone =
-        this.newConvSelectedClient?.phone || this.newConvPhone?.trim();
-
-      if (!contactPhone) {
-        this.alert.error("Debe ingresar o seleccionar un teléfono");
+      // teléfono: siempre usa la concatenación código de país + número local
+      if (!phone) {
+        this.alert.error("Debe ingresar un número de teléfono");
         return;
       }
 
       const payload = {
         template_id: this.newConvSelectedTemplate.id,
         channel_integration_id: this.selectedIntegration.channel_integration_id,
-        contact_phone: contactPhone.startsWith("+")
-          ? contactPhone.replace("+", "")
-          : contactPhone,
-        agent_id: this.agent_id,          // ← lo tienes disponible en el component
+        contact_phone: phone,
+        agent_id: this.agent_id,
         client_id: this.newConvSelectedClient?.id || null
       };
 

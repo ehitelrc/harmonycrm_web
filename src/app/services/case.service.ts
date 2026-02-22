@@ -19,11 +19,6 @@ export const CASE_URL = returnCompleteURI({
   API_Gateway: GATEWAY,
 });
 
-export const TEMPLATE_URL = returnCompleteURI({
-  URI: environment.API.BASE,
-  API_Gateway: '/campaigns',
-});
-
 
 
 
@@ -282,11 +277,12 @@ export class CaseService {
   }
 
   sendTemplateMessage(payload: any): Promise<ApiResponse<any>> {
-    return this.fetch.post<ApiResponse<CaseWithChannel>>({
-      API_Gateway: `${TEMPLATE_URL}/whatsapp/new-case/template`,
+    return this.fetch.post<ApiResponse<any>>({
+      API_Gateway: `${CASE_URL}/entry/new-case/template`,
       values: payload,
     });
   }
+
 
   getOpenCasesMV(
     companyId: number,
