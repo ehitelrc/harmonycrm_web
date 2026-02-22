@@ -56,7 +56,14 @@
 
                 <button *ngFor="let c of filteredCases" [class.highlight]="c._highlight" (click)="selectCase(c)"
                     class="w-full text-left px-4 py-3 border-b border-gray-100 dark:border-gray-800 
-                           hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all duration-200 cursor-pointer group relative">
+                           hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all duration-200 cursor-pointer group relative" [class.bg-green-100]="c.payment_found && c.case_id !== selectedCase?.case_id"
+                    [class.dark:bg-blue-900]="c.payment_found && c.case_id !== selectedCase?.case_id"
+                    [class.bg-blue-50]="c.case_id === selectedCase?.case_id && !c.payment_found"
+                    [class.dark:bg-gray-800]="c.case_id === selectedCase?.case_id && !c.payment_found"
+                    [class.bg-blue-300]="c.case_id === selectedCase?.case_id && c.payment_found"
+                    [class.dark:bg-blue-800]="c.case_id === selectedCase?.case_id && c.payment_found"
+                    [class.border-l-4]="c.case_id === selectedCase?.case_id"
+                    [class.border-l-blue-500]="c.case_id === selectedCase?.case_id">
 
                     <!-- Unread Indicator Line -->
                     <div *ngIf="c.unread_count && c.unread_count > 0"
@@ -82,10 +89,20 @@
                             <div class="flex items-center justify-between mb-0.5">
                                 <span class="text-sm font-semibold text-gray-900 dark:text-white truncate pr-2">
                                     {{ c.client_name || 'Desconocido' }}
+                                    <span *ngIf="c.sender_id" class="text-xs font-normal text-gray-500 ml-1 block">{{
+                                        c.sender_id }}</span>
                                 </span>
-                                <span *ngIf="c.last_message_at" class="text-[10px] text-gray-400 shrink-0">
-                                    {{ c.last_message_at | date:'dd/MM/yyyy HH:mm' }}
-                                </span>
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <svg *ngIf="c.payment_found"
+                                        class="w-4 h-4 text-green-600 dark:text-green-400 shrink-0"
+                                        title="Pago reportado" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                            d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                    </svg>
+                                    <span *ngIf="c.last_message_at" class="text-[10px] text-gray-400">
+                                        {{ c.last_message_at | date:'dd/MM/yyyy HH:mm' }}
+                                    </span>
+                                </div>
                             </div>
 
                             <!-- Subheader Row: Last Message & Unread Badge -->
@@ -157,7 +174,8 @@
                     <div *ngIf="selectedCase"
                         class="text-xs text-gray-500 dark:text-gray-400 flex items-center gap-1.5">
                         <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                        Caso #{{ selectedCase.case_id }} · {{ selectedCase.status | titlecase }}
+                        Caso #{{ selectedCase.case_id }} · {{ selectedCase.status | titlecase }} · {{
+                        selectedCase.channel_name || 'Canal Desconocido' }}
                     </div>
                 </div>
             </div>

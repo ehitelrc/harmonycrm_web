@@ -27,12 +27,12 @@ export interface CaseWithChannel {
 
   // 👇 Campos que necesita la UI
   unread_count: number;
- 
+
 
 
   last_message_id?: number | null;
-  last_message_sender_type?: 'client'|'agent' | null;
-  last_message_type?: 'text'|'image'|'audio'|'file' | null;
+  last_message_sender_type?: 'client' | 'agent' | null;
+  last_message_type?: 'text' | 'image' | 'audio' | 'file' | null;
   last_message_text?: string | null;
   last_message_file_url?: string | null;
   last_message_mime_type?: string | null;
@@ -59,5 +59,7 @@ export interface CaseWithChannel {
 
   _highlight?: boolean; // n
 
-    _searchText?: string;
+  _searchText?: string;
+
+  payment_found?: boolean | null;
 }
