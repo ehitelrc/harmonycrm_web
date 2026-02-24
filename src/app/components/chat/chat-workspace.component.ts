@@ -1175,6 +1175,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
     this.tmpClient = this.currentClient;
     this.currentClient = null;
     this.isFormOpen = true;
+    this.isAssignClientOpen = false;
   }
 
   async loadNotes() {
