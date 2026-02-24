@@ -42,7 +42,7 @@
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Integración de
                         WhatsApp</label>
-                    <select [(ngModel)]="selectedIntegration" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
+                    <select [(ngModel)]="selectedIntegration" (ngModelChange)="onIntegrationChange()" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
                    focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f]
                    dark:bg-gray-700 dark:border-gray-600 dark:text-white" [disabled]="!selectedDepartment">
                         <option [ngValue]="null">Seleccione una integración</option>
@@ -51,7 +51,7 @@
                     </select>
                 </div>
 
-            
+
                 <!-- Campaña -->
                 <div>
                     <label
@@ -72,10 +72,10 @@
                     <select [(ngModel)]="selectedTemplate" class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
                    focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f]
                    dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-                        [disabled]="!selectedCompany || templateLoading">
+                        [disabled]="!selectedIntegration || templateLoading">
                         <option [ngValue]="null">{{t('whatsapp_template.select_template')}}</option>
-                        <option *ngFor="let t of templates" [ngValue]="t.id">
-                            {{ t.template_name }} ({{ t.language || '—' }})
+                        <option *ngFor="let t of templates" [ngValue]="t.template_id">
+                            {{ t.description || t.template_name }} ({{ t.language_code || '—' }})
                         </option>
                     </select>
                 </div>

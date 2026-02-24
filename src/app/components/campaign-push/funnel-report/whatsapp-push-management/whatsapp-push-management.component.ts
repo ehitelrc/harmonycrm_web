@@ -19,7 +19,8 @@ import { DepartmentService } from '@app/services/department.service';
 import { AgentDepartmentAssignment } from '@app/models/agent_department_assignment_view';
 import { AgentUserService } from '@app/services/agent-user.service';
 import { VWChannelIntegration } from '@app/models/vw-channel-integration.model';
-import { ChannelWhatsAppTemplate } from '@app/models/channel-whatsapp-template.model';
+import { ChannelTemplateIntegration } from '@app/models/channel-template-integration.model';
+import { WhatsAppTemplateService } from '@app/services/whatsapp-template.service';
 
 @Component({
   selector: 'app-whatsapp-push-management',
@@ -38,7 +39,7 @@ export class WhatsappPushManagementComponent implements OnInit {
   // Listas y selección
   companies: CompanyUser[] = [];
   campaigns: CampaignWithFunnel[] = [];
-  templates: ChannelWhatsAppTemplate[] = [];
+  templates: ChannelTemplateIntegration[] = [];
   departments: Department[] = [];
   assignedDepartments: AgentDepartmentAssignment[] = [];
 
@@ -74,6 +75,7 @@ export class WhatsappPushManagementComponent implements OnInit {
     private departmentService: DepartmentService,
     private agentUserService: AgentUserService,
     private alert: AlertService,
+    private whatsappTemplateService: WhatsAppTemplateService,
   ) { }
 
   get t() {
@@ -105,19 +107,38 @@ export class WhatsappPushManagementComponent implements OnInit {
     this.channelService.getWhatsappIntegrationsByDepartment(departmentId)
       .then(resp => {
         this.integrations = resp?.data || [];
-
-        console.log(this.integrations);
-        
+        console.log('Integrations loaded:', this.integrations);
       })
       .catch(err => console.error('Error loading WhatsApp integrations:', err));
+  }
+
+  async onIntegrationChange() {
+    this.selectedTemplate = null;
+    this.templates = [];
+
+    if (!this.selectedIntegration) return;
+
+    try {
+      this.templateLoading = true;
+      const res = await this.whatsappTemplateService.getTemplatesByIntegration(this.selectedIntegration.channel_integration_id);
+      const data = Array.isArray(res?.data) ? res.data : [];
+      this.templates = data.filter(t => t.is_linked);
+    } catch (error) {
+      console.error('Error loading integration templates:', error);
+    } finally {
+      this.templateLoading = false;
+    }
   }
 
   onCompanySelected() {
     if (!this.selectedCompany) {
       this.campaigns = [];
       this.templates = [];
+      this.integrations = [];
       this.selectedCampaign = null;
       this.selectedTemplate = null;
+      this.selectedIntegration = null;
+      this.selectedDepartment = null;
       return;
     }
 
@@ -127,9 +148,14 @@ export class WhatsappPushManagementComponent implements OnInit {
   }
 
   onDepartmentSelected() {
+    this.integrations = [];
+    this.selectedIntegration = null;
+    this.templates = [];
+    this.selectedTemplate = null;
+
     if (this.selectedDepartment) {
       this.loadIntegrationsForDepartment(this.selectedDepartment);
-      this.loadTemplatesForDepartment(this.selectedDepartment);
+      // Templates are now loaded when an integration is selected
     }
   }
 
@@ -142,15 +168,7 @@ export class WhatsappPushManagementComponent implements OnInit {
   }
 
 
-  loadTemplatesForDepartment(departmentId: number) {
-    this.templateLoading = true;
-    this.channelService.getWhatsappTemplatesByDepartmentId(departmentId)
-      .then(resp => {
-        this.templates = (resp?.data || []).filter(t => t.id);
-      })
-      .catch(err => console.error('Error loading templates:', err))
-      .finally(() => this.templateLoading = false);
-  }
+  // Templates are now loaded via onIntegrationChange() using WhatsAppTemplateService
 
   // ======================
   //   CSV PROCESSING
@@ -249,7 +267,7 @@ export class WhatsappPushManagementComponent implements OnInit {
     this.submitting = true;
 
     console.log(this.selectedIntegration);
-    
+
 
     const payload: CampaignWhatsappPushRequest = {
       campaign_id: this.selectedCampaign!,

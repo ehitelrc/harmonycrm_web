@@ -137,7 +137,7 @@ export const esTranslations = {
   'menu.funnels': 'Embudos',
   'menu.cases': 'Mantenimiento de casos',
 
-  'menu.whatsapp-template': 'Plantilla de WhatsApp',
+  'menu.whatsapp-template': 'Plantillas',
   'menu.channels_company': 'Canales por Compañía',
 
   'menu.whatsapp-campaign-push': 'Envio Masivo WhatsApp',
