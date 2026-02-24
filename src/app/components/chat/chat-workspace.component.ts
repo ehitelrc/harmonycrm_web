@@ -1121,6 +1121,14 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
 
       this.currentClient = this.selectedClientCandidate;
 
+      // Actualizar en el listado lateral
+      this.cases = this.cases.map(c =>
+        c.case_id === this.selectedCase?.case_id
+          ? { ...c, client_name: this.selectedClientCandidate?.full_name }
+          : c
+      );
+      this.applyContactFilter();
+
       this.alert.success('Cliente asignado al caso');
       this.closeAssignClientModal();
     } catch (e) {
