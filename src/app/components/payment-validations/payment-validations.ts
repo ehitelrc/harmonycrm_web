@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MainLayoutComponent } from '../layout/main-layout.component';
 import { PaymentValidationService } from '@app/services/payment-validation.service';
+import { CaseService } from '@app/services/case.service';
 import { PaymentValidation } from '@app/models/payment-validation.model';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
@@ -29,7 +30,17 @@ export class PaymentValidationsComponent implements OnInit {
   isLoadingReceipt = false;
   isPdf = false;
 
-  constructor(private pvService: PaymentValidationService, private sanitizer: DomSanitizer) { }
+  // Image Carousel State
+  isImageCarouselOpen = false;
+  isLoadingImages = false;
+  carouselImages: { url: string | SafeResourceUrl, isPdf: boolean }[] = [];
+  currentImageIndex = 0;
+
+  constructor(
+    private pvService: PaymentValidationService,
+    private caseService: CaseService,
+    private sanitizer: DomSanitizer
+  ) { }
 
   ngOnInit(): void {
     this.loadData();
@@ -110,4 +121,59 @@ export class PaymentValidationsComponent implements OnInit {
     this.currentReceiptBase64 = null;
     this.isPdf = false;
   }
+
+  // Carousel Logic ////////////////////
+
+  viewImages(caseId: number) {
+    if (!caseId) return;
+
+    this.isImageCarouselOpen = true;
+    this.isLoadingImages = true;
+    this.carouselImages = [];
+    this.currentImageIndex = 0;
+
+    this.caseService.getClientImages(caseId).then(messages => {
+      if (messages && messages.length > 0) {
+        this.carouselImages = messages.filter(m => m.base64_content).map(m => {
+          let b64 = m.base64_content!;
+          let isPdf = false;
+          let url: string | SafeResourceUrl = '';
+
+          if (b64.startsWith('JVBER')) {
+            isPdf = true;
+            url = this.sanitizer.bypassSecurityTrustResourceUrl('data:application/pdf;base64,' + b64);
+          } else {
+            if (!b64.startsWith('data:')) {
+              b64 = 'data:image/jpeg;base64,' + b64;
+            }
+            url = b64;
+          }
+          return { url, isPdf };
+        });
+      }
+      this.isLoadingImages = false;
+    }).catch(err => {
+      console.error('Error loading client images', err);
+      this.isLoadingImages = false;
+    });
+  }
+
+  closeImageCarousel() {
+    this.isImageCarouselOpen = false;
+    this.carouselImages = [];
+    this.currentImageIndex = 0;
+  }
+
+  nextImage() {
+    if (this.currentImageIndex < this.carouselImages.length - 1) {
+      this.currentImageIndex++;
+    }
+  }
+
+  prevImage() {
+    if (this.currentImageIndex > 0) {
+      this.currentImageIndex--;
+    }
+  }
+
 }

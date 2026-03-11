@@ -20,6 +20,7 @@ import { CaseDetailComponent } from '../detail/case-detail.component';
 import { ClientFormComponent } from '@app/components/clients/clients-form/client-form.component';
 import { Client } from '@app/models/client.model';
 import { ClientService } from '@app/services/client.service';
+import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 
 @Component({
     selector: 'app-cases-management',
@@ -29,7 +30,7 @@ import { ClientService } from '@app/services/client.service';
         FormsModule,
         MainLayoutComponent,
         CaseListComponent,
-        CaseDetailComponent, 
+        CaseDetailComponent,
 
     ],
     templateUrl: './cases-management.component.html',
@@ -81,7 +82,8 @@ export class CasesManagementComponent implements OnInit {
         private caseService: CaseService,
         private companyService: CompanyService,
         private funnelService: FunnelService,
-        private clientService: ClientService
+        private clientService: ClientService,
+        private sanitizer: DomSanitizer
     ) {
 
 
@@ -197,7 +199,7 @@ export class CasesManagementComponent implements OnInit {
     }
 
     loadCases() {
-         this.caseList = [];
+        this.caseList = [];
         this.caseLoading = true;
         this.caseService.getCaseGeneralInformation(this.selectedCompany!, this.selectedCampaign!)
             .then(res => {
@@ -244,8 +246,8 @@ export class CasesManagementComponent implements OnInit {
         this.selectedCase = null;
         this.currentClient = null;
 
-        this.stageSelected() ;
-         
+        this.stageSelected();
+
     }
 
 
@@ -294,6 +296,5 @@ export class CasesManagementComponent implements OnInit {
         this.isFormOpen = false;
         this.currentClient = this.tmpClient;
     }
-
 
 }

@@ -23,7 +23,7 @@ export class CaseListComponent {
   sortBy: keyof CaseGeneralInformation = 'case_id';
   sortOrder: 'asc' | 'desc' = 'asc';
 
-  constructor(private lang: LanguageService) {}
+  constructor(private lang: LanguageService) { }
   get t() { return this.lang.t.bind(this.lang); }
 
   onSearch(v: string) { this.searchTerm = v || ''; }

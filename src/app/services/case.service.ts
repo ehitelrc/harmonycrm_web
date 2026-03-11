@@ -108,6 +108,13 @@ export class CaseService {
     });
   }
 
+  // Get client images for the carousel
+  getClientImages(caseId: number) {
+    return this.fetch.get<ApiResponse<Message[]>>({
+      API_Gateway: `${CASE_URL}/entry/client_images/${caseId}`,
+    }).then(res => res.data);
+  }
+
   // Enviar mensaje de texto
   sendMessage(message: AgentMessage) {
 

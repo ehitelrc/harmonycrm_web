@@ -79,8 +79,8 @@
 
 
     @if (!selectedCase){
-    <app-case-list *ngIf=" caseList.length > 0" [cases]="caseList" [isLoading]="caseLoading"
-        (view)="onViewCase($event)" (edit)="onEditCase($event)" (remove)="onRemoveCase($event)">
+    <app-case-list *ngIf=" caseList.length > 0" [cases]="caseList" [isLoading]="caseLoading" (view)="onViewCase($event)"
+        (edit)="onEditCase($event)" (remove)="onRemoveCase($event)">
     </app-case-list>
     <div *ngIf="selectedFunnelStage && !caseLoading && caseList.length === 0"
         class="mt-6 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-yellow-700">
@@ -96,5 +96,4 @@
     </div>
 
     }
-
 </app-main-layout>
