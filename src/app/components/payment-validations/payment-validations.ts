@@ -36,6 +36,37 @@ export class PaymentValidationsComponent implements OnInit {
   carouselImages: { url: string | SafeResourceUrl, isPdf: boolean }[] = [];
   currentImageIndex = 0;
 
+  // KPIs
+  get kpiMostrados(): number {
+    return this.paymentValidations.length;
+  }
+
+  get kpiEnviados(): number {
+    return this.paymentValidations.filter(v => v.harmony_state === 'enviado_al_cliente').length;
+  }
+
+  get kpiCerrados(): number {
+    return this.paymentValidations.filter(v => v.harmony_state === 'caso_cerrado').length;
+  }
+
+  get kpiExitosos(): number {
+    return this.kpiEnviados + this.kpiCerrados;
+  }
+
+  get kpiSinErp(): number {
+    return this.paymentValidations.filter(v => !v.erp_reference_number).length;
+  }
+
+  get kpiExitososPorcentaje(): number {
+    const total = this.kpiMostrados;
+    return total === 0 ? 0 : (this.kpiExitosos / total) * 100;
+  }
+
+  get kpiSinErpPorcentaje(): number {
+    const total = this.kpiMostrados;
+    return total === 0 ? 0 : (this.kpiSinErp / total) * 100;
+  }
+
   constructor(
     private pvService: PaymentValidationService,
     private caseService: CaseService,
