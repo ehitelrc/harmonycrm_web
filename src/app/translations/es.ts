@@ -126,6 +126,7 @@ export const esTranslations = {
 
   'menu.reports': 'Informes',
   'menu.payment-validations': 'Validaciones de Pagos',
+  'menu.unreconciled-payments': 'Pagos ERP Sin Vincular',
   'menu.convertions': "Conversiones",
 
   'menu.security': 'Seguridad',

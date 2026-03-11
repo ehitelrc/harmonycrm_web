@@ -218,6 +218,12 @@ export const routes: Routes = [
     loadComponent: () => import('./components/payment-validations/payment-validations').then(m => m.PaymentValidationsComponent),
     canActivate: [AuthGuard]
   },
+  // Unreconciled Payments
+  {
+    path: 'unreconciled-payments',
+    loadComponent: () => import('./components/unreconciled-payments/unreconciled-payments.component').then(m => m.UnreconciledPaymentsComponent),
+    canActivate: [AuthGuard]
+  },
   // Wildcard route - redirect to dashboard
   {
     path: '**',

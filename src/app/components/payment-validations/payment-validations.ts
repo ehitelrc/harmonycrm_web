@@ -57,6 +57,10 @@ export class PaymentValidationsComponent implements OnInit {
     return this.paymentValidations.filter(v => !v.erp_reference_number).length;
   }
 
+  get kpiErrorNotificar(): number {
+    return this.paymentValidations.filter(v => v.harmony_state === 'error_al_notificar').length;
+  }
+
   get kpiExitososPorcentaje(): number {
     const total = this.kpiMostrados;
     return total === 0 ? 0 : (this.kpiExitosos / total) * 100;
@@ -65,6 +69,11 @@ export class PaymentValidationsComponent implements OnInit {
   get kpiSinErpPorcentaje(): number {
     const total = this.kpiMostrados;
     return total === 0 ? 0 : (this.kpiSinErp / total) * 100;
+  }
+
+  get kpiErrorNotificarPorcentaje(): number {
+    const total = this.kpiMostrados;
+    return total === 0 ? 0 : (this.kpiErrorNotificar / total) * 100;
   }
 
   constructor(
