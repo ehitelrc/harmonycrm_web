@@ -53,33 +53,38 @@
         </div>
 
         <!-- KPIs -->
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
-            <div
-                class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center">
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 mb-6">
+            <div (click)="toggleKpiFilter(null)"
+                class="cursor-pointer bg-white dark:bg-gray-800 p-4 rounded-lg shadow flex flex-col items-center justify-center transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 border"
+                [ngClass]="{'ring-2 ring-gray-400 border-transparent': !activeKpiFilter, 'border-gray-200 dark:border-gray-700': activeKpiFilter}">
                 <span class="text-xs text-gray-500 font-medium uppercase tracking-wider mb-1">Registros Mostrados</span>
                 <span class="text-2xl font-bold text-gray-800 dark:text-gray-100">{{ kpiMostrados }}</span>
             </div>
-            <div
-                class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center">
+            <div (click)="toggleKpiFilter('enviados')"
+                class="cursor-pointer bg-white dark:bg-gray-800 p-4 rounded-lg shadow flex flex-col items-center justify-center transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 border"
+                [ngClass]="{'ring-2 ring-blue-500 border-transparent': activeKpiFilter === 'enviados', 'border-gray-200 dark:border-gray-700': activeKpiFilter !== 'enviados'}">
                 <span class="text-xs text-gray-500 font-medium uppercase tracking-wider mb-1 text-center">Enviados al
                     Cliente</span>
                 <span class="text-2xl font-bold text-blue-600 dark:text-blue-400">{{ kpiEnviados }}</span>
             </div>
-            <div
-                class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center">
+            <div (click)="toggleKpiFilter('cerrados')"
+                class="cursor-pointer bg-white dark:bg-gray-800 p-4 rounded-lg shadow flex flex-col items-center justify-center transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 border"
+                [ngClass]="{'ring-2 ring-green-500 border-transparent': activeKpiFilter === 'cerrados', 'border-gray-200 dark:border-gray-700': activeKpiFilter !== 'cerrados'}">
                 <span class="text-xs text-gray-500 font-medium uppercase tracking-wider mb-1">Casos Cerrados</span>
                 <span class="text-2xl font-bold text-green-600 dark:text-green-400">{{ kpiCerrados }}</span>
             </div>
-            <div
-                class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center">
+            <div (click)="toggleKpiFilter('exitosos')"
+                class="cursor-pointer bg-white dark:bg-gray-800 p-4 rounded-lg shadow flex flex-col items-center justify-center transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 border"
+                [ngClass]="{'ring-2 ring-indigo-500 border-transparent': activeKpiFilter === 'exitosos', 'border-gray-200 dark:border-gray-700': activeKpiFilter !== 'exitosos'}">
                 <span class="text-xs text-gray-500 font-medium uppercase tracking-wider mb-1">Exitosos</span>
                 <span class="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
                     {{ kpiExitosos }} <span class="text-sm font-normal text-gray-400 ml-1">({{ kpiExitososPorcentaje |
                         number:'1.1-1' }}%)</span>
                 </span>
             </div>
-            <div
-                class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center">
+            <div (click)="toggleKpiFilter('sin_erp')"
+                class="cursor-pointer bg-white dark:bg-gray-800 p-4 rounded-lg shadow flex flex-col items-center justify-center transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 border"
+                [ngClass]="{'ring-2 ring-red-500 border-transparent': activeKpiFilter === 'sin_erp', 'border-gray-200 dark:border-gray-700': activeKpiFilter !== 'sin_erp'}">
                 <span class="text-xs text-gray-500 font-medium uppercase tracking-wider mb-1 text-center">Sin Notif.
                     ERP</span>
                 <span class="text-2xl font-bold text-red-500 dark:text-red-400">
@@ -87,13 +92,22 @@
                         number:'1.1-1' }}%)</span>
                 </span>
             </div>
-            <div
-                class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow border border-gray-200 dark:border-gray-700 flex flex-col items-center justify-center">
+            <div (click)="toggleKpiFilter('error_notificar')"
+                class="cursor-pointer bg-white dark:bg-gray-800 p-4 rounded-lg shadow flex flex-col items-center justify-center transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 border"
+                [ngClass]="{'ring-2 ring-orange-500 border-transparent': activeKpiFilter === 'error_notificar', 'border-gray-200 dark:border-gray-700': activeKpiFilter !== 'error_notificar'}">
                 <span class="text-xs text-gray-500 font-medium uppercase tracking-wider mb-1 text-center">Error
                     Notif.</span>
                 <span class="text-2xl font-bold text-orange-500 dark:text-orange-400">
                     {{ kpiErrorNotificar }} <span class="text-sm font-normal text-gray-400 ml-1">({{
-                        kpiErrorNotificarPorcentaje |
+                        kpiErrorNotificarPorcentaje | number:'1.1-1' }}%)</span>
+                </span>
+            </div>
+            <div (click)="toggleKpiFilter('otros')"
+                class="cursor-pointer bg-white dark:bg-gray-800 p-4 rounded-lg shadow flex flex-col items-center justify-center transition-colors hover:bg-gray-50 dark:hover:bg-gray-700 border"
+                [ngClass]="{'ring-2 ring-purple-500 border-transparent': activeKpiFilter === 'otros', 'border-gray-200 dark:border-gray-700': activeKpiFilter !== 'otros'}">
+                <span class="text-xs text-gray-500 font-medium uppercase tracking-wider mb-1 text-center">Otros</span>
+                <span class="text-2xl font-bold text-purple-600 dark:text-purple-400">
+                    {{ kpiOtros }} <span class="text-sm font-normal text-gray-400 ml-1">({{ kpiOtrosPorcentaje |
                         number:'1.1-1' }}%)</span>
                 </span>
             </div>
@@ -110,11 +124,11 @@
                 <p class="mt-2 text-sm">Cargando validaciones...</p>
             </div>
 
-            <div *ngIf="!isLoading && paymentValidations.length === 0" class="p-8 text-center text-gray-500">
+            <div *ngIf="!isLoading && filteredPaymentValidations.length === 0" class="p-8 text-center text-gray-500">
                 <p class="text-sm">No se encontraron validaciones de pago con los filtros actuales.</p>
             </div>
 
-            <div class="overflow-x-auto" *ngIf="!isLoading && paymentValidations.length > 0">
+            <div class="overflow-x-auto" *ngIf="!isLoading && filteredPaymentValidations.length > 0">
                 <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm text-left">
                     <thead class="bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-300 font-medium">
                         <tr>
@@ -133,7 +147,7 @@
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-gray-700 text-gray-800 dark:text-gray-200">
-                        <tr *ngFor="let v of paymentValidations"
+                        <tr *ngFor="let v of filteredPaymentValidations"
                             class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
                             <td class="hidden">{{ v.raw_text }}</td>
                             <td class="px-4 py-3 align-top whitespace-nowrap">

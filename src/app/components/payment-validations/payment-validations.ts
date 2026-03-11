@@ -36,6 +36,43 @@ export class PaymentValidationsComponent implements OnInit {
   carouselImages: { url: string | SafeResourceUrl, isPdf: boolean }[] = [];
   currentImageIndex = 0;
 
+  // KPI Filter State
+  activeKpiFilter: string | null = null;
+
+  get filteredPaymentValidations(): PaymentValidation[] {
+    if (!this.activeKpiFilter) return this.paymentValidations;
+
+    switch (this.activeKpiFilter) {
+      case 'enviados':
+        return this.paymentValidations.filter(v => v.harmony_state === 'enviado_al_cliente');
+      case 'cerrados':
+        return this.paymentValidations.filter(v => v.harmony_state === 'caso_cerrado');
+      case 'exitosos':
+        return this.paymentValidations.filter(v => v.harmony_state === 'enviado_al_cliente' || v.harmony_state === 'caso_cerrado');
+      case 'sin_erp':
+        return this.paymentValidations.filter(v => !v.erp_reference_number);
+      case 'error_notificar':
+        return this.paymentValidations.filter(v => v.harmony_state === 'error_al_notificar');
+      case 'otros':
+        return this.paymentValidations.filter(v =>
+          v.harmony_state !== 'enviado_al_cliente' &&
+          v.harmony_state !== 'caso_cerrado' &&
+          v.harmony_state !== 'error_al_notificar' &&
+          !!v.erp_reference_number
+        );
+      default:
+        return this.paymentValidations;
+    }
+  }
+
+  toggleKpiFilter(filter: string | null) {
+    if (this.activeKpiFilter === filter || filter === null) {
+      this.activeKpiFilter = null; // Toggle off or clear
+    } else {
+      this.activeKpiFilter = filter; // Toggle on
+    }
+  }
+
   // KPIs
   get kpiMostrados(): number {
     return this.paymentValidations.length;
@@ -61,6 +98,15 @@ export class PaymentValidationsComponent implements OnInit {
     return this.paymentValidations.filter(v => v.harmony_state === 'error_al_notificar').length;
   }
 
+  get kpiOtros(): number {
+    return this.paymentValidations.filter(v =>
+      v.harmony_state !== 'enviado_al_cliente' &&
+      v.harmony_state !== 'caso_cerrado' &&
+      v.harmony_state !== 'error_al_notificar' &&
+      !!v.erp_reference_number
+    ).length;
+  }
+
   get kpiExitososPorcentaje(): number {
     const total = this.kpiMostrados;
     return total === 0 ? 0 : (this.kpiExitosos / total) * 100;
@@ -74,6 +120,11 @@ export class PaymentValidationsComponent implements OnInit {
   get kpiErrorNotificarPorcentaje(): number {
     const total = this.kpiMostrados;
     return total === 0 ? 0 : (this.kpiErrorNotificar / total) * 100;
+  }
+
+  get kpiOtrosPorcentaje(): number {
+    const total = this.kpiMostrados;
+    return total === 0 ? 0 : (this.kpiOtros / total) * 100;
   }
 
   constructor(
