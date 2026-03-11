@@ -1,0 +1,226 @@
+<app-main-layout>
+    <div class="px-4 py-6">
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-6">
+            <div>
+                <h1 class="text-2xl font-semibold text-primary">Validaciones de Pago</h1>
+                <p class="text-sm text-muted-foreground mt-1">Consulte las confirmaciones de pagos entre ERP y el
+                    sistema.</p>
+            </div>
+            <div>
+                <button (click)="loadData()"
+                    class="px-4 py-2 text-sm bg-blue-600 text-white rounded-md shadow hover:bg-blue-700 transition">
+                    Recargar Datos
+                </button>
+            </div>
+        </div>
+
+        <!-- Filtros -->
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow mb-6 border border-gray-200 dark:border-gray-700">
+            <h3 class="font-medium text-gray-800 dark:text-gray-200 mb-3 text-sm">Filtros de búsqueda</h3>
+            <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Fecha Inicio</label>
+                    <input type="date" [(ngModel)]="startDate"
+                        class="w-full border rounded-md px-3 py-2 text-sm bg-white dark:bg-gray-700 text-black dark:text-white border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500" />
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Fecha Fin</label>
+                    <input type="date" [(ngModel)]="endDate"
+                        class="w-full border rounded-md px-3 py-2 text-sm bg-white dark:bg-gray-700 text-black dark:text-white border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500" />
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Case ID</label>
+                    <input type="number" [(ngModel)]="caseId" placeholder="Ej. 12345"
+                        class="w-full border rounded-md px-3 py-2 text-sm bg-white dark:bg-gray-700 text-black dark:text-white border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500" />
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">Contract ID</label>
+                    <input type="number" [(ngModel)]="contractId" placeholder="Ej. 9876"
+                        class="w-full border rounded-md px-3 py-2 text-sm bg-white dark:bg-gray-700 text-black dark:text-white border-gray-300 dark:border-gray-600 focus:ring-blue-500 focus:border-blue-500" />
+                </div>
+                <div class="flex gap-2">
+                    <button (click)="applyFilters()"
+                        class="w-full px-3 py-2 bg-green-600 text-white text-sm rounded-md shadow hover:bg-green-700 transition">
+                        Filtrar
+                    </button>
+                    <button (click)="clearFilters()"
+                        class="w-full px-3 py-2 bg-gray-300 text-gray-800 text-sm rounded-md shadow hover:bg-gray-400 transition">
+                        Limpiar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla -->
+        <div
+            class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden border border-gray-200 dark:border-gray-700">
+            <div *ngIf="isLoading" class="p-8 text-center text-gray-500">
+                <div class="animate-spin inline-block w-6 h-6 border-2 border-current border-t-transparent text-blue-600 rounded-full"
+                    role="status" aria-label="loading">
+                    <span class="sr-only">Cargando...</span>
+                </div>
+                <p class="mt-2 text-sm">Cargando validaciones...</p>
+            </div>
+
+            <div *ngIf="!isLoading && paymentValidations.length === 0" class="p-8 text-center text-gray-500">
+                <p class="text-sm">No se encontraron validaciones de pago con los filtros actuales.</p>
+            </div>
+
+            <div class="overflow-x-auto" *ngIf="!isLoading && paymentValidations.length > 0">
+                <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700 text-sm text-left">
+                    <thead class="bg-gray-50 dark:bg-gray-900 text-gray-600 dark:text-gray-300 font-medium">
+                        <tr>
+                            <th scope="col" class="px-4 py-3 border-r dark:border-gray-700 hidden">Raw</th>
+                            <!-- Info del Caso/Receipt -->
+                            <th scope="col" class="px-4 py-3">Case ID</th>
+                            <th scope="col" class="px-4 py-3">Sender ID / Name</th>
+                            <th scope="col" class="px-4 py-3">Bank & Ref. (CRM)</th>
+                            <th scope="col" class="px-4 py-3">Transaction Date</th>
+                            <th scope="col" class="px-4 py-3 text-right">Monto (CRM)</th>
+
+                            <!-- Info de ERP -->
+                            <th scope="col" class="px-4 py-3 bg-blue-50 dark:bg-blue-900/20">Ref. (ERP)</th>
+                            <th scope="col" class="px-4 py-3 bg-blue-50 dark:bg-blue-900/20">Client Info (ERP)</th>
+                            <th scope="col" class="px-4 py-3 bg-blue-50 dark:bg-blue-900/20 text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-200 dark:divide-gray-700 text-gray-800 dark:text-gray-200">
+                        <tr *ngFor="let v of paymentValidations"
+                            class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition">
+                            <td class="hidden">{{ v.raw_text }}</td>
+                            <td class="px-4 py-3 align-top whitespace-nowrap">
+                                <span class="font-medium text-blue-600 dark:text-blue-400">#{{ v.case_id }}</span>
+                            </td>
+                            <td class="px-4 py-3 align-top">
+                                <div class="font-medium">{{ v.sender_name || 'N/A' }}</div>
+                                <div class="text-xs text-gray-500">{{ v.sender_id }}</div>
+                            </td>
+                            <td class="px-4 py-3 align-top">
+                                <div class="font-medium">{{ v.bank_name || 'N/A' }}</div>
+                                <div class="text-xs font-mono bg-gray-100 dark:bg-gray-800 px-1 py-0.5 rounded mt-1">{{
+                                    v.receipt_reference_number }}</div>
+                                <div class="text-xs text-gray-500 mt-1">{{ v.transaction_type }}</div>
+                            </td>
+                            <td class="px-4 py-3 align-top whitespace-nowrap">
+                                <div>{{ v.receipt_date }}</div>
+                                <div class="text-xs text-gray-500">{{ v.receipt_time }}</div>
+                            </td>
+                            <td class="px-4 py-3 align-top text-right font-medium">
+                                {{ v.receipt_amount | currency }}
+                                <div class="text-xs font-normal text-gray-500" *ngIf="v.amount_sent">Enviado: {{
+                                    v.amount_sent | currency }}</div>
+                            </td>
+
+                            <!-- ERP Info -->
+                            <td
+                                class="px-4 py-3 align-top bg-blue-50/50 dark:bg-blue-900/10 border-l border-gray-200 dark:border-gray-700">
+                                <div *ngIf="v.erp_reference_number; else noErp">
+                                    <div class="text-xs font-mono bg-blue-100 dark:bg-blue-800 px-1 py-0.5 rounded">{{
+                                        v.erp_reference_number }}</div>
+                                    <div class="text-xs text-gray-500 mt-1">{{ v.payment_date }} {{ v.payment_time }}
+                                    </div>
+                                    <div class="font-medium mt-1">{{ v.erp_amount | currency }}</div>
+                                </div>
+                                <ng-template #noErp>
+                                    <span class="text-xs italic text-gray-400">Sin registro ERP</span>
+                                </ng-template>
+                            </td>
+                            <td class="px-4 py-3 align-top bg-blue-50/50 dark:bg-blue-900/10">
+                                <div *ngIf="v.erp_reference_number">
+                                    <div class="font-medium">{{ v.client_name }}</div>
+                                    <div class="text-xs text-gray-500">Doc: {{ v.client_document }}</div>
+                                    <div class="text-xs text-blue-600 dark:text-blue-400 mt-1" *ngIf="v.contract_id">
+                                        Contrato: {{ v.contract_id }}</div>
+                                </div>
+                            </td>
+                            <td class="px-4 py-3 align-top bg-blue-50/50 dark:bg-blue-900/10 text-center">
+                                <div *ngIf="v.erp_reference_number; else noErpStatus">
+                                    <span class="px-2 py-1 rounded-full text-xs font-medium" [ngClass]="{
+                          'bg-green-100 text-green-800': v.harmony_state === 'RECEIVED' || v.erp_status === 'COMPLETED' || v.harmony_state === 'enviado_al_cliente',
+                          'bg-yellow-100 text-yellow-800': v.harmony_state === 'PENDING',
+                          'bg-gray-100 text-gray-800': v.harmony_state !== 'RECEIVED' && v.harmony_state !== 'PENDING' && v.harmony_state !== 'enviado_al_cliente' && v.erp_status !== 'COMPLETED'
+                        }">
+                                        {{ v.harmony_state || v.erp_status }}
+                                    </span>
+
+                                    <button
+                                        *ngIf="(v.harmony_state === 'enviado_al_cliente' || v.harmony_state === 'caso_cerrado') && v.erp_id"
+                                        (click)="viewReceipt(v.erp_id)"
+                                        class="mt-2 text-xs font-medium text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 block w-full text-center underline">
+                                        Ver Recibo
+                                    </button>
+                                </div>
+                                <ng-template #noErpStatus>
+                                    <span
+                                        *ngIf="v.harmony_state === 'enviado_al_cliente' || v.harmony_state === 'caso_cerrado'; else trulyNoErp"
+                                        class="px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-300">
+                                        {{ v.harmony_state }}
+                                    </span>
+                                    <ng-template #trulyNoErp>
+                                        <span
+                                            class="px-2 py-1 rounded-full text-xs font-medium bg-red-50 text-red-400 border border-red-100 dark:bg-red-900/20 dark:text-red-300 dark:border-red-800/30">
+                                            Sin Registro ERP
+                                        </span>
+                                    </ng-template>
+                                </ng-template>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Modal para Recibo -->
+        <div *ngIf="isReceiptModalOpen"
+            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm p-4">
+            <div
+                class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+                <div class="flex items-center justify-between p-4 border-b dark:border-gray-700">
+                    <h3 class="text-lg font-medium text-gray-900 dark:text-white">Recibo ERP</h3>
+                    <button (click)="closeReceiptModal()" class="text-gray-400 hover:text-gray-500 focus:outline-none">
+                        <span class="sr-only">Cerrar</span>
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="p-6 flex-1 overflow-y-auto flex items-center justify-center bg-gray-50 dark:bg-gray-900/50">
+                    <div *ngIf="isLoadingReceipt" class="flex flex-col items-center">
+                        <div class="animate-spin rounded-full h-10 w-10 border-b-2 border-blue-600 mb-3"></div>
+                        <p class="text-sm text-gray-500">Cargando recibo...</p>
+                    </div>
+
+                    <div *ngIf="!isLoadingReceipt && currentReceiptBase64"
+                        class="w-full flex justify-center h-full min-h-[50vh]">
+                        <img *ngIf="!isPdf" [src]="currentReceiptBase64" alt="Recibo"
+                            class="max-w-full max-h-[60vh] object-contain rounded border dark:border-gray-700 shadow-sm" />
+
+                        <iframe *ngIf="isPdf" [src]="currentReceiptBase64"
+                            class="w-full min-h-[60vh] rounded border dark:border-gray-700 shadow-sm"
+                            frameborder="0"></iframe>
+                    </div>
+
+                    <div *ngIf="!isLoadingReceipt && !currentReceiptBase64" class="text-center text-gray-500 py-8">
+                        <svg class="mx-auto h-12 w-12 text-gray-400 mb-2" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                        </svg>
+                        <p>No se encontró la imagen del recibo o el formato no es soportado.</p>
+                    </div>
+                </div>
+
+                <div class="p-4 border-t dark:border-gray-700 flex justify-end">
+                    <button (click)="closeReceiptModal()"
+                        class="px-4 py-2 bg-gray-200 text-gray-800 text-sm font-medium rounded-md hover:bg-gray-300 transition">
+                        Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</app-main-layout>

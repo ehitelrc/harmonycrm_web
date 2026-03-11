@@ -125,6 +125,7 @@ export const esTranslations = {
   'menu.campaigns': 'Campañas',
 
   'menu.reports': 'Informes',
+  'menu.payment-validations': 'Validaciones de Pagos',
   'menu.convertions': "Conversiones",
 
   'menu.security': 'Seguridad',

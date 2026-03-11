@@ -71,6 +71,7 @@ export class NavigationService {
       name: 'menu.reports',
       icon: 'Folder',
       children: [
+        { type: 'item', name: 'menu.payment-validations', href: '/payment-validations', icon: 'list', permission: 'dashboard.access' },
         { type: 'item', name: 'menu.convertions', href: '/report-funnels', icon: 'PackageOpen', permission: 'reports.access' },
       ],
     }

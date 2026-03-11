@@ -3,8 +3,8 @@ export const environment = {
   versionBD: '4.25.0.0',
   API: {
     //BASE: 'http://localhost:8098/api',
-    BASE: 'https://api.harmony.vpcrapps.com/api',
-    //BASE: 'https://harmony.ngrok.dev/api',
+    //BASE: 'https://api.harmony.vpcrapps.com/api',
+    BASE: 'https://harmony.ngrok.dev/api',
   },
   TESTING: true,
   production: false,

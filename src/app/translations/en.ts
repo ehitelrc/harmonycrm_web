@@ -127,6 +127,7 @@ export const enTranslations = {
   'user_management.failed_load_users': 'Failed to load users',
   'user_management.email_registered': 'This email address is already registered',
   'user_management.cannot_delete': 'Cannot delete',
+  'menu.payment-validations': 'Payment Validations',
   'user_management.delete_confirm': 'Are you sure you want to delete this user?',
   'user_management.delete_warning': 'This action cannot be undone.',
   'user_management.cancel': 'Cancel',

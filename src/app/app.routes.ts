@@ -212,6 +212,12 @@ export const routes: Routes = [
     loadComponent: () => import('./components/dynamic-list/dymamic-list-maintenance/dynamic-list-maintenance.component').then(m => m.DynamicListsManagementComponent),
     canActivate: [AuthGuard]
   },
+  // Payment Validations
+  {
+    path: 'payment-validations',
+    loadComponent: () => import('./components/payment-validations/payment-validations').then(m => m.PaymentValidationsComponent),
+    canActivate: [AuthGuard]
+  },
   // Wildcard route - redirect to dashboard
   {
     path: '**',
