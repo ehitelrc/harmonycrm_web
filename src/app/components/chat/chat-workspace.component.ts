@@ -100,6 +100,14 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
   isLoadingHistory = false;
   history: CaseFunnelEntry[] = [];
 
+  // ======== Estado de Casos Anteriores ========
+  isPreviousCasesModalOpen = false;
+  isLoadingPreviousCases = false;
+  previousCases: any[] = [];
+  selectedPreviousCase: any | null = null;
+  isLoadingPreviousMessages = false;
+  previousMessages: Message[] = [];
+
   // ======== Estado del modal de campaña ========
   isAssignCampaignOpen = false;
   campaignSearch = '';
@@ -263,6 +271,48 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
 
   closeMessage() {
     this.uiMessage = null;
+  }
+
+  async openPreviousCasesModal() {
+    if (!this.selectedCase?.sender_id || !this.selectedCase?.channel_integration_id) return;
+    this.isPreviousCasesModalOpen = true;
+    this.isLoadingPreviousCases = true;
+    this.previousCases = [];
+    this.selectedPreviousCase = null;
+    this.previousMessages = [];
+    try {
+      const res = await this.chatService.getClosedCasesBySenderId(this.selectedCase.sender_id, this.selectedCase.channel_integration_id);
+      this.previousCases = Array.isArray(res?.data) ? res.data : [];
+
+      console.log(this.previousCases);
+    } catch (err) {
+      this.alert.error(this.t('chat.failed_to_load_previous_cases') || 'Error al cargar casos anteriores');
+    } finally {
+      this.isLoadingPreviousCases = false;
+      this.cdr.markForCheck();
+    }
+  }
+
+  closePreviousCasesModal() {
+    this.isPreviousCasesModalOpen = false;
+    this.selectedPreviousCase = null;
+    this.previousMessages = [];
+    this.previousCases = [];
+  }
+
+  async selectPreviousCase(c: any) {
+    this.selectedPreviousCase = c;
+    this.isLoadingPreviousMessages = true;
+    this.previousMessages = [];
+    try {
+      const res = await this.chatService.getClosedCaseMessages(c.case.id);
+      this.previousMessages = Array.isArray(res?.data) ? res.data : [];
+    } catch (err) {
+      this.alert.error('Error al cargar mensajes del caso anterior');
+    } finally {
+      this.isLoadingPreviousMessages = false;
+      this.cdr.markForCheck();
+    }
   }
 
   constructor(

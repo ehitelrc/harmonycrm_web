@@ -190,6 +190,12 @@
 
             <!-- Botones -->
             <div *ngIf="selectedCase" class="flex items-center gap-2">
+                <button *ngIf="selectedCase.sender_id" (click)="openPreviousCasesModal()" class="chip-btn flex items-center gap-1.5 !bg-[#00113f] !text-white hover:!bg-[#3e66ea] border-none shadow-sm cursor-pointer z-50">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    Casos Anteriores
+                </button>
                 <button id="case-button" (click)="viewCase()" class="chip-btn flex items-center gap-1.5">
                     <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -1377,6 +1383,180 @@
                 class="px-4 py-2 text-sm font-medium text-white bg-[#00113f] hover:bg-blue-700 rounded-lg shadow-sm transition-colors">
                 Iniciar Conversación
             </button>
+        </div>
+    </div>
+</div>
+
+<!-- ========== Modal de Casos Anteriores ========== -->
+<div *ngIf="isPreviousCasesModalOpen" class="fixed inset-0 z-50" style="z-index: 9999;">
+    <!-- Backdrop -->
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" (click)="closePreviousCasesModal()"></div>
+
+    <!-- Contenedor -->
+    <div class="absolute inset-4 md:inset-10 flex flex-col bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-800 pointer-events-auto">
+        
+        <!-- Header -->
+        <div class="h-16 px-6 flex items-center justify-between border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="p-2 bg-blue-100 text-blue-600 dark:bg-blue-900/50 dark:text-blue-400 rounded-lg">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="font-bold text-gray-900 dark:text-white leading-tight">Casos Anteriores</h3>
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Remitente: {{ selectedCase?.sender_id }}</p>
+                </div>
+            </div>
+            <button (click)="closePreviousCasesModal()" class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+
+        <!-- Body -->
+        <div class="flex-1 flex min-h-0 bg-white dark:bg-gray-900">
+            
+            <!-- Columna Izquierda: Lista de Casos Cerrados -->
+            <div class="w-1/3 max-w-sm border-r border-gray-200 dark:border-gray-800 flex flex-col bg-gray-50/30 dark:bg-gray-800/20">
+                <div class="p-4 border-b border-gray-200 dark:border-gray-800 shrink-0">
+                    <h4 class="text-sm font-semibold text-gray-700 dark:text-gray-300">Historial de Casos Cerrados</h4>
+                    <p class="text-xs text-gray-500 mt-1">Selecciona un caso para ver los mensajes.</p>
+                </div>
+                
+                <div class="flex-1 overflow-y-auto">
+                    <div *ngIf="isLoadingPreviousCases" class="p-8 flex justify-center">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#3e66ea]"></div>
+                    </div>
+
+                    <div *ngIf="!isLoadingPreviousCases && previousCases.length === 0" class="p-8 text-center flex flex-col items-center">
+                        <div class="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-3">
+                            <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                        </div>
+                        <span class="text-sm text-gray-500">No se encontraron casos cerrados.</span>
+                    </div>
+
+                    <div *ngIf="!isLoadingPreviousCases && previousCases.length > 0" class="flex flex-col">
+                        <button *ngFor="let c of previousCases" 
+                            (click)="selectPreviousCase(c)"
+                            class="w-full text-left p-4 border-b border-gray-100 dark:border-gray-800 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex flex-col gap-1"
+                            [class.bg-blue-50]="selectedPreviousCase?.case?.id === c?.case?.id"
+                            [class.border-l-4]="selectedPreviousCase?.case?.id === c?.case?.id"
+                            [class.border-blue-600]="selectedPreviousCase?.case?.id === c?.case?.id">
+                            
+                            <div class="flex justify-between items-center">
+                                <span class="text-sm font-bold text-gray-900 dark:text-white">Caso #{{ c?.case?.id || 'N/A' }}</span>
+                                <span class="text-xs text-gray-500">{{ c?.case?.created_at | date:'short' }}</span>
+                            </div>
+                            
+                            <div class="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                                Agente: <strong>{{ c?.agent_name || 'Sin asignar' }}</strong>
+                            </div>
+
+                            <div class="text-xs text-gray-500 dark:text-gray-400 flex justify-between mt-1">
+                                <span>Canal: {{ c?.integration_name || c?.channel_type || 'Desconocido' }}</span>
+                                <span class="uppercase font-semibold">{{ c?.case?.status }}</span>
+                            </div>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Columna Derecha: Mensajes -->
+            <div class="flex-1 flex flex-col bg-gray-50 dark:bg-[#0b1426] relative">
+                <div *ngIf="!selectedPreviousCase" class="absolute inset-0 flex flex-col items-center justify-center text-gray-400">
+                    <svg class="w-16 h-16 text-gray-200 dark:text-gray-800 mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    <p class="text-sm">Selecciona un caso para ver la conversación</p>
+                </div>
+
+                <div *ngIf="selectedPreviousCase" class="flex-1 overflow-y-auto px-6 py-6 space-y-4">
+                    <div *ngIf="isLoadingPreviousMessages" class="flex justify-center my-8">
+                        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#3e66ea]"></div>
+                    </div>
+
+                    <div *ngIf="!isLoadingPreviousMessages && previousMessages.length === 0" class="text-center text-gray-500 my-8 text-sm flex flex-col items-center">
+                        <div class="w-12 h-12 rounded-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center mb-3">
+                            <svg class="w-6 h-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                        </div>
+                        <span class="text-sm">Este caso no tiene mensajes.</span>
+                    </div>
+
+                    <!-- Render de Mensajes -->
+                    <div *ngFor="let m of previousMessages" class="w-full flex" [class.justify-end]="isFromAgent(m)" [class.justify-start]="!isFromAgent(m)">
+                        <div class="max-w-[75%] px-4 py-3 shadow-sm transition-all message-bubble relative group"
+                            [class.bg-[#3e66ea]]="isFromAgent(m)" [class.text-white]="isFromAgent(m)"
+                            [class.rounded-2xl]="true" [class.rounded-tr-sm]="isFromAgent(m)"
+                            [class.rounded-tl-sm]="!isFromAgent(m)" [class.bg-white]="!isFromAgent(m)"
+                            [class.dark:bg-gray-800]="!isFromAgent(m)" [class.border]="!isFromAgent(m)"
+                            [class.border-gray-200]="!isFromAgent(m)" [class.dark:border-gray-700]="!isFromAgent(m)"
+                            [class.text-gray-900]="!isFromAgent(m)" [class.dark:text-gray-100]="!isFromAgent(m)">
+
+                            <!-- Texto -->
+                            <div *ngIf="isText(m) && m.text_content?.trim()?.length"
+                                class="text-sm whitespace-pre-wrap break-words leading-relaxed"
+                                [innerHTML]="parseUrls(m.text_content || '')">
+                            </div>
+
+                            <!-- Adjuntos -->
+                            <div *ngIf="isMedia(m)" class="text-sm">
+                                <!-- Imagen -->
+                                <div *ngIf="m.message_type === 'image'" class="cursor-pointer" (click)="openAttachment(m)">
+                                    <img [src]="attachmentImageSrc(m)" class="rounded-lg max-h-72 object-cover border border-black/10" alt="Imagen" />
+                                    <div class="text-xs mt-2 break-words opacity-90" *ngIf="m.text_content">
+                                        {{ m.text_content }}
+                                    </div>
+                                </div>
+
+                                <!-- Audio -->
+                                <ng-container *ngIf="m.message_type === 'audio'">
+                                    <div class="flex items-center gap-2 mb-2 opacity-80">
+                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                                        </svg>
+                                        <span class="text-xs">Nota de voz</span>
+                                    </div>
+                                    <audio [src]="attachmentAudioSrc(m)" controls class="w-full min-w-[240px] max-w-full h-10 rounded-lg shadow-sm"></audio>
+                                    <div *ngIf="m.text_content" class="mt-2 opacity-90 whitespace-pre-wrap">
+                                        {{ m.text_content }}
+                                    </div>
+                                </ng-container>
+
+                                <!-- Otros archivos -->
+                                <ng-container *ngIf="m.message_type !== 'image' && m.message_type !== 'audio' && m.message_type !== 'text'">
+                                    <div class="flex items-center gap-3 p-3 rounded-lg bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5">
+                                        <div class="p-2 bg-white dark:bg-gray-700 rounded-lg shadow-sm">
+                                            <svg class="w-6 h-6 text-gray-500 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                            </svg>
+                                        </div>
+                                        <div class="flex-1 min-w-0">
+                                            <div class="text-xs font-medium truncate opacity-90">Archivo adjunto</div>
+                                            <a (click)="downloadFile(m)" class="text-xs underline cursor-pointer hover:opacity-80 truncate block text-blue-500">
+                                                Descargar
+                                            </a>
+                                        </div>
+                                    </div>
+                                    <div *ngIf="m.text_content" class="mt-2 opacity-90 whitespace-pre-wrap">
+                                        {{ m.text_content }}
+                                    </div>
+                                </ng-container>
+                            </div>
+
+                            <div class="mt-1 flex items-center justify-end gap-1 opacity-70 select-none">
+                                <span class="text-[10px]">{{ m.created_at | date:'shortTime' }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
         </div>
     </div>
 </div>

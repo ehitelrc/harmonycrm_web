@@ -258,6 +258,23 @@ export class CaseService {
     });
   }
 
+  getClosedCasesBySenderId(senderId: string, channelId: number) {
+
+    let url = environment.API.BASE + "/closed-cases/" + senderId + "?channel_integration_id=" + channelId;
+
+    console.log(url);
+
+    return this.fetch.get<ApiResponse<any[]>>({
+      API_Gateway: url,
+    });
+  }
+
+  getClosedCaseMessages(caseId: number) {
+    return this.fetch.get<ApiResponse<Message[]>>({
+      API_Gateway: `${environment.API.BASE}/closed-cases/messages/${caseId}`,
+    });
+  }
+
   getCasesByCompanyCampaignAgent(companyId: number, campaignId: number, agentId: number, channelIntegration: number) {
     return this.fetch.get<ApiResponse<CaseWithChannel[]>>({
       API_Gateway: `${CASE_URL}/entry/leads/company/${companyId}/campaign/${campaignId}/agent/${agentId}/channel_integration/${channelIntegration}`,
