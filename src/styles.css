@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+/* End of FontAwesome removal */
 /* Global styles */
 * {
   box-sizing: border-box;

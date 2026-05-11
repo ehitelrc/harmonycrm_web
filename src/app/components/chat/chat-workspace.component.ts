@@ -10,7 +10,7 @@ import { ClientService } from '@app/services/client.service';
 import { AlertService } from '@app/services/extras/alert.service';
 import { LanguageService } from '@app/services/extras/language.service';
 import { WSMessage, WsService } from '@app/services/extras/ws.service';
-import { last, Subscription } from 'rxjs';
+import { firstValueFrom, last, Subscription } from 'rxjs';
 import { ClientFormComponent } from "../clients/clients-form/client-form.component";
 import { CaseNote } from '@app/models/case-notes.model';
 import { AuthService } from '@app/services';
@@ -44,6 +44,9 @@ import { AudioRecorderComponent } from './send-audio-modal/audio-recorder.compon
 import { WhatsAppTemplateService } from '@app/services/whatsapp-template.service';
 import { MessageTemplate } from '@app/models/message-template.model';
 import { ChannelTemplateIntegration } from '@app/models/channel-template-integration.model';
+import { TagService } from '@app/services/tag.service';
+import { Tag } from '@app/models/tag';
+import { TagIconComponent } from '../settings/tags-management/tag-icon/tag-icon.component';
 
 type MessageUI = Message & {
   _justArrived?: boolean;
@@ -58,8 +61,8 @@ type MessageUI = Message & {
     MoveStageModalComponent,
     SendImageModalComponent,
     SendFileModalComponent,
-    AudioRecorderComponent
-
+    AudioRecorderComponent,
+    TagIconComponent
   ],
   templateUrl: './chat-workspace.component.html',
   styleUrls: ['./chat-workspace.component.css']
@@ -81,7 +84,8 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
   companies: { company_id: number; company_name: string }[] = [];
   selectedCompanyId: number | null = null;
 
-
+  globalTags: Tag[] = [];
+  showTagMenu = false;
 
   showTemplateMenu = false;
 
@@ -141,6 +145,8 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
   isLoadingCases = false;
   isLoadingMessages = false;
   searchContact = '';
+  selectedFilterTag: number | null = null;
+  filterUnread: boolean = false;
   isRightPanelOpen = false;
 
   // --- Datos ---
@@ -332,6 +338,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
     private sanitizer: DomSanitizer,
     private cdr: ChangeDetectorRef,
     private whatsappTemplateService: WhatsAppTemplateService,
+    private tagService: TagService,
   ) { }
 
   ngOnInit(): void {
@@ -389,6 +396,12 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
 
     await this.loadCompanies();
 
+    try {
+      const res = await firstValueFrom(this.tagService.getTags());
+      this.globalTags = res || [];
+    } catch (e) {
+      console.error('Error loading tags', e);
+    }
 
     await this.loadCases();
 
@@ -432,6 +445,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
         unread_count: Number(c.unread_count ?? 0),
         last_message_preview: c.last_message_preview ?? '',
         last_message_at: c.last_message_at ?? null,
+        tags: c.tags || [],
       })).filter(c => c.status !== 'closed');
 
       // Order by last_message_at descending
@@ -461,13 +475,11 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
       const sender = String(c.sender_id || '').toLowerCase();
       const caseId = String(c.case_id || '').toLowerCase();
 
-      return (
-        !q ||
-        name.includes(q) ||
-        caseId.includes(q) ||
-        sender.includes(q) ||
-        integration.includes(q)  // opcional pero útil
-      );
+      const matchesText = !q || name.includes(q) || caseId.includes(q) || sender.includes(q) || integration.includes(q);
+      const matchesTag = !this.selectedFilterTag || (c.tags && c.tags.some(t => t.id === this.selectedFilterTag));
+      const matchesUnread = !this.filterUnread || (c.unread_count && c.unread_count > 0);
+
+      return matchesText && matchesTag && matchesUnread;
     });
   }
 
@@ -798,6 +810,49 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   // Helpers render
+
+  toggleTagMenu() {
+    this.showTagMenu = !this.showTagMenu;
+  }
+
+  async assignTagToCase(t: Tag) {
+    if (!this.selectedCase) return;
+
+    // Check if tag is already present
+    if (this.selectedCase.tags?.length && this.selectedCase.tags[0].id === t.id) {
+      this.showTagMenu = false;
+      return; // Already tagged with the exact same tag
+    }
+
+    try {
+      // Remove previous tag if it exists and is different
+      if (this.selectedCase.tags?.length) {
+        try {
+          await firstValueFrom(this.tagService.removeFromCase(this.selectedCase.case_id, this.selectedCase.tags[0].id!));
+        } catch (e) {
+          console.warn('Error eliminando tag anterior', e);
+        }
+      }
+
+      await firstValueFrom(this.tagService.assignToCase(this.selectedCase.case_id, t.id!));
+      
+      // Update UI: force array to contain only the newly selected tag
+      this.selectedCase.tags = [t];
+      
+      // Also update in list
+      const idx = this.cases.findIndex(c => c.case_id === this.selectedCase!.case_id);
+      if (idx >= 0) {
+        this.cases[idx].tags = [...this.selectedCase.tags];
+        this.applyContactFilter();
+      }
+
+      this.alert.success(`Tag asignado exitosamente.`);
+    } catch (e) {
+      this.alert.error('Error al asignar el tag');
+    }
+    this.showTagMenu = false;
+    this.cdr.markForCheck();
+  }
   isText(m: Message) { return m.message_type === 'text'; }
   isMedia(m: Message) { return m.message_type !== 'text'; }
   isFromAgent(m: Message) { return m.sender_type === 'agent'; }

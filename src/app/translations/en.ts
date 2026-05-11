@@ -26,6 +26,8 @@ export const enTranslations = {
   'auth.hero_subtitle': 'Optimize your inventory operations with our comprehensive warehouse management system',
   'auth.inventory_tracking': 'Inventory Tracking',
   'auth.inventory_tracking_desc': 'Real-time inventory management with batch and serial number tracking',
+  'menu.cases': 'Cases Management',
+  'menu.tags': 'Tags Management',
   'auth.task_management': 'Task Management',
   'auth.task_management_desc': 'Optimized receiving and picking with user assignment',
   'auth.smart_alerts': 'Smart Alerts',

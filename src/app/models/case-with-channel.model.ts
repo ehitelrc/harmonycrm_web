@@ -62,4 +62,6 @@ export interface CaseWithChannel {
   _searchText?: string;
 
   payment_found?: boolean | null;
+
+  tags?: any[]; // Reemplaza any[] con Tag[] importando el modelo si es necesario
 }

@@ -48,7 +48,7 @@ export class PaymentValidationsComponent implements OnInit {
       case 'cerrados':
         return this.paymentValidations.filter(v => v.harmony_state === 'caso_cerrado');
       case 'exitosos':
-        return this.paymentValidations.filter(v => v.harmony_state === 'enviado_al_cliente' || v.harmony_state === 'caso_cerrado');
+        return this.paymentValidations.filter(v => v.harmony_state === 'enviado_al_cliente' || v.harmony_state === 'caso_cerrado' || v.harmony_state === 'tiene_mensajes_del_agente');
       case 'sin_erp':
         return this.paymentValidations.filter(v => !v.erp_reference_number);
       case 'error_notificar':
@@ -57,6 +57,7 @@ export class PaymentValidationsComponent implements OnInit {
         return this.paymentValidations.filter(v =>
           v.harmony_state !== 'enviado_al_cliente' &&
           v.harmony_state !== 'caso_cerrado' &&
+          v.harmony_state !== 'tiene_mensajes_del_agente' &&
           v.harmony_state !== 'error_al_notificar' &&
           !!v.erp_reference_number
         );
@@ -87,7 +88,7 @@ export class PaymentValidationsComponent implements OnInit {
   }
 
   get kpiExitosos(): number {
-    return this.kpiEnviados + this.kpiCerrados;
+    return this.kpiEnviados + this.kpiCerrados + this.paymentValidations.filter(v => v.harmony_state === 'tiene_mensajes_del_agente').length;
   }
 
   get kpiSinErp(): number {
@@ -102,6 +103,7 @@ export class PaymentValidationsComponent implements OnInit {
     return this.paymentValidations.filter(v =>
       v.harmony_state !== 'enviado_al_cliente' &&
       v.harmony_state !== 'caso_cerrado' &&
+      v.harmony_state !== 'tiene_mensajes_del_agente' &&
       v.harmony_state !== 'error_al_notificar' &&
       !!v.erp_reference_number
     ).length;

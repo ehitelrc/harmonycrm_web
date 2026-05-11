@@ -138,6 +138,7 @@ export const esTranslations = {
 
   'menu.funnels': 'Embudos',
   'menu.cases': 'Mantenimiento de casos',
+  'menu.tags': 'Gestión de Tags',
 
   'menu.whatsapp-template': 'Plantillas',
   'menu.channels_company': 'Canales por Compañía',
@@ -535,8 +536,8 @@ export const esTranslations = {
   "whatsapp_template.file_selection": "Selección de archivo",
   "whatsapp_template.upload_file_title": "Cargar archivo CSV",
   "whatsapp_template.upload_file_example": "Ejemplo:",
-  "whatsapp_template.upload_file_example_sub1": "+50660606060, Juan Pérez",
-  "whatsapp_template.upload_file_example_sub2": "+50670707070, Ana Gómez",
+  "whatsapp_template.upload_file_example_sub1": "50660606060, Juan Pérez",
+  "whatsapp_template.upload_file_example_sub2": "50670707070, Ana Gómez",
   "whatsapp_template.loaded_leads": "Leads cargados: {{count}}",
   "whatsapp_template.phone": "Teléfono",
   "whatsapp_template.full_name": "Nombre completo",

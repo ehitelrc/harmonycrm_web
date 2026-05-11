@@ -224,6 +224,11 @@ export const routes: Routes = [
     loadComponent: () => import('./components/unreconciled-payments/unreconciled-payments.component').then(m => m.UnreconciledPaymentsComponent),
     canActivate: [AuthGuard]
   },
+  {
+    path: 'tags',
+    loadComponent: () => import('./components/settings/tags-management/tags-management.component').then(m => m.TagsManagementComponent),
+    canActivate: [AuthGuard]
+  },
   // Wildcard route - redirect to dashboard
   {
     path: '**',

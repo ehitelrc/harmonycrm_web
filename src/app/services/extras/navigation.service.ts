@@ -40,6 +40,7 @@ export class NavigationService {
         { type: 'item', name: 'menu.funnels', href: '/funnels', icon: 'Funnel', permission: 'funnels.access' },
         { type: 'item', name: 'menu.customers', href: '/customers', icon: 'Users', permission: 'customers.access' },
         { type: 'item', name: 'menu.custom-lists', href: '/custom-lists', icon: 'Sliders', permission: 'custom-lists.access' },
+        { type: 'item', name: 'menu.tags', href: '/tags', icon: 'Settings', permission: 'MANAGE_TAGS' },
 
       ],
     },
