@@ -6,6 +6,7 @@ import { AlertComponent } from '../shared/extras/alert/alert.component';
 import { User } from '@app/models/auth.model';
 import { AuthService } from '@app/services/auth.service';
 import { Router } from '@angular/router';
+import { GlobalUnreadService } from '@app/services/global-unread.service';
 
 @Component({
   selector: 'app-main-layout',
@@ -44,7 +45,8 @@ export class MainLayoutComponent {
     
   constructor(
      private authService: AuthService,
-     private router: Router
+     private router: Router,
+     private globalUnreadService: GlobalUnreadService
   ) {}
 
    async ngOnInit(): Promise<void> {
@@ -54,7 +56,8 @@ export class MainLayoutComponent {
       this.router.navigate(['/login']);
       return;
     }
- 
+    
+    this.globalUnreadService.init();
   }
 
 }

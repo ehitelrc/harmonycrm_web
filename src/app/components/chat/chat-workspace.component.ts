@@ -11,6 +11,8 @@ import { AlertService } from '@app/services/extras/alert.service';
 import { LanguageService } from '@app/services/extras/language.service';
 import { WSMessage, WsService } from '@app/services/extras/ws.service';
 import { firstValueFrom, last, Subscription } from 'rxjs';
+import { Title } from '@angular/platform-browser';
+import { GlobalUnreadService } from '@app/services/global-unread.service';
 import { ClientFormComponent } from "../clients/clients-form/client-form.component";
 import { CaseNote } from '@app/models/case-notes.model';
 import { AuthService } from '@app/services';
@@ -112,6 +114,10 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
   isLoadingPreviousMessages = false;
   previousMessages: Message[] = [];
 
+  // ======== Estado de Historial Global ========
+  isGlobalHistoryModalOpen = false;
+  globalHistorySearch = '';
+
   // ======== Estado del modal de campaña ========
   isAssignCampaignOpen = false;
   campaignSearch = '';
@@ -172,6 +178,9 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
 
   private wsSub?: Subscription;
   private tmpCounter = 0;
+
+  is24HourWindowExpired = false;
+  private windowCheckInterval: any;
 
   // Visor de imagen
   imageLoaded = false;
@@ -306,6 +315,39 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
     this.previousCases = [];
   }
 
+  // ==== Historial Global ====
+  openGlobalHistoryModal() {
+    this.isGlobalHistoryModalOpen = true;
+    this.globalHistorySearch = '';
+    this.previousCases = [];
+    this.selectedPreviousCase = null;
+    this.previousMessages = [];
+  }
+
+  closeGlobalHistoryModal() {
+    this.isGlobalHistoryModalOpen = false;
+    this.previousCases = [];
+    this.selectedPreviousCase = null;
+    this.previousMessages = [];
+  }
+
+  async searchGlobalHistory() {
+    if (!this.globalHistorySearch.trim()) return;
+    this.isLoadingPreviousCases = true;
+    this.previousCases = [];
+    this.selectedPreviousCase = null;
+    this.previousMessages = [];
+    try {
+      const res = await this.chatService.getClosedCasesBySenderId(this.globalHistorySearch.trim());
+      this.previousCases = Array.isArray(res?.data) ? res.data : [];
+    } catch (err) {
+      this.alert.error('Error al cargar historial');
+    } finally {
+      this.isLoadingPreviousCases = false;
+      this.cdr.markForCheck();
+    }
+  }
+
   async selectPreviousCase(c: any) {
     this.selectedPreviousCase = c;
     this.isLoadingPreviousMessages = true;
@@ -339,9 +381,14 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
     private cdr: ChangeDetectorRef,
     private whatsappTemplateService: WhatsAppTemplateService,
     private tagService: TagService,
+    private titleService: Title,
+    private globalUnreadService: GlobalUnreadService
   ) { }
 
   ngOnInit(): void {
+    this.check24HourWindow();
+    this.windowCheckInterval = setInterval(() => this.check24HourWindow(), 60000);
+
     this.onInit();
 
     // Si viene desde un modal externo
@@ -351,9 +398,50 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnDestroy(): void {
+    if (this.windowCheckInterval) clearInterval(this.windowCheckInterval);
     this.ws.disconnect();
     this.wsSub?.unsubscribe();
     this.wsAgentSub?.unsubscribe();
+  }
+
+  check24HourWindow() {
+    if (!this.selectedCase || !this.messages || this.messages.length === 0) {
+      this.is24HourWindowExpired = false;
+      return;
+    }
+
+    if (this.selectedCase.channel_code !== 'whatsapp' && this.selectedCase.channel_code !== 'messenger') {
+      this.is24HourWindowExpired = false;
+      return;
+    }
+
+    let lastClientMessageDate: Date | null = null;
+    for (let i = this.messages.length - 1; i >= 0; i--) {
+      if (this.messages[i].sender_type === 'client') {
+        const dateStr = this.messages[i].created_at;
+        if (dateStr) {
+          lastClientMessageDate = new Date(dateStr as string);
+        }
+        break;
+      }
+    }
+
+    const now = new Date();
+    let diffHours = 0;
+
+    if (!lastClientMessageDate) {
+       const caseDate = new Date(this.selectedCase.created_at || new Date());
+       diffHours = (now.getTime() - caseDate.getTime()) / (1000 * 60 * 60);
+    } else {
+       diffHours = (now.getTime() - lastClientMessageDate.getTime()) / (1000 * 60 * 60);
+    }
+    
+    const wasExpired = this.is24HourWindowExpired;
+    this.is24HourWindowExpired = diffHours >= 24;
+
+    if (wasExpired !== this.is24HourWindowExpired) {
+      this.cdr.markForCheck();
+    }
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -429,6 +517,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
 
         this.cases = updated;
         this.applyContactFilter();
+        this.updateDocumentTitle();
       });
 
   }
@@ -458,6 +547,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
       console.log('Casos cargados:', this.cases);
 
       this.applyContactFilter();
+      this.updateDocumentTitle();
     } catch {
       this.alert.error(this.t('chat.failed_to_load_cases'));
       this.cases = [];
@@ -524,6 +614,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
 
     } finally {
       this.isLoadingMessages = false;
+      this.check24HourWindow();
       this.cdr.markForCheck();
     }
   }
@@ -585,6 +676,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
     }
 
     this.updatePreview(evt.case_id, real);
+    this.check24HourWindow();
     this.scrollToBottomSoon();
   }
 
@@ -772,7 +864,13 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
       };
       this.cases = updated;
       this.applyContactFilter();
+      this.updateDocumentTitle();
     }
+  }
+
+  updateDocumentTitle() {
+    const unreadCount = this.cases.filter(c => c.unread_count && c.unread_count > 0).length;
+    this.globalUnreadService.updateTitle(unreadCount);
   }
 
   async loadClientIfNeeded() {

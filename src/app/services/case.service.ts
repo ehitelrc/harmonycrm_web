@@ -258,9 +258,12 @@ export class CaseService {
     });
   }
 
-  getClosedCasesBySenderId(senderId: string, channelId: number) {
+  getClosedCasesBySenderId(senderId: string, channelId?: number) {
 
-    let url = environment.API.BASE + "/closed-cases/" + senderId + "?channel_integration_id=" + channelId;
+    let url = environment.API.BASE + "/closed-cases/" + senderId;
+    if (channelId) {
+      url += "?channel_integration_id=" + channelId;
+    }
 
     console.log(url);
 
