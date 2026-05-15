@@ -154,4 +154,11 @@ export class WhatsAppTemplateService {
       API_Gateway: `${MSG_TEMPLATE_URL}/integration/${integrationId}?template_id=${templateId}`,
     });
   }
+
+  /** GET /templates/preview/:template_name/:integration_id — fetch template preview text from Meta */
+  async getTemplatePreviewFromMeta(templateName: string, integrationId: number): Promise<ApiResponse<string>> {
+    return await this.fetch.get<ApiResponse<string>>({
+      API_Gateway: `${MSG_TEMPLATE_URL}/preview/${templateName}/${integrationId}`,
+    });
+  }
 }

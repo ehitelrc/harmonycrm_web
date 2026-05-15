@@ -916,10 +916,23 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
   async assignTagToCase(t: Tag) {
     if (!this.selectedCase) return;
 
-    // Check if tag is already present
+    // Check if tag is already present -> if so, unassign it
     if (this.selectedCase.tags?.length && this.selectedCase.tags[0].id === t.id) {
+      try {
+        await firstValueFrom(this.tagService.removeFromCase(this.selectedCase.case_id, t.id!));
+        this.selectedCase.tags = [];
+        const idx = this.cases.findIndex(c => c.case_id === this.selectedCase!.case_id);
+        if (idx >= 0) {
+          this.cases[idx].tags = [];
+          this.applyContactFilter();
+        }
+        this.alert.success('Tag removido exitosamente.');
+      } catch (e) {
+        this.alert.error('Error al remover el tag');
+      }
       this.showTagMenu = false;
-      return; // Already tagged with the exact same tag
+      this.cdr.markForCheck();
+      return;
     }
 
     try {
@@ -2020,17 +2033,49 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-  sendSelectedTemplate(t: ChannelTemplateIntegration) {
+  isPreviewTemplateModalOpen = false;
+  isFetchingTemplatePreview = false;
+  templateToPreview: ChannelTemplateIntegration | null = null;
+  templatePreviewBody: string | null = null;
 
-    this.selectedTemplate = t.template_id;
-
-    this.selectedTemplateObj = t;
-
-
+  async sendSelectedTemplate(t: ChannelTemplateIntegration) {
+    this.templateToPreview = t;
+    this.templatePreviewBody = null;
+    this.isPreviewTemplateModalOpen = true;
+    this.isFetchingTemplatePreview = true;
     this.toggleTemplateMenu();
 
-    this.sendIndividualTemplate();
+    try {
+      const resp = await this.whatsappTemplateService.getTemplatePreviewFromMeta(
+        t.template_name,
+        t.integration_id
+      );
+      if (resp.success && resp.data) {
+        this.templatePreviewBody = resp.data;
+      } else {
+        this.templatePreviewBody = 'No se pudo obtener el contenido desde Meta.';
+      }
+    } catch (error) {
+      console.error('Error al obtener previsualización de Meta', error);
+      this.templatePreviewBody = 'No se pudo obtener el contenido desde Meta.';
+    } finally {
+      this.isFetchingTemplatePreview = false;
+    }
+  }
 
+  cancelTemplatePreview() {
+    this.isPreviewTemplateModalOpen = false;
+    this.templateToPreview = null;
+  }
+
+  confirmSendTemplate() {
+    if (!this.templateToPreview) return;
+    this.selectedTemplate = this.templateToPreview.template_id;
+    this.selectedTemplateObj = this.templateToPreview;
+    
+    this.sendIndividualTemplate();
+    this.isPreviewTemplateModalOpen = false;
+    this.templateToPreview = null;
   }
 
   async sendIndividualTemplate() {
@@ -2604,5 +2649,30 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
   onPhoneInput(): void {
     this.newConvPhone = (this.newConvPhone || '').replace(/\s+/g, '');
     this.newConvCountryCode = (this.newConvCountryCode || '').replace(/\s+/g, '');
+  }
+
+  formatMessageDate(dateString: string | Date | undefined): string {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    if (isNaN(date.getTime())) return '';
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    const yesterday = new Date(today);
+    yesterday.setDate(yesterday.getDate() - 1);
+
+    const messageDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+    const timeOptions: Intl.DateTimeFormatOptions = { hour: '2-digit', minute: '2-digit', hour12: true };
+    const timeString = date.toLocaleTimeString('es-ES', timeOptions);
+
+    if (messageDate.getTime() === today.getTime()) {
+      return `Hoy ${timeString}`;
+    } else if (messageDate.getTime() === yesterday.getTime()) {
+      return `Ayer ${timeString}`;
+    } else {
+      const dateOptions: Intl.DateTimeFormatOptions = { day: '2-digit', month: '2-digit', year: 'numeric' };
+      return `${date.toLocaleDateString('es-ES', dateOptions)} ${timeString}`;
+    }
   }
 }
