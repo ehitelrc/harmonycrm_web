@@ -6,7 +6,7 @@ node increase-version.js
 
 # Compilar proyecto Angular
 echo "Compilando proyecto Angular..."
-ng build
+ng build --configuration production
 
 # Verificar si la compilación fue exitosa
 if [ $? -eq 0 ]; then

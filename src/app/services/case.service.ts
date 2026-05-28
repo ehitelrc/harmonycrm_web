@@ -334,4 +334,18 @@ export class CaseService {
     });
   }
 
+  // --- Bulk Close Endpoints ---
+  searchBulkCloseCases(companyId: number, departmentId: number, startDate: string, endDate: string) {
+    return this.fetch.get<ApiResponse<any[]>>({
+      API_Gateway: `${environment.API.BASE}/v1/cases/bulk-close/search?company_id=${companyId}&department_id=${departmentId}&start_date=${startDate}&end_date=${endDate}`,
+    });
+  }
+
+  executeBulkClose(caseIds: number[], password: string, userId: number) {
+    return this.fetch.post<ApiResponse<void>>({
+      API_Gateway: `${environment.API.BASE}/v1/cases/bulk-close/execute`,
+      values: { case_ids: caseIds, password, user_id: userId },
+    });
+  }
+
 }

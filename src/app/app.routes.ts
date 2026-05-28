@@ -80,6 +80,11 @@ export const routes: Routes = [
     loadComponent: () => import('./components/cases/cases-mass-reassignment/cases-mass-reassignment.component').then(m => m.CasesMassReassignmentComponent),
     canActivate: [AuthGuard]
   },
+  {
+    path: 'cases/bulk-close',
+    loadComponent: () => import('./components/cases/cases-bulk-close/cases-bulk-close').then(m => m.CasesBulkClose),
+    canActivate: [AuthGuard]
+  },
 
   // Inventory Management route - requires authentication
   {

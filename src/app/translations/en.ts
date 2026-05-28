@@ -53,6 +53,8 @@ export const enTranslations = {
   'auth.logout_confirm': 'Do you want to log out?',
   'auth.logout': 'Log out',
   // Navigation items
+  'menu.dashboard': 'Dashboard',
+  'menu.cases-bulk-close': 'Massive Case Closure',
   'dashboard': 'Dashboard',
   'articles': 'Master of SKUs',
   'inventory': 'Inventory',

@@ -108,6 +108,7 @@ export const esTranslations = {
   'menu.custom-lists': 'Listas Dinámicas',
 
   'menu.dashboard': 'Tablero',
+  'menu.cases-bulk-close': 'Cierre masivo de casos',
   'menu.companies': 'Compañías',
   'menu.conversations': 'Conversaciones',
   'menu.organization': 'Organización',

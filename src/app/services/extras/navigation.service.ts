@@ -11,6 +11,7 @@ export class NavigationService {
     { type: 'item', name: 'menu.whatsapp-campaign-push', href: '/whatsapp-campaign-push', icon: 'UserPlus', permission: 'whatsapp-campaign-push.access' },
     { type: 'item', name: 'menu.cases', href: '/cases', icon: 'Package', permission: 'cases.access' },
     { type: 'item', name: 'menu.cases-mass-reassignment', href: '/cases/mass-reassignment', icon: 'Package', permission: 'mass-reassignment.access' },
+    { type: 'item', name: 'menu.cases-bulk-close', href: '/cases/bulk-close', icon: 'FolderClosed', permission: 'bulk_case_close' },
     {
       type: 'group',
       name: 'menu.sales',
