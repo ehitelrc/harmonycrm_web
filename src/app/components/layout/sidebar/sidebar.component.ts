@@ -142,6 +142,13 @@ export class SidebarComponent implements OnInit {
 
   setActiveTab(tabId: string): void {
     this.activeTabId = tabId;
+    const tab = this.tabs.find(t => t.id === tabId);
+    if (tab && tab.items.length > 0) {
+      const isAlreadyOnTabItem = tab.items.some((item: any) => this.currentLocation === item.href);
+      if (!isAlreadyOnTabItem) {
+        this.router.navigate([tab.items[0].href]);
+      }
+    }
   }
 
   getActiveTabName(): string {
