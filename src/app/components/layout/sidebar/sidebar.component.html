@@ -94,18 +94,15 @@
         <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest truncate max-w-[130px]">
           {{ t(getActiveTabName()) }}
         </h2>
-        <div class="flex items-center space-x-2">
-          <!-- Pulse Online indicator -->
-          <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/30 animate-pulse"></span>
-          
+        <div class="flex items-center">
           <!-- Collapse Button -->
           <button 
             (click)="toggleCollapse()"
             class="p-1.5 rounded-lg text-gray-700 hover:text-blue-600 hover:bg-gray-100 active:scale-95 transition-all duration-150 outline-none bg-gray-50 border border-gray-200 flex items-center justify-center shadow-sm"
             title="Colapsar Menú"
           >
-            <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7" />
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75" />
             </svg>
           </button>
         </div>
