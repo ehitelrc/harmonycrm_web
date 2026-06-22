@@ -23,7 +23,7 @@
   background-color: rgba(59, 130, 246, 0.4);
 }
 
-/* Gaussian bell curves (concave rounded corners) for active tab */
+/* Gaussian bell curves (concave rounded corners) for active tab using radial-gradients */
 .active-tab-funnel::before {
   content: '';
   position: absolute;
@@ -31,9 +31,7 @@
   top: -20px;
   width: 20px;
   height: 20px;
-  background-color: transparent;
-  border-bottom-right-radius: 20px;
-  box-shadow: 10px 10px 0 0 #ffffff;
+  background: radial-gradient(circle at 0 0, transparent 20px, #ffffff 21px);
   pointer-events: none;
   z-index: 10;
 }
@@ -45,9 +43,7 @@
   bottom: -20px;
   width: 20px;
   height: 20px;
-  background-color: transparent;
-  border-top-right-radius: 20px;
-  box-shadow: 10px -10px 0 0 #ffffff;
+  background: radial-gradient(circle at 0 100%, transparent 20px, #ffffff 21px);
   pointer-events: none;
   z-index: 10;
 }
