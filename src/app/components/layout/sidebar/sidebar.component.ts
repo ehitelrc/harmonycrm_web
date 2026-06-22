@@ -140,8 +140,35 @@ export class SidebarComponent implements OnInit {
     }
   }
 
+  isCollapsed = false;
+
+  getActiveTabTop(): number {
+    const index = this.tabs.findIndex(t => t.id === this.activeTabId);
+    if (index === -1) return 0;
+    return index * (44 + 14);
+  }
+
+  toggleCollapse(): void {
+    this.isCollapsed = !this.isCollapsed;
+    this.updateBodyClass();
+  }
+
+  updateBodyClass(): void {
+    if (this.isCollapsed) {
+      document.body.classList.add('sidebar-collapsed');
+    } else {
+      document.body.classList.remove('sidebar-collapsed');
+    }
+  }
+
   setActiveTab(tabId: string): void {
     this.activeTabId = tabId;
+
+    if (this.isCollapsed) {
+      this.isCollapsed = false;
+      this.updateBodyClass();
+    }
+
     const tab = this.tabs.find(t => t.id === tabId);
     if (tab && tab.items.length > 0) {
       const isAlreadyOnTabItem = tab.items.some((item: any) => this.currentLocation === item.href);
