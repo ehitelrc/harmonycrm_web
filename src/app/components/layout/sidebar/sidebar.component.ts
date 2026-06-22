@@ -2,28 +2,32 @@ import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
 import { NavigationEnd, Router, RouterModule } from '@angular/router';
 import { filter } from 'rxjs/operators';
-import { NavigationItems, NavigationGroup } from '../../../models/navigation.model'; // 👈 importa Group/Items
+import { NavigationItems, NavigationGroup, isItem, isGroup } from '../../../models/navigation.model';
 import { LanguageService } from '@app/services';
 import { NavigationService } from '@app/services/extras/navigation.service';
 import { environment } from '@environment';
+
+interface TabSection {
+  id: string;
+  name: string;
+  icon: string;
+  items: any[];
+}
 
 @Component({
   selector: 'app-sidebar',
   standalone: true,
   imports: [CommonModule, RouterModule],
   templateUrl: './sidebar.component.html',
-  styleUrls: ['./sidebar.component.css'],
-  styles: []
+  styleUrls: ['./sidebar.component.css']
 })
 export class SidebarComponent implements OnInit {
   navigation: NavigationItems = [];
- 
-
   appVersion = environment.appVersion;
   currentLocation: string = '/';
 
-  // 👇 estado de grupos abiertos/cerrados (por nombre)
-  openGroups: Record<string, boolean> = {};
+  tabs: TabSection[] = [];
+  activeTabId: string = 'dashboard';
 
   constructor(
     private languageService: LanguageService,
@@ -33,58 +37,120 @@ export class SidebarComponent implements OnInit {
     this.router.events
       .pipe(filter(event => event instanceof NavigationEnd))
       .subscribe((event: NavigationEnd) => {
-        this.currentLocation = event.url;
+        this.currentLocation = event.urlAfterRedirects || event.url;
+        this.selectTabByUrl(this.currentLocation);
       });
   }
 
   ngOnInit(): void {
     this.currentLocation = this.router.url;
-    this.navigation = this.navigationService.getItems();
-
-
-  // 👇 escucha cambios en items
-  this.navigationService.items$.subscribe(items => {
-    this.navigation = items;
-
-    // inicializar estado de grupos
-    this.navigation.forEach(node => {
-      if ((node as NavigationGroup).type === 'group') {
-        this.openGroups[(node as NavigationGroup).name] = false;
-      }
+    
+    this.navigationService.items$.subscribe(items => {
+      this.navigation = items;
+      this.groupNavigation(items);
     });
-  });
-
-    // Opcional: abrir todos los grupos al inicio
-    // Iniciar todos los grupos colapsados
-    // this.navigation.forEach(node => {
-    //   if ((node as NavigationGroup).type === 'group') {
-    //     const g = node as NavigationGroup;
-    //     this.openGroups[g.name] = false; // todos cerrados al inicio
-    //   }
-    // });
   }
 
   t(key: string): string {
     return this.languageService.t(key);
   }
 
-  getItemClasses(href: string): string {
-    const isActive = this.currentLocation === href;
-    return isActive
-      ? 'bg-[#3e66ea] text-white shadow-lg transform scale-105'
-      : 'text-white hover:text-white hover:bg-[#3e66ea]/30 hover:rounded-xl hover:transform hover:scale-105';
+  groupNavigation(items: NavigationItems): void {
+    const newTabs: TabSection[] = [];
+
+    // 1. Dashboard Tab
+    const dashboardItems = items.filter(isItem).filter(
+      item => item.name === 'menu.dashboard' || item.name === 'menu.dashboard-cases'
+    );
+    if (dashboardItems.length > 0) {
+      newTabs.push({
+        id: 'dashboard',
+        name: 'menu.dashboard',
+        icon: 'LayoutDashboard',
+        items: dashboardItems.map(i => ({ name: i.name, href: i.href, icon: i.icon || 'LayoutDashboard' }))
+      });
+    }
+
+    // 2. Chat / Conversations Tab
+    const chatItems = items.filter(isItem).filter(
+      item => item.name === 'menu.conversations' || item.name === 'menu.whatsapp-campaign-push'
+    );
+    if (chatItems.length > 0) {
+      newTabs.push({
+        id: 'conversations',
+        name: 'menu.conversations',
+        icon: 'MessageCircle',
+        items: chatItems.map(i => ({ name: i.name, href: i.href, icon: i.icon || 'MessageCircle' }))
+      });
+    }
+
+    // 3. Cases Tab
+    const casesItems = items.filter(isItem).filter(
+      item => item.name === 'menu.cases' || item.name === 'menu.cases-mass-reassignment' || item.name === 'menu.cases-bulk-close'
+    );
+    if (casesItems.length > 0) {
+      newTabs.push({
+        id: 'cases',
+        name: 'menu.cases',
+        icon: 'Package',
+        items: casesItems.map(i => ({ name: i.name, href: i.href, icon: i.icon || 'Package' }))
+      });
+    }
+
+    // Groups tabs
+    items.forEach(node => {
+      if (isGroup(node)) {
+        let icon = 'Folder';
+        if (node.name === 'menu.sales') icon = 'TrendingUp';
+        else if (node.name === 'menu.maintenance') icon = 'Sliders';
+        else if (node.name === 'menu.settings') icon = 'Settings';
+        else if (node.name === 'menu.security') icon = 'Shield';
+        else if (node.name === 'menu.reports') icon = 'BarChart';
+
+        if (node.children && node.children.length > 0) {
+          newTabs.push({
+            id: node.name,
+            name: node.name,
+            icon: icon,
+            items: node.children.map(c => ({ name: c.name, href: c.href, icon: c.icon || 'Circle' }))
+          });
+        }
+      }
+    });
+
+    this.tabs = newTabs;
+    this.selectTabByUrl(this.currentLocation);
   }
 
-  // 👇 helpers para grupos
-  isOpen(groupName: string): boolean {
-    return !!this.openGroups[groupName];
+  selectTabByUrl(url: string): void {
+    const activeTab = this.tabs.find(tab =>
+      tab.items.some((item: any) => item.href === url)
+    );
+    if (activeTab) {
+      this.activeTabId = activeTab.id;
+    } else {
+      const prefixTab = this.tabs.find(tab =>
+        tab.items.some((item: any) => url.startsWith(item.href) && item.href !== '/')
+      );
+      if (prefixTab) {
+        this.activeTabId = prefixTab.id;
+      } else if (this.tabs.length > 0 && !this.activeTabId) {
+        this.activeTabId = this.tabs[0].id;
+      }
+    }
   }
 
-  toggleGroup(groupName: string): void {
-    this.openGroups[groupName] = !this.openGroups[groupName];
+  setActiveTab(tabId: string): void {
+    this.activeTabId = tabId;
   }
 
+  getActiveTabName(): string {
+    const tab = this.tabs.find(t => t.id === this.activeTabId);
+    return tab ? tab.name : '';
+  }
 
- 
-
+  getActiveTabItems(): any[] {
+    const tab = this.tabs.find(t => t.id === this.activeTabId);
+    return tab ? tab.items : [];
+  }
 }

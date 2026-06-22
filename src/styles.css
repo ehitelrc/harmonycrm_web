@@ -2,109 +2,121 @@
 @tailwind components;
 @tailwind utilities;
 
-/* End of FontAwesome removal */
-/* Global styles */
-* {
-  box-sizing: border-box;
-}
+/* Custom Base Layer Styles */
+@layer base {
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+    font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
 
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow: hidden;
-  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-}
-
-body {
-  background-color: #f8fafc;
-  color: #1e293b;
-  line-height: 1.6;
-}
-
-/* Dark mode support */
-@media (prefers-color-scheme: dark) {
   body {
-    background-color: #0f172a;
-    color: #e2e8f0;
+    background-color: #f8fafc;
+    color: #0f172a;
+  }
+
+  /* Smooth Focus & Transition effects on all standard form inputs */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="number"],
+  input[type="search"],
+  input[type="tel"],
+  input[type="url"],
+  select,
+  textarea {
+    @apply transition-all duration-200 ease-in-out border-gray-200 focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 rounded-xl !important;
+  }
+
+  /* Micro-interactions for buttons */
+  button, a {
+    @apply transition-all duration-150 ease-in-out;
+  }
+  
+  button:active, a:active {
+    @apply transform scale-[0.98];
+  }
+
+  /* Table styling enhancements */
+  table {
+    @apply border-collapse;
+  }
+
+  th {
+    @apply tracking-wider text-gray-400 font-semibold text-[11px] uppercase border-b border-gray-100 !important;
+  }
+
+  td {
+    @apply border-b border-gray-50 text-gray-600 !important;
+  }
+
+  tr:hover td {
+    @apply bg-gray-50/50 text-gray-900 !important;
   }
 }
 
-/* Custom CSS variables for theming */
+/* Global Custom Variables for theming */
 :root {
-  --radius: 0.5rem;
+  --radius: 0.75rem;
   --background: #ffffff;
   --foreground: #0f172a;
   --card: #ffffff;
   --card-foreground: #0f172a;
-  --popover: #ffffff;
-  --popover-foreground: #0f172a;
-  --primary: #00113f;
-  --primary-foreground: #f8fafc;
-  --secondary: #f1f5f9;
-  --secondary-foreground: #0f172a;
-  --muted: #f1f5f9;
-  --muted-foreground: #64748b;
-  --accent: #f1f5f9;
-  --accent-foreground: #0f172a;
-  --destructive: #ef4444;
-  --destructive-foreground: #f8fafc;
-  --border: #e2e8f0;
-  --input: #e2e8f0;
-  --ring: #3b82f6;
-}
-
-.dark {
-  --background: #0f172a;
-  --foreground: #f8fafc;
-  --card: #1e293b;
-  --card-foreground: #f8fafc;
-  --popover: #1e293b;
-  --popover-foreground: #f8fafc;
   --primary: #3e66ea;
-  --primary-foreground: #f8fafc;
-  --secondary: #1e293b;
-  --secondary-foreground: #f8fafc;
-  --muted: #1e293b;
-  --muted-foreground: #94a3b8;
-  --accent: #1e293b;
-  --accent-foreground: #f8fafc;
+  --primary-foreground: #ffffff;
+  --secondary: #f8fafc;
+  --secondary-foreground: #0f172a;
+  --muted: #f8fafc;
+  --muted-foreground: #64748b;
   --destructive: #ef4444;
-  --destructive-foreground: #f8fafc;
-  --border: #334155;
-  --input: #334155;
+  --border: #f1f5f9;
   --ring: #3b82f6;
 }
 
-/* Custom scrollbar */
+/* Custom Scrollbar globally */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--muted);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: var(--muted-foreground);
-  border-radius: 4px;
+  background: rgba(148, 163, 184, 0.3);
+  border-radius: 99px;
+  transition: all 0.2s ease;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--foreground);
+  background: rgba(148, 163, 184, 0.5);
 }
 
+/* Smooth FadeIn Animations */
 @keyframes fadeIn {
   from {
     opacity: 0;
-    transform: scale(0.95);
+    transform: translateY(8px);
   }
   to {
     opacity: 1;
-    transform: scale(1);
+    transform: translateY(0);
   }
 }
 
 .animate-fadeIn {
-  animation: fadeIn 0.8s ease-out forwards;
+  animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Extra card shadows */
+.shadow-premium {
+  box-shadow: 0 4px 20px -2px rgba(153, 192, 243, 0.15), 0 2px 8px -1px rgba(153, 192, 243, 0.08);
+}
+.shadow-hover:hover {
+  box-shadow: 0 12px 30px -4px rgba(153, 192, 243, 0.25), 0 4px 12px -2px rgba(153, 192, 243, 0.15);
 }

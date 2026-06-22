@@ -1,62 +1,89 @@
-<div class="sticky top-0 z-40 flex h-16 bg-white shadow-sm border-b border-gray-200">
-  <div class="flex-1 px-4 flex justify-between items-center">
+<!-- Modern Premium Topbar -->
+<div class="sticky top-0 z-40 flex h-16 bg-white/80 backdrop-blur-md border-b border-gray-100/80 shadow-sm transition-all duration-200">
+  <div class="flex-1 px-6 flex justify-between items-center">
+    
     <!-- Search Section -->
-    <div class="flex-1 flex max-w-lg" (keydown)="$event.stopPropagation()">
+    <div class="flex-1 flex max-w-md" (keydown)="$event.stopPropagation()">
       <div class="relative w-full text-gray-400 focus-within:text-gray-600">
-        <div class="absolute inset-y-0 left-0 flex items-center pointer-events-none">
-          <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
-          </svg>
+        
+        <!-- Search Input Wrapper -->
+        <div class="relative flex items-center bg-gray-50 hover:bg-gray-100/70 focus-within:bg-white border border-gray-100 focus-within:border-blue-500 focus-within:ring-4 focus-within:ring-blue-500/5 transition-all duration-250 rounded-xl w-full px-3 py-1.5">
+          <div class="flex items-center pointer-events-none mr-2">
+            <svg class="h-4.5 w-4.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+            </svg>
+          </div>
+          <input 
+            [(ngModel)]="searchQuery"
+            class="block w-full bg-transparent border-none p-0 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-0"
+            [placeholder]="t('search.placeholder')" 
+            type="search" 
+            (focus)="openSuggestions()" 
+            (input)="onSearchChange()"
+            (keydown.enter)="goToFirstMatch()" 
+            (keydown.arrowdown)="moveActive(1)" 
+            (keydown.arrowup)="moveActive(-1)"
+            (keydown.escape)="closeSuggestions()" 
+          />
         </div>
-        <input [(ngModel)]="searchQuery"
-          class="block w-full pl-8 pr-3 py-2 border-transparent text-gray-900 placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-0 focus:border-transparent rounded-md"
-          [placeholder]="t('search.placeholder')" type="search" (focus)="openSuggestions()" (input)="onSearchChange()"
-          (keydown.enter)="goToFirstMatch()" (keydown.arrowdown)="moveActive(1)" (keydown.arrowup)="moveActive(-1)"
-          (keydown.escape)="closeSuggestions()" />
-        <!-- Suggestions -->
+
+        <!-- Suggestions dropdown -->
         <div *ngIf="showSuggestions"
-          class="absolute mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg z-50">
+          class="absolute mt-2 w-full bg-white border border-gray-100 rounded-2xl shadow-xl shadow-gray-200/50 z-50 overflow-hidden py-1.5 animate-fadeIn">
           <ng-container *ngIf="filteredItems.length; else noResults">
-            <ul class="max-h-64 overflow-auto py-1">
+            <ul class="max-h-64 overflow-auto px-1.5 space-y-0.5">
               <li *ngFor="let item of filteredItems; let i = index" (click)="navigate(item)"
-                [class]="i === activeIndex ? 'bg-gray-100' : ''"
-                class="px-3 py-2 cursor-pointer hover:bg-gray-100 flex items-center">
-                <span class="text-sm text-gray-700">{{ t(item.name) }}</span>
-                <span class="ml-auto text-xs text-gray-400">{{ item.href }}</span>
+                [class]="i === activeIndex ? 'bg-blue-50 text-[#2563eb] font-medium' : 'text-gray-700 hover:bg-gray-50'"
+                class="px-4 py-2 cursor-pointer rounded-xl flex items-center transition-colors duration-150">
+                <span class="text-sm">{{ t(item.name) }}</span>
+                <span class="ml-auto text-xs opacity-60 font-mono">{{ item.href }}</span>
               </li>
             </ul>
           </ng-container>
           <ng-template #noResults>
-            <div class="px-3 py-2 text-sm text-gray-500">{{ t('search.no_results') }}</div>
+            <div class="px-4 py-2 text-sm text-gray-400 text-center">{{ t('search.no_results') }}</div>
           </ng-template>
         </div>
+
       </div>
     </div>
 
     <!-- User Section -->
     <div class="ml-4 flex items-center space-x-4">
-      <div class="flex items-center space-x-3">
-        <!-- User Avatar -->
-        <span class="text-sm text-gray-700 whitespace-nowrap" [title]="fullName">
-          {{ fullName }}
-        </span>
-        <div class="h-8 w-8 rounded-full bg-[#00113f] flex items-center justify-center">
-          <span class="text-white text-sm font-medium">
+      <div class="flex items-center space-x-3.5">
+        
+        <!-- User Info -->
+        <div class="flex flex-col text-right hidden sm:flex">
+          <span class="text-xs font-semibold text-gray-900 tracking-wide truncate max-w-[150px]" [title]="fullName">
+            {{ fullName }}
+          </span>
+          <span class="text-[10px] text-gray-400 uppercase font-bold tracking-wider">
+            Agent
+          </span>
+        </div>
+
+        <!-- User Avatar Circle -->
+        <div class="h-9 w-9 rounded-xl bg-gradient-to-tr from-[#3e66ea] to-blue-500 flex items-center justify-center shadow-md shadow-blue-500/20">
+          <span class="text-white text-sm font-semibold tracking-wide">
             {{ getInitials(firstName, lastName) }}
           </span>
         </div>
 
+        <!-- Divider line -->
+        <div class="w-px h-6 bg-gray-200/80"></div>
+
         <!-- Logout Button -->
         <button (click)="openLogoutConfirm()"
-          class="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md text-gray-500 bg-white hover:text-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] transition-colors duration-200">
-          <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          class="inline-flex items-center justify-center p-2 rounded-xl border border-transparent text-gray-400 hover:text-red-500 hover:bg-red-50 focus:outline-none active:scale-95 transition-all duration-200">
+          <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
               d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
           </svg>
         </button>
+
       </div>
     </div>
+
   </div>
 </div>
 

@@ -1,142 +1,199 @@
-<div
-  class="fixed inset-y-0 left-0 z-50 w-64 h-screen bg-[#00113f] shadow-2xl transform transition-transform duration-300 ease-in-out flex flex-col translate-x-0"
-  >
-    <!-- Header -->
-    <div id="logo" class="flex items-center justify-center h-16 px-4 bg-[#00113f] border-b border-[#3e66ea]/20">
-        <div  class="flex items-center">
-            <img  src="assets/harmony_logo.svg" alt="Harmony Logo" width="52" class="mb-2 drop-shadow-lg" 
-                style="background: transparent; object-fit: contain; border-radius: 0.5rem" />
-            <!-- <span class="ml-2 text-white font-semibold text-lg">Harmony</span> -->
-        </div>
+<!-- Two-Column Sidebar Layout inspired by ejemplo.jpg -->
+<div class="fixed inset-y-0 left-0 z-50 w-[296px] h-screen flex transform transition-transform duration-300 ease-in-out translate-x-0 shadow-lg border-r border-gray-100">
+  
+  <!-- COLUMN 1: Slim Tab Bar (72px) -->
+  <div class="w-[72px] h-full bg-[#0a1128] flex flex-col items-center justify-between py-6 border-r border-[#ffffff]/5">
+    
+    <!-- Logo area -->
+    <div class="flex items-center justify-center mb-8">
+      <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-blue-500/20 hover:scale-105 transition-transform duration-200 cursor-pointer">
+        <!-- Reusable SVG or image -->
+        <img src="assets/harmony_logo.svg" alt="Harmony" class="w-8 h-8 object-contain filter invert brightness-200" />
+      </div>
     </div>
 
-    <!-- Navigation -->
-    <!-- Navigation -->
-    <nav class="flex-1 mt-4 overflow-y-auto  nav-scroll">
-        <div class="px-4 space-y-1 pb-24 pr-2">
+    <!-- Middle Tabs Section -->
+    <div class="flex-grow w-full px-2 space-y-3.5 overflow-y-auto nav-scroll flex flex-col items-center">
+      <button 
+        *ngFor="let tab of tabs" 
+        (click)="setActiveTab(tab.id)"
+        [title]="t(tab.name)"
+        class="group relative w-12 h-12 rounded-2xl flex items-center justify-center transition-all duration-300 outline-none"
+        [ngClass]="activeTabId === tab.id ? 'bg-[#3e66ea] text-white shadow-lg shadow-blue-500/30' : 'text-gray-400 hover:text-white hover:bg-[#ffffff]/5'"
+      >
+        <!-- Dynamic Icons for Tab Categories -->
+        <ng-container [ngSwitch]="tab.icon">
+          <svg *ngSwitchCase="'LayoutDashboard'" class="h-5.5 w-5.5 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <rect x="3" y="3" width="7" height="9" rx="1" ry="1"></rect>
+            <rect x="14" y="3" width="7" height="5" rx="1" ry="1"></rect>
+            <rect x="14" y="12" width="7" height="9" rx="1" ry="1"></rect>
+            <rect x="3" y="16" width="7" height="5" rx="1" ry="1"></rect>
+          </svg>
+          <svg *ngSwitchCase="'MessageCircle'" class="h-5.5 w-5.5 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7 10h10M7 14h6" />
+          </svg>
+          <svg *ngSwitchCase="'Package'" class="h-5.5 w-5.5 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-18L4 7m8 4v10M4 7v10l8 4" />
+          </svg>
+          <svg *ngSwitchCase="'TrendingUp'" class="h-5.5 w-5.5 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-9 9-4-4-6 6" />
+          </svg>
+          <svg *ngSwitchCase="'Sliders'" class="h-5.5 w-5.5 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+          </svg>
+          <svg *ngSwitchCase="'Settings'" class="h-5.5 w-5.5 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <svg *ngSwitchCase="'Shield'" class="h-5.5 w-5.5 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+          <svg *ngSwitchCase="'BarChart'" class="h-5.5 w-5.5 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z" />
+          </svg>
+          <!-- Default Folder Icon -->
+          <svg *ngSwitchDefault class="h-5.5 w-5.5 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M3 7h4l2 2h12v8a2 2 0 01-2 2H3V7z" />
+          </svg>
+        </ng-container>
 
-            <ng-container *ngFor="let node of navigation">
+        <!-- Tooltip on hover -->
+        <span class="absolute left-16 scale-0 group-hover:scale-100 transition-all duration-150 origin-left bg-gray-900 text-white text-xs font-semibold px-2 py-1 rounded-md whitespace-nowrap shadow-md z-[60]">
+          {{ t(tab.name) }}
+        </span>
+      </button>
+    </div>
 
-                <!-- ITEM SUELTO -->
-                <ng-container *ngIf="node.type === 'item'; else groupTpl">
-                    <a [routerLink]="node.href" [class]="getItemClasses(node.href)"
-                        class="flex items-center px-4 py-2 text-sm font-medium rounded-xl group transition-all duration-200 cursor-pointer">
-                        <!-- Iconos por nombre (reutiliza tus SVGs existentes) -->
-                        <svg *ngIf="node.icon === 'LayoutDashboard'" class="mr-3 h-5 w-5" fill="none"
-                            stroke="currentColor" viewBox="0 0 24 24">
-                            <rect x="3" y="3" width="7" height="9" rx="1" ry="1" stroke-width="2"></rect>
-                            <rect x="14" y="3" width="7" height="5" rx="1" ry="1" stroke-width="2"></rect>
-                            <rect x="14" y="12" width="7" height="9" rx="1" ry="1" stroke-width="2"></rect>
-                            <rect x="3" y="16" width="7" height="5" rx="1" ry="1" stroke-width="2"></rect>
-                        </svg>
-                        <!-- ... deja aquí el resto de tus SVGs condicionales ... -->
-                        <svg *ngIf="node.icon === 'MessageCircle'" class="mr-3 h-5 w-5" fill="none"
-                            stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 10h10M7 14h6" />
-                        </svg>
+    <!-- Bottom brand tag -->
+    <div class="w-full px-2 flex flex-col items-center">
+      <div class="w-8 h-px bg-white/10 my-4"></div>
+      <div class="text-[10px] text-gray-500 font-bold tracking-wider hover:text-gray-300 transition-colors duration-150 cursor-default">
+        CRM
+      </div>
+    </div>
+  </div>
 
-                        {{ t(node.name) }}
-                    </a>
-                </ng-container>
+  <!-- COLUMN 2: Sub-Navigation Panel (224px) -->
+  <div class="w-[224px] h-full bg-white flex flex-col justify-between">
+    
+    <!-- Outer wrap to layout links and workspace card -->
+    <div class="flex-grow flex flex-col h-full overflow-hidden">
+      <!-- Active Tab Title Header -->
+      <div class="px-6 py-6 border-b border-gray-100/70 flex items-center justify-between">
+        <h2 class="text-xs font-bold text-gray-400 uppercase tracking-widest truncate max-w-[150px]">
+          {{ t(getActiveTabName()) }}
+        </h2>
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm shadow-emerald-500/30 animate-pulse"></span>
+      </div>
 
-                <!-- GRUPO (ACORDEÓN) -->
-                <ng-template #groupTpl>
-                    <div class="select-none">
-                        <!-- Header del grupo -->
-                        <button type="button"
-                            class="w-full flex items-center justify-between px-4 py-2 text-sm font-semibold text-white/90 hover:text-white hover:bg-[#3e66ea]/30 rounded-xl transition"
-                            (click)="toggleGroup(node.name)">
-                            <span class="flex items-center">
-                                <!-- Icono del grupo opcional -->
-                                <svg *ngIf="node.icon === 'Folder'" class="mr-3 h-5 w-5" fill="none"
-                                    stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M3 7h4l2 2h12v8a2 2 0 01-2 2H3V7z"></path>
-                                </svg>
-                                {{ t(node.name) }}
-                            </span>
-
-                            <!-- Chevron -->
-                            <svg class="h-4 w-4 transform transition-transform" [class.rotate-180]="isOpen(node.name)"
-                                fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M19 9l-7 7-7-7"></path>
-                            </svg>
-                        </button>
-
-                        <!-- Contenido del grupo -->
-                        <div class="mt-1 overflow-hidden transition-all"
-                            [style.maxHeight]="isOpen(node.name) ? '1000px' : '0px'"
-                            *ngIf="node.type === 'group' && node.children as children">
-                            <div class="space-y-1 pl-2">
-                                <a *ngFor="let child of children" [routerLink]="child.href"
-                                    [class]="getItemClasses(child.href)"
-                                    class="flex items-center px-4 py-2 text-sm font-medium rounded-xl transition cursor-pointer">
-
-                                    <!-- Iconos por nombre (reutiliza tus SVGs existentes) -->
-                                    <!-- Building -->
-                                    <svg *ngIf="child.icon === 'Building'" class="mr-3 h-5 w-5" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <!-- Base -->
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M3 22h18" />
-                                        <!-- Contorno del edificio -->
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M6 22V4h12v18" />
-                                        <!-- Filas de ventanas -->
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 8h6M9 12h6M9 16h6" />
-                                    </svg>
-
-
-                                    <!-- Departments / Org Chart -->
-                                    <!-- Departments (compact) -->
-                                    <svg *ngIf="child.icon === 'Departments'" class="mr-3 h-5 w-5" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M9 4h6v4H9zM12 8v4M6 16h4v4H6zM10 16h4v4h-4zM14 16h4v4h-4zM7 12h10" />
-                                    </svg>
-
-                                    <!-- Channels -->
-                                    <!-- Channels (network) -->
-                                    <svg *ngIf="child.icon === 'Channels'" class="mr-3 h-5 w-5" fill="none"
-                                        stroke="currentColor" viewBox="0 0 24 24">
-                                        <!-- nodo central -->
-                                        <circle cx="12" cy="12" r="2" stroke-width="2" />
-                                        <!-- nodos -->
-                                        <circle cx="6" cy="6" r="2" stroke-width="2" />
-                                        <circle cx="18" cy="6" r="2" stroke-width="2" />
-                                        <circle cx="6" cy="18" r="2" stroke-width="2" />
-                                        <circle cx="18" cy="18" r="2" stroke-width="2" />
-                                        <!-- conexiones -->
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M8 8l2.5 2.5M16 8l-2.5 2.5M8 16l2.5-2.5M16 16l-2.5-2.5" />
-                                    </svg>
-
-                                    {{ t(child.name) }}
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </ng-template>
-
+      <!-- Links container -->
+      <div class="flex-grow py-4 px-3 overflow-y-auto space-y-1 nav-scroll">
+        <ng-container *ngIf="getActiveTabItems() as items">
+          <a 
+            *ngFor="let item of items" 
+            [routerLink]="item.href"
+            [routerLinkActive]="'bg-[#eff6ff] text-[#2563eb] font-semibold shadow-sm shadow-blue-500/5'"
+            [routerLinkActiveOptions]="{ exact: item.href === '/' }"
+            class="flex items-center px-4 py-2.5 text-sm font-medium text-gray-500 hover:text-gray-950 hover:bg-gray-50 rounded-xl transition-all duration-200 cursor-pointer"
+          >
+            <!-- Custom icons inside lists -->
+            <ng-container [ngSwitch]="item.icon">
+              <svg *ngSwitchCase="'LayoutDashboard'" class="mr-3 h-4 w-4 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <rect x="3" y="3" width="7" height="9" rx="1" ry="1"></rect>
+                <rect x="14" y="3" width="7" height="5" rx="1" ry="1"></rect>
+                <rect x="14" y="12" width="7" height="9" rx="1" ry="1"></rect>
+                <rect x="3" y="16" width="7" height="5" rx="1" ry="1"></rect>
+              </svg>
+              <svg *ngSwitchCase="'MessageCircle'" class="mr-3 h-4 w-4 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7 10h10M7 14h6" />
+              </svg>
+              <svg *ngSwitchCase="'UserPlus'" class="mr-3 h-4 w-4 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+              </svg>
+              <svg *ngSwitchCase="'Package'" class="mr-3 h-4 w-4 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-18L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+              <svg *ngSwitchCase="'FolderClosed'" class="mr-3 h-4 w-4 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z" />
+              </svg>
+              <svg *ngSwitchCase="'Person'" class="mr-3 h-4 w-4 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <svg *ngSwitchCase="'user'" class="mr-3 h-4 w-4 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <svg *ngSwitchCase="'agent'" class="mr-3 h-4 w-4 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+              </svg>
+              <svg *ngSwitchCase="'QR'" class="mr-3 h-4 w-4 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v1m0 11v1m0-6V9m0-5h.01M12 12h.01M12 15h.01M12 18h.01M12 21h.01M3 3h4v4H3V3zm0 14h4v4H3v-4zm14 0h4v4h-4v-4zM14 3h4v4h-4V3zm-9 9h4v4H5v-4zm9 0h4v4h-4v-4z" />
+              </svg>
+              <svg *ngSwitchCase="'Building'" class="mr-3 h-4 w-4 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+              </svg>
+              <svg *ngSwitchCase="'Sliders'" class="mr-3 h-4 w-4 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+              </svg>
+              <svg *ngSwitchCase="'Settings'" class="mr-3 h-4 w-4 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              </svg>
+              <svg *ngSwitchCase="'Channels'" class="mr-3 h-4 w-4 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="2" stroke-width="2" />
+                <circle cx="6" cy="6" r="2" stroke-width="2" />
+                <circle cx="18" cy="6" r="2" stroke-width="2" />
+                <circle cx="6" cy="18" r="2" stroke-width="2" />
+                <circle cx="18" cy="18" r="2" stroke-width="2" />
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 8l2.5 2.5M16 8l-2.5 2.5M8 16l2.5-2.5M16 16l-2.5-2.5" />
+              </svg>
+              <svg *ngSwitchCase="'CheckCircle'" class="mr-3 h-4 w-4 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <svg *ngSwitchCase="'roles'" class="mr-3 h-4 w-4 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z" />
+              </svg>
+              <svg *ngSwitchCase="'rol-permissions'" class="mr-3 h-4 w-4 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              <svg *ngSwitchCase="'list'" class="mr-3 h-4 w-4 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+              </svg>
+              <svg *ngSwitchCase="'error'" class="mr-3 h-4 w-4 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <svg *ngSwitchCase="'PackageOpen'" class="mr-3 h-4 w-4 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4a2 2 0 012 2v2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h12a2 2 0 002-2V9a2 2 0 00-2-2h-2" />
+              </svg>
+              <!-- Default Dot SVG -->
+              <svg *ngSwitchDefault class="mr-3 h-4 w-4 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="3"></circle>
+              </svg>
             </ng-container>
+            {{ t(item.name) }}
+          </a>
+        </ng-container>
+      </div>
 
+      <!-- Workspace Card (Inspirado en ejemplo.jpg upgrade button box) -->
+      <div class="p-4 border-t border-gray-100/70 bg-gray-50/50">
+        <div class="bg-gradient-to-tr from-blue-50/50 to-indigo-50/60 rounded-2xl p-4 border border-blue-100/30 flex flex-col items-center text-center">
+          <div class="w-8 h-8 rounded-full bg-blue-100/80 flex items-center justify-center text-[#3e66ea] mb-2 shadow-sm">
+            <svg class="h-4.5 w-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+          <span class="text-xs font-bold text-gray-800 tracking-wide">Harmony CRM</span>
+          <span class="text-[10px] text-gray-400 mt-0.5">Espacio de trabajo omnicanal</span>
+          
+          <div class="mt-3 px-3 py-1 bg-[#3e66ea] hover:bg-blue-600 active:scale-95 transition-all text-white text-[9px] font-bold rounded-xl uppercase tracking-wider shadow-md shadow-blue-500/10 cursor-default">
+            {{ appVersion }}
+          </div>
         </div>
-    </nav>
+      </div>
 
-    <!-- Divider line -->
-    <div class="w-full h-px bg-gradient-to-r from-transparent via-[#3e66ea]/30 to-transparent mt-3"></div>
-
-    <!-- Footer with Logo and Version -->
-    <div class="mt-auto">
-        <div class="w-full h-px bg-gradient-to-r from-transparent via-[#3e66ea]/30 to-transparent"></div>
-        <div class="flex flex-col items-center py-4">
-            <span class="text-white text-xs font-medium tracking-wide">
-                {{ appVersion }}
-            </span>
-        </div>
     </div>
+  </div>
+
 </div>
