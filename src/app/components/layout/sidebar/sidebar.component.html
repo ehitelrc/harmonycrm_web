@@ -2,7 +2,7 @@
 <div class="sidebar-wrapper fixed inset-y-0 left-0 z-50 w-[296px] h-screen flex transform transition-transform duration-300 ease-in-out translate-x-0 shadow-lg border-r border-gray-100 bg-[#0a1128]">
   
   <!-- COLUMN 1: Slim Tab Bar (72px) -->
-  <div class="w-[72px] h-full flex flex-col items-center justify-between py-6">
+  <div class="relative z-20 w-[72px] h-full flex flex-col items-center justify-between py-6">
     
     <!-- Logo area (original colors on a clean white container to prevent distortion) -->
     <div class="flex items-center justify-center mb-8">
@@ -12,7 +12,7 @@
     </div>
 
     <!-- Middle Tabs Section - aligns elements to the center to enable the active-funnel effect -->
-    <div class="flex-grow w-full overflow-y-auto nav-scroll flex flex-col items-center relative">
+    <div class="flex-grow w-full flex flex-col items-center relative overflow-visible">
       <button 
         *ngFor="let tab of tabs" 
         (click)="setActiveTab(tab.id)"
