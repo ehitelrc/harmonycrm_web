@@ -24,6 +24,10 @@
 }
 
 /* Gaussian bell curves (concave rounded corners) for active tab using radial-gradients */
+.active-tab-funnel {
+  overflow: visible !important;
+}
+
 .active-tab-funnel::before {
   content: '';
   position: absolute;
