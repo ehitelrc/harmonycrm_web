@@ -12,19 +12,12 @@
     </div>
 
     <!-- Middle Tabs Section - aligns elements to the center to enable the active-funnel effect -->
-    <div class="flex-grow w-full space-y-3.5 overflow-y-auto nav-scroll flex flex-col items-center relative">
-      <!-- Sliding active tab background with Gaussian curves -->
-      <div 
-        *ngIf="tabs.length > 0 && activeTabId"
-        class="absolute left-0 w-[73px] h-11 bg-white rounded-l-full z-10 active-tab-funnel transition-all duration-300 ease-in-out"
-        [style.transform]="'translateY(' + getActiveTabTop() + 'px)'"
-      ></div>
-
+    <div class="flex-grow w-full overflow-y-auto nav-scroll flex flex-col items-center relative">
       <button 
         *ngFor="let tab of tabs" 
         (click)="setActiveTab(tab.id)"
         [title]="t(tab.name)"
-        class="group relative w-full h-11 flex items-center justify-center transition-all duration-200 outline-none z-20"
+        class="group relative w-full h-11 mb-3.5 flex items-center justify-center transition-all duration-200 outline-none z-20"
         [ngClass]="activeTabId === tab.id ? 'text-[#3e66ea]' : 'text-gray-400 hover:text-white'"
       >
         <!-- Icon wrapper (shows hover bg for inactive tabs) -->
@@ -74,6 +67,13 @@
           {{ t(tab.name) }}
         </span>
       </button>
+
+      <!-- Sliding active tab background with Gaussian curves -->
+      <div 
+        *ngIf="tabs.length > 0 && activeTabId"
+        class="absolute left-0 w-[73px] h-11 bg-white rounded-l-full z-10 active-tab-funnel transition-all duration-300 ease-in-out"
+        [style.transform]="'translateY(' + getActiveTabTop() + 'px)'"
+      ></div>
     </div>
 
     <!-- Bottom brand tag -->
