@@ -913,6 +913,12 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
     this.showTagMenu = !this.showTagMenu;
   }
 
+  getFilteredTags(): Tag[] {
+    if (!this.selectedCase) return [];
+    const caseDeptId = this.selectedCase.department_id;
+    return this.globalTags.filter(t => !t.department_id || t.department_id === caseDeptId);
+  }
+
   async assignTagToCase(t: Tag) {
     if (!this.selectedCase) return;
 

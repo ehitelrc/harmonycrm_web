@@ -2,6 +2,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Tag } from '../../../../models/tag';
+import { Department } from '../../../../models/department.model';
 import { TagService } from '../../../../services/tag.service';
 import { TagIconComponent } from '../tag-icon/tag-icon.component';
 
@@ -21,6 +22,15 @@ import { TagIconComponent } from '../tag-icon/tag-icon.component';
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Nombre</label>
             <input type="text" formControlName="name" 
               class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 text-gray-900 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">Departamento</label>
+            <select formControlName="department_id" 
+              class="mt-1 block w-full bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm py-2 px-3 text-gray-900 focus:outline-none focus:ring-[#3e66ea] focus:border-[#3e66ea] sm:text-sm dark:text-white">
+              <option [ngValue]="null">Global / Todos</option>
+              <option *ngFor="let d of departments" [ngValue]="d.id">{{ d.name }}</option>
+            </select>
           </div>
 
           <div>
@@ -67,6 +77,7 @@ import { TagIconComponent } from '../tag-icon/tag-icon.component';
 })
 export class TagFormComponent implements OnInit {
   @Input() tag: Tag | null = null;
+  @Input() departments: Department[] = [];
   @Output() success = new EventEmitter<Tag>();
   @Output() cancel = new EventEmitter<void>();
 
@@ -122,7 +133,8 @@ export class TagFormComponent implements OnInit {
     this.form = this.fb.group({
       name: ['', Validators.required],
       color: ['#3b82f6', Validators.required],
-      icon: ['Tag', Validators.required]
+      icon: ['Tag', Validators.required],
+      department_id: [null]
     });
   }
 

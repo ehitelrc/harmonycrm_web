@@ -12,8 +12,9 @@ export class TagService {
 
   constructor(private http: HttpClient) { }
 
-  getTags(): Observable<Tag[]> {
-    return this.http.get<Tag[]>(this.apiUrl);
+  getTags(departmentId?: number): Observable<Tag[]> {
+    const url = departmentId ? `${this.apiUrl}?department_id=${departmentId}` : this.apiUrl;
+    return this.http.get<Tag[]>(url);
   }
 
   createTag(tag: Partial<Tag>): Observable<Tag> {

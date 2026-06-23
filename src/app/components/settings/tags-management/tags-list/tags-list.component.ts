@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Tag } from '../../../../models/tag';
+import { Department } from '../../../../models/department.model';
 import { LanguageService } from '@app/services';
 import { TagIconComponent } from '../tag-icon/tag-icon.component';
 
@@ -22,6 +23,9 @@ import { TagIconComponent } from '../tag-icon/tag-icon.component';
                   <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                     Tag
                   </th>
+                  <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    Departamento
+                  </th>
                   <th scope="col" class="relative px-6 py-3">
                     <span class="sr-only">Acciones</span>
                   </th>
@@ -30,13 +34,13 @@ import { TagIconComponent } from '../tag-icon/tag-icon.component';
               <tbody class="bg-white dark:bg-gray-900 divide-y divide-gray-200 dark:divide-gray-700">
                 
                 <tr *ngIf="isLoading">
-                  <td colspan="3" class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
+                  <td colspan="4" class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
                     Cargando...
                   </td>
                 </tr>
                 
                 <tr *ngIf="!isLoading && tags.length === 0">
-                  <td colspan="3" class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
+                  <td colspan="4" class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
                     No hay tags configurados.
                   </td>
                 </tr>
@@ -48,6 +52,11 @@ import { TagIconComponent } from '../tag-icon/tag-icon.component';
                   <td class="px-6 py-4 whitespace-nowrap">
                     <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium text-white shadow-sm" [ngStyle]="{'background-color': tag.color}">
                       <app-tag-icon [name]="tag.icon" [classes]="'h-4 w-4 mr-2'"></app-tag-icon> {{ tag.name }}
+                    </span>
+                  </td>
+                  <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300">
+                      {{ getDepartmentName(tag.department_id) }}
                     </span>
                   </td>
                   <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -69,10 +78,17 @@ import { TagIconComponent } from '../tag-icon/tag-icon.component';
 })
 export class TagsListComponent {
   @Input() tags: Tag[] = [];
+  @Input() departments: Department[] = [];
   @Input() isLoading = false;
   @Output() edit = new EventEmitter<Tag>();
   @Output() remove = new EventEmitter<Tag>();
 
   constructor(private lang: LanguageService) {}
   get t() { return this.lang.t.bind(this.lang); }
+
+  getDepartmentName(deptId?: number): string {
+    if (!deptId) return 'Global / Todos';
+    const dept = this.departments.find(d => d.id === deptId);
+    return dept ? dept.name : `Dep #${deptId}`;
+  }
 }

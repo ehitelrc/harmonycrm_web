@@ -3,7 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MainLayoutComponent } from '@app/components/layout/main-layout.component';
 import { TagService } from '../../../services/tag.service';
+import { AuthService } from '../../../services/auth.service';
+import { DepartmentService } from '../../../services/department.service';
 import { Tag } from '../../../models/tag';
+import { Department } from '../../../models/department.model';
 import { TagsListComponent } from './tags-list/tags-list.component';
 import { TagFormComponent } from './tags-form/tags-form.component';
 
@@ -15,6 +18,7 @@ import { TagFormComponent } from './tags-form/tags-form.component';
 })
 export class TagsManagementComponent implements OnInit {
   tags: Tag[] = [];
+  departments: Department[] = [];
   isLoading = false;
 
   isFormOpen = false;
@@ -24,10 +28,15 @@ export class TagsManagementComponent implements OnInit {
   deletingId: number | null = null;
   isDeleting = false;
 
-  constructor(private tagService: TagService) {}
+  constructor(
+    private tagService: TagService,
+    private authService: AuthService,
+    private departmentService: DepartmentService
+  ) {}
 
   ngOnInit(): void {
     this.loadTags();
+    this.loadDepartments();
   }
 
   loadTags(): void {
@@ -42,6 +51,18 @@ export class TagsManagementComponent implements OnInit {
         this.isLoading = false;
       }
     });
+  }
+
+  loadDepartments(): void {
+    const authData = this.authService.getStoredAuthData();
+    const companyId = authData?.company_id;
+    if (companyId) {
+      this.departmentService.getByCompany(companyId).then(res => {
+        this.departments = res.data || [];
+      }).catch(err => {
+        console.error('Error loading departments', err);
+      });
+    }
   }
 
   openCreateDialog(): void {
