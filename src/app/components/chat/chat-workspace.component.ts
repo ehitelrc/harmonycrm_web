@@ -160,6 +160,172 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
     this.cdr.markForCheck();
   }
 
+  // ======== Tour "What's New" Onboarding ========
+  isTourOpen = false;
+  tourStep = 0;
+  tourSteps = [
+    {
+      title: '¡Bienvenido al nuevo Workspace!',
+      desc: 'Hemos rediseñado el espacio de mensajería para brindarte una experiencia en un solo lienzo ("Single-Canvas"), sin divisiones y mucho más fluida. ¿Te gustaría hacer un recorrido rápido?',
+      targetId: '',
+      position: 'center'
+    },
+    {
+      title: 'Iniciar Nueva Conversación',
+      desc: 'Con este botón puedes iniciar chats directos con cualquier cliente o prospecto (mensajería Outbound) de forma rápida.',
+      targetId: 'tour-new-chat',
+      position: 'right'
+    },
+    {
+      title: 'Filtros Rápidos',
+      desc: 'Organiza tus conversaciones en segundos. Puedes filtrar tus chats por etiquetas asignadas o ver únicamente aquellos con mensajes sin leer.',
+      targetId: 'tour-filters',
+      position: 'right'
+    },
+    {
+      title: 'Buscador de Historial Global',
+      desc: 'Accede a un buscador avanzado y ultra-rápido de todos los mensajes históricos de tus clientes a lo largo del tiempo.',
+      targetId: 'tour-history',
+      position: 'right'
+    },
+    {
+      title: 'Búsqueda Integrada',
+      desc: 'Escribe aquí para buscar contactos o filtrar casos por número de caso de manera instantánea.',
+      targetId: 'tour-search',
+      position: 'bottom'
+    },
+    {
+      title: 'Listado de Conversaciones',
+      desc: 'Aquí verás tus chats. La tarjeta seleccionada se destaca con una campana de Gauss que se une directamente con el área de conversación, eliminando divisiones visuales.',
+      targetId: 'tour-case-list',
+      position: 'right'
+    },
+    {
+      title: 'Acciones de Conversación',
+      desc: 'Vincula clientes a tus casos, asigna etiquetas con colores llamativos, consulta casos anteriores de un cliente o gestiona las etapas directamente desde aquí.',
+      targetId: 'tour-chat-actions',
+      position: 'left'
+    }
+  ];
+
+  startTour() {
+    this.isTourOpen = true;
+    this.tourStep = 0;
+    this.cdr.markForCheck();
+  }
+
+  nextTourStep() {
+    if (this.tourStep < this.tourSteps.length - 1) {
+      this.tourStep++;
+      // Auto-toggle filters if we are showing the filters step
+      if (this.tourSteps[this.tourStep].targetId === 'tour-filters' && !this.showInlineFilters) {
+        this.showInlineFilters = true;
+      }
+    } else {
+      this.completeTour();
+    }
+    this.cdr.markForCheck();
+  }
+
+  prevTourStep() {
+    if (this.tourStep > 0) {
+      this.tourStep--;
+    }
+    this.cdr.markForCheck();
+  }
+
+  completeTour() {
+    this.isTourOpen = false;
+    localStorage.setItem('first_time_tour_completed', 'true');
+    this.cdr.markForCheck();
+  }
+
+  skipTour() {
+    this.completeTour();
+  }
+
+  getTooltipStyle() {
+    const step = this.tourSteps[this.tourStep];
+    if (!step.targetId) {
+      return {
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        position: 'fixed'
+      };
+    }
+
+    const el = document.getElementById(step.targetId);
+    if (!el) {
+      return {
+        top: '50%',
+        left: '50%',
+        transform: 'translate(-50%, -50%)',
+        position: 'fixed'
+      };
+    }
+
+    const rect = el.getBoundingClientRect();
+    const padding = 16;
+
+    switch (step.position) {
+      case 'right':
+        return {
+          top: `${rect.top + rect.height / 2}px`,
+          left: `${rect.right + padding}px`,
+          transform: 'translateY(-50%)',
+          position: 'fixed'
+        };
+      case 'left':
+        return {
+          top: `${rect.top + rect.height / 2}px`,
+          left: `${rect.left - padding}px`,
+          transform: 'translate(-100%, -50%)',
+          position: 'fixed'
+        };
+      case 'bottom':
+        return {
+          top: `${rect.bottom + padding}px`,
+          left: `${rect.left + rect.width / 2}px`,
+          transform: 'translateX(-50%)',
+          position: 'fixed'
+        };
+      case 'top':
+        return {
+          top: `${rect.top - padding}px`,
+          left: `${rect.left + rect.width / 2}px`,
+          transform: 'translate(-50%, -100%)',
+          position: 'fixed'
+        };
+      default:
+        return {
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          position: 'fixed'
+        };
+    }
+  }
+
+  getHighlightStyle(): any {
+    const step = this.tourSteps[this.tourStep];
+    if (!step.targetId) return { display: 'none' };
+
+    const el = document.getElementById(step.targetId);
+    if (!el) return { display: 'none' };
+
+    const rect = el.getBoundingClientRect();
+    const margin = 6;
+    return {
+      top: `${rect.top - margin}px`,
+      left: `${rect.left - margin}px`,
+      width: `${rect.width + margin * 2}px`,
+      height: `${rect.height + margin * 2}px`,
+      position: 'fixed',
+      pointerEvents: 'none'
+    };
+  }
+
   // --- Datos ---
   cases: CaseWithChannel[] = [];
   filteredCases: CaseWithChannel[] = [];
@@ -395,6 +561,14 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
     this.windowCheckInterval = setInterval(() => this.check24HourWindow(), 60000);
 
     this.onInit();
+
+    // Onboarding tour check
+    const tourCompleted = localStorage.getItem('first_time_tour_completed');
+    if (!tourCompleted) {
+      setTimeout(() => {
+        this.startTour();
+      }, 1000);
+    }
 
     // Si viene desde un modal externo
     // if (this.preSelectedCase) {

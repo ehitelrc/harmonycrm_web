@@ -12,7 +12,7 @@
             </div>
 
             <!-- New Conversation Icon (First, with stronger blue) -->
-            <button (click)="openNewConversationModal()"
+            <button id="tour-new-chat" (click)="openNewConversationModal()"
                 class="w-10 h-10 rounded-xl bg-blue-700 hover:bg-blue-800 text-white flex items-center justify-center transition-all duration-200 shadow-md shadow-blue-600/30"
                 title="Nueva Conversación">
                 <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -21,7 +21,7 @@
             </button>
 
             <!-- Filter Icon -->
-            <button (click)="toggleInlineFilters()" 
+            <button id="tour-filters" (click)="toggleInlineFilters()" 
                 class="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200"
                 [class.bg-blue-600]="showInlineFilters"
                 [class.text-white]="showInlineFilters"
@@ -34,7 +34,7 @@
             </button>
 
             <!-- Global History Icon (Buscador Historial) -->
-            <button (click)="openGlobalHistoryModal()" 
+            <button id="tour-history" (click)="openGlobalHistoryModal()" 
                 class="w-10 h-10 rounded-xl flex items-center justify-center text-gray-400 hover:bg-gray-800 hover:text-white transition-all duration-200"
                 title="Buscador Historial Global">
                 <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -68,7 +68,7 @@
         </div>
         
         <!-- Search bar underneath header -->
-        <div class="p-4 shrink-0 relative z-20 w-[calc(100%-22px)]">
+        <div id="tour-search" class="p-4 shrink-0 relative z-20 w-[calc(100%-22px)]">
             <!-- Styled Search Input matching chat1.png design -->
             <div class="relative">
                 <input [(ngModel)]="searchContact" (ngModelChange)="applyContactFilter()" type="text"
@@ -128,7 +128,7 @@
             </div>
         </div>
 
-        <div class="flex-1 overflow-y-auto conversation-list-scroll">
+        <div id="tour-case-list" class="flex-1 overflow-y-auto conversation-list-scroll">
             <ng-container *ngIf="!isLoadingCases; else leftLoading">
 
                 <button *ngFor="let c of filteredCases" [class.highlight]="c._highlight" (click)="selectCase(c)"
@@ -291,7 +291,7 @@
             </div>
 
             <!-- Botones -->
-            <div *ngIf="selectedCase" class="flex items-center gap-2">
+            <div *ngIf="selectedCase" id="tour-chat-actions" class="flex items-center gap-2">
                 <div class="relative">
                     <button (click)="toggleTagMenu()" class="chip-btn flex items-center gap-1.5">
                         <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -1944,3 +1944,54 @@
         </div>
     </div>
 </div>
+
+<!-- ================= ONBOARDING TOUR OVERLAYS ================= -->
+<ng-container *ngIf="isTourOpen">
+    <!-- Welcome overlay backdrop -->
+    <div *ngIf="tourStep === 0" class="fixed inset-0 z-[9988] bg-black/60 backdrop-blur-sm"></div>
+
+    <!-- Spotlight Cutout overlay -->
+    <div *ngIf="getHighlightStyle().display !== 'none'" 
+         [ngStyle]="getHighlightStyle()" 
+         class="tour-highlight-box">
+    </div>
+
+    <!-- Tooltip Card -->
+    <div [ngStyle]="getTooltipStyle()" class="tour-tooltip-card z-[9995]">
+        <!-- Welcome header illustration/icon -->
+        <div *ngIf="tourStep === 0" class="w-full flex justify-center mb-4">
+            <div class="h-16 w-16 rounded-2xl bg-indigo-100 dark:bg-indigo-900/50 flex items-center justify-center text-3xl shadow-sm border border-indigo-200/50 dark:border-indigo-800/30 animate-pulse">
+                ✨
+            </div>
+        </div>
+
+        <!-- Header -->
+        <div class="flex items-center justify-between mb-2">
+            <h4 class="text-sm font-bold text-gray-900 dark:text-white">{{ tourSteps[tourStep].title }}</h4>
+            <span class="text-[10px] font-semibold text-gray-400">Paso {{ tourStep + 1 }} de {{ tourSteps.length }}</span>
+        </div>
+        
+        <!-- Body -->
+        <p class="text-xs text-gray-600 dark:text-gray-300 leading-relaxed mb-4">
+            {{ tourSteps[tourStep].desc }}
+        </p>
+        
+        <!-- Footer / Buttons -->
+        <div class="flex items-center justify-between gap-3">
+            <button (click)="skipTour()" class="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 font-medium">
+                Omitir
+            </button>
+            <div class="flex items-center gap-2">
+                <button *ngIf="tourStep > 0" (click)="prevTourStep()" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-gray-100 hover:bg-gray-200 text-gray-700 dark:bg-gray-800 dark:hover:bg-gray-750 dark:text-gray-200 transition">
+                    Atrás
+                </button>
+                <button (click)="nextTourStep()" class="px-3.5 py-1.5 rounded-lg text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-sm transition">
+                    {{ tourStep === tourSteps.length - 1 ? 'Finalizar' : (tourStep === 0 ? 'Comenzar recorrido' : 'Siguiente') }}
+                </button>
+            </div>
+        </div>
+        
+        <!-- Tooltip Caret / Arrow -->
+        <div *ngIf="tourSteps[tourStep].targetId" class="tour-caret" [class]="'caret-' + tourSteps[tourStep].position"></div>
+    </div>
+</ng-container>
