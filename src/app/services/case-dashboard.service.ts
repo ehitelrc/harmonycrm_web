@@ -52,8 +52,14 @@ export class CaseDashboardService {
       API_Gateway: `${DASHBOARD_URL}/company/${companyId}/cases?${query}`,
     });
   }
- 
- 
- 
+  async getTemplateReport(companyId: number): Promise<ApiResponse<any>> {
+    const reportURL = returnCompleteURI({
+      URI: environment.API.BASE,
+      API_Gateway: `/reports/templates/company/${companyId}`,
+    });
+    return await this.fetchService.get<ApiResponse<any>>({
+      API_Gateway: reportURL,
+    });
+  }
 }
 

@@ -131,6 +131,7 @@ export const esTranslations = {
   'menu.convertions': "Conversiones",
   'menu.cases-report': 'Gestión de Casos',
   'menu.cases-status-report': 'Casos por Estado',
+  'menu.templates-report': 'Uso de Plantillas',
 
   'menu.security': 'Seguridad',
 

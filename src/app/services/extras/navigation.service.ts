@@ -78,6 +78,7 @@ export class NavigationService {
         { type: 'item', name: 'menu.convertions', href: '/report-funnels', icon: 'PackageOpen', permission: 'reports.convertions.access' },
         { type: 'item', name: 'menu.cases-report', href: '/report-cases', icon: 'BarChart', permission: 'reports.cases.access' },
         { type: 'item', name: 'menu.cases-status-report', href: '/report-cases-status', icon: 'PieChart', permission: 'reports.cases_status.access' },
+        { type: 'item', name: 'menu.templates-report', href: '/report-templates', icon: 'FileText', permission: 'reports.templates.access' },
       ],
     }
   ];

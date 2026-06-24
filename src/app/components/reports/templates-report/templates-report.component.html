@@ -1,0 +1,267 @@
+<app-main-layout>
+  <div class="p-6 max-w-7xl mx-auto flex flex-col gap-6 animate-fadeInUp">
+    
+    <!-- Title & Company Selector -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 select-none">
+      <div>
+        <h2 class="text-xl font-extrabold text-gray-900 tracking-tight">{{ t('menu.templates-report') }}</h2>
+        <p class="text-xs text-gray-500 mt-1">Monitorea y analiza la efectividad y el volumen de envío de plantillas de WhatsApp masivas e individuales.</p>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <!-- Company Filter -->
+        <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Empresa</label>
+          <select 
+            [(ngModel)]="selectedCompanyId" 
+            (change)="onCompanyChange()"
+            class="bg-white border border-gray-200 text-gray-700 text-xs rounded-xl px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold min-w-[200px]"
+          >
+            <option *ngFor="let c of companies" [value]="c.company_id">
+              {{ c.company_name }}
+            </option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="flex flex-col items-center justify-center py-20 gap-3 select-none">
+      <div class="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      <span class="text-xs font-semibold text-gray-400">Cargando reporte de plantillas...</span>
+    </div>
+
+    <div *ngIf="!loading" class="flex flex-col gap-6">
+
+      <!-- Navigation Tabs -->
+      <div class="flex border-b border-gray-150 select-none">
+        <button 
+          (click)="setActiveTab('bulk')"
+          [class.border-blue-600]="activeTab === 'bulk'"
+          [class.text-blue-600]="activeTab === 'bulk'"
+          [class.font-bold]="activeTab === 'bulk'"
+          class="border-b-2 border-transparent px-5 py-3 text-xs font-semibold text-gray-500 hover:text-gray-700 transition-all focus:outline-none"
+        >
+          Campañas y Envíos Masivos
+        </button>
+        <button 
+          (click)="setActiveTab('individual')"
+          [class.border-blue-600]="activeTab === 'individual'"
+          [class.text-blue-600]="activeTab === 'individual'"
+          [class.font-bold]="activeTab === 'individual'"
+          class="border-b-2 border-transparent px-5 py-3 text-xs font-semibold text-gray-500 hover:text-gray-700 transition-all focus:outline-none"
+        >
+          Envíos Individuales desde Chat
+        </button>
+      </div>
+
+      <!-- Tab Content: Bulk Sends -->
+      <div *ngIf="activeTab === 'bulk'" class="flex flex-col gap-6">
+        
+        <!-- Summary Cards for Bulk -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 select-none">
+          <div class="bg-white border border-gray-100 p-4 rounded-2xl shadow-premium flex flex-col gap-1">
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total Envíos Masivos</span>
+            <span class="text-2xl font-black text-gray-900">{{ bulkSends.length }}</span>
+          </div>
+          
+          <div class="bg-white border border-gray-100 p-4 rounded-2xl shadow-premium flex flex-col gap-1">
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total Destinatarios</span>
+            <span class="text-2xl font-black text-gray-900">
+              {{ totalBulkRecipients }}
+            </span>
+          </div>
+
+          <div class="bg-white border border-gray-100 p-4 rounded-2xl shadow-premium flex flex-col gap-1">
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Envíos Exitosos</span>
+            <span class="text-2xl font-black text-emerald-600">
+              {{ totalBulkSuccessful }}
+            </span>
+          </div>
+
+          <div class="bg-white border border-gray-100 p-4 rounded-2xl shadow-premium flex flex-col gap-1">
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider font-bold">Porcentaje de Éxito</span>
+            <span class="text-2xl font-black text-blue-600">
+              {{ bulkSuccessRate }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Filter & Table Card -->
+        <div class="bg-white border border-gray-100 rounded-3xl shadow-premium p-5 flex flex-col gap-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-50 pb-3 select-none">
+            <h3 class="text-sm font-bold text-gray-800 tracking-wide uppercase">Campañas Realizadas</h3>
+            
+            <!-- Search bar -->
+            <div class="relative w-full sm:w-[280px]">
+              <input 
+                type="text" 
+                [(ngModel)]="bulkSearch"
+                placeholder="Buscar por descripción, plantilla o agente..."
+                class="w-full bg-gray-50 hover:bg-gray-100/50 border border-gray-200 text-gray-700 text-xs rounded-xl pl-8 pr-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+              <svg class="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-gray-400" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- Bulk Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider select-none">
+                  <th class="py-3 px-4">Lote #</th>
+                  <th class="py-3 px-4">Descripción / Campaña</th>
+                  <th class="py-3 px-4">Plantilla</th>
+                  <th class="py-3 px-4">Remitente (Agente)</th>
+                  <th class="py-3 px-4">Fecha Envío</th>
+                  <th class="py-3 px-4 text-center">Enviados</th>
+                  <th class="py-3 px-4 text-center">Éxito</th>
+                  <th class="py-3 px-4 text-center">Fallo</th>
+                  <th class="py-3 px-4 text-center">Efectividad</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-50 text-xs text-gray-600">
+                <tr *ngFor="let row of getFilteredBulkSends()" class="hover:bg-gray-50/50 transition-colors">
+                  <td class="py-3.5 px-4 font-mono font-bold text-gray-800">#{{ row.push_id }}</td>
+                  <td class="py-3.5 px-4 font-bold text-gray-800">{{ row.description || 'Sin Descripción' }}</td>
+                  <td class="py-3.5 px-4">
+                    <span class="bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded text-[10px] font-mono border border-blue-100">
+                      {{ row.template_name }}
+                    </span>
+                  </td>
+                  <td class="py-3.5 px-4 font-medium text-gray-700">{{ row.agent_name }}</td>
+                  <td class="py-3.5 px-4 text-gray-400 font-mono">{{ row.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
+                  <td class="py-3.5 px-4 text-center font-bold text-gray-900">{{ row.total_recipients }}</td>
+                  <td class="py-3.5 px-4 text-center font-bold text-emerald-600">{{ row.successful_sends }}</td>
+                  <td class="py-3.5 px-4 text-center font-bold text-red-500">{{ row.failed_sends }}</td>
+                  <td class="py-3.5 px-4 text-center">
+                    <span 
+                      [class.bg-emerald-50]="row.total_recipients > 0 && (row.successful_sends / row.total_recipients) >= 0.8"
+                      [class.text-emerald-700]="row.total_recipients > 0 && (row.successful_sends / row.total_recipients) >= 0.8"
+                      [class.bg-amber-50]="row.total_recipients > 0 && (row.successful_sends / row.total_recipients) < 0.8"
+                      [class.text-amber-700]="row.total_recipients > 0 && (row.successful_sends / row.total_recipients) < 0.8"
+                      class="px-2 py-0.5 rounded-full font-bold text-[10px]"
+                    >
+                      {{ row.total_recipients > 0 ? (((row.successful_sends / row.total_recipients) * 100) | number:'1.0-0') + '%' : '0%' }}
+                    </span>
+                  </td>
+                </tr>
+                
+                <!-- Empty State -->
+                <tr *ngIf="getFilteredBulkSends().length === 0">
+                  <td colspan="9" class="py-12 text-center text-xs font-bold text-gray-400 select-none">
+                    No se encontraron registros de envíos masivos.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Tab Content: Individual Sends -->
+      <div *ngIf="activeTab === 'individual'" class="flex flex-col gap-6">
+
+        <!-- Summary Cards for Individual -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 select-none">
+          <div class="bg-white border border-gray-100 p-4 rounded-2xl shadow-premium flex flex-col gap-1">
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total Plantillas Enviadas</span>
+            <span class="text-2xl font-black text-gray-900">{{ individualSends.length }}</span>
+          </div>
+
+          <div class="bg-white border border-gray-100 p-4 rounded-2xl shadow-premium flex flex-col gap-1">
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Últimas 24 Horas</span>
+            <span class="text-2xl font-black text-blue-600">
+              {{ getFilteredLast24HoursCount() }}
+            </span>
+          </div>
+
+          <div class="bg-white border border-gray-100 p-4 rounded-2xl shadow-premium flex flex-col gap-1">
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Agentes Activos Enviando</span>
+            <span class="text-2xl font-black text-purple-600">
+              {{ getUniqueAgentsCount() }}
+            </span>
+          </div>
+        </div>
+
+        <!-- Filter & Table Card -->
+        <div class="bg-white border border-gray-100 rounded-3xl shadow-premium p-5 flex flex-col gap-4">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-50 pb-3 select-none">
+            <h3 class="text-sm font-bold text-gray-800 tracking-wide uppercase">Detalle de Envíos del Chat</h3>
+            
+            <!-- Search bar -->
+            <div class="relative w-full sm:w-[280px]">
+              <input 
+                type="text" 
+                [(ngModel)]="individualSearch"
+                placeholder="Buscar por caso, cliente, plantilla o agente..."
+                class="w-full bg-gray-50 hover:bg-gray-100/50 border border-gray-200 text-gray-700 text-xs rounded-xl pl-8 pr-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+              <svg class="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-gray-400" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- Individual Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider select-none">
+                  <th class="py-3 px-4">Msg ID</th>
+                  <th class="py-3 px-4">Caso #</th>
+                  <th class="py-3 px-4">Plantilla Utilizada</th>
+                  <th class="py-3 px-4">Agente Remitente</th>
+                  <th class="py-3 px-4">Fecha y Hora</th>
+                  <th class="py-3 px-4">Teléfono Cliente</th>
+                  <th class="py-3 px-4 text-center">Estado</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-50 text-xs text-gray-600">
+                <tr *ngFor="let row of getFilteredIndividualSends()" class="hover:bg-gray-50/50 transition-colors">
+                  <td class="py-3.5 px-4 font-mono text-gray-400">#{{ row.message_id }}</td>
+                  <td class="py-3.5 px-4 font-mono font-bold text-gray-800">
+                    <a [routerLink]="['/conversations']" class="text-blue-600 hover:underline">
+                      Caso #{{ row.case_id }}
+                    </a>
+                  </td>
+                  <td class="py-3.5 px-4">
+                    <span class="bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded text-[10px] font-mono border border-blue-100">
+                      {{ row.template_name }}
+                    </span>
+                  </td>
+                  <td class="py-3.5 px-4 font-medium text-gray-700">{{ row.agent_name }}</td>
+                  <td class="py-3.5 px-4 text-gray-400 font-mono">{{ row.created_at | date:'dd/MM/yyyy HH:mm:ss' }}</td>
+                  <td class="py-3.5 px-4 font-mono text-gray-700 font-bold">{{ row.client_phone || 'N/D' }}</td>
+                  <td class="py-3.5 px-4 text-center">
+                    <span 
+                      [class.bg-emerald-50]="row.status === 'sent' || row.status === 'delivered' || row.status === 'read'"
+                      [class.text-emerald-700]="row.status === 'sent' || row.status === 'delivered' || row.status === 'read'"
+                      [class.bg-red-50]="row.status === 'failed' || row.status === 'error'"
+                      [class.text-red-700]="row.status === 'failed' || row.status === 'error'"
+                      class="px-2 py-0.5 rounded-full font-bold text-[10px] uppercase select-none"
+                    >
+                      {{ row.status === 'read' ? 'Leído' : row.status === 'delivered' ? 'Entregado' : row.status === 'sent' ? 'Enviado' : 'Fallo' }}
+                    </span>
+                  </td>
+                </tr>
+
+                <!-- Empty State -->
+                <tr *ngIf="getFilteredIndividualSends().length === 0">
+                  <td colspan="7" class="py-12 text-center text-xs font-bold text-gray-400 select-none">
+                    No se encontraron registros de envíos de plantillas individuales.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+</app-main-layout>
