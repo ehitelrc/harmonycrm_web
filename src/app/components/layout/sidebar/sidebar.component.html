@@ -17,12 +17,12 @@
         *ngFor="let tab of tabs" 
         (click)="setActiveTab(tab.id)"
         [title]="t(tab.name)"
-        class="group relative w-full h-11 mb-3.5 flex items-center justify-center transition-all duration-200 outline-none z-20"
+        class="group relative w-full h-14 mb-3 flex flex-col items-center justify-center transition-all duration-200 outline-none z-20"
         [ngClass]="activeTabId === tab.id ? 'text-[#3e66ea]' : 'text-gray-400 hover:text-white'"
       >
         <!-- Icon wrapper (shows hover bg for inactive tabs) -->
         <div 
-          class="w-11 h-11 rounded-2xl flex items-center justify-center transition-colors duration-150"
+          class="w-11 h-8 rounded-xl flex items-center justify-center transition-colors duration-150"
           [ngClass]="activeTabId === tab.id ? '' : 'group-hover:bg-[#ffffff]/5'"
         >
           <!-- Dynamic Icons for Tab Categories (Reduced size and stroke for elegance) -->
@@ -62,6 +62,11 @@
           </ng-container>
         </div>
 
+        <!-- Short text label below the icon -->
+        <span class="text-[9px] font-bold tracking-wider uppercase mt-1 text-center truncate max-w-full px-1 select-none">
+          {{ getShortLabel(tab.name) }}
+        </span>
+
         <!-- Tooltip on hover -->
         <span class="absolute left-16 scale-0 group-hover:scale-100 transition-all duration-150 origin-left bg-gray-900 text-white text-xs font-semibold px-2 py-1 rounded-md whitespace-nowrap shadow-md z-[60]">
           {{ t(tab.name) }}
@@ -71,7 +76,7 @@
       <!-- Sliding active tab background with Gaussian curves -->
       <div 
         *ngIf="tabs.length > 0 && activeTabId"
-        class="absolute left-0 w-[73px] h-11 bg-white rounded-l-full z-10 active-tab-funnel transition-all duration-300 ease-in-out"
+        class="absolute left-0 w-[73px] h-14 bg-white rounded-l-full z-10 active-tab-funnel transition-all duration-300 ease-in-out"
         [style.transform]="'translateY(' + getActiveTabTop() + 'px)'"
       ></div>
     </div>

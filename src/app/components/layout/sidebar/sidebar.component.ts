@@ -145,7 +145,21 @@ export class SidebarComponent implements OnInit {
   getActiveTabTop(): number {
     const index = this.tabs.findIndex(t => t.id === this.activeTabId);
     if (index === -1) return 0;
-    return index * (44 + 14);
+    return index * (56 + 12);
+  }
+
+  getShortLabel(nameKey: string): string {
+    const shortLabels: { [key: string]: string } = {
+      'menu.dashboard': 'Inicio',
+      'menu.conversations': 'Chats',
+      'menu.cases': 'Casos',
+      'menu.sales': 'Ventas',
+      'menu.maintenance': 'Mant.',
+      'menu.settings': 'Ajustes',
+      'menu.security': 'Seguridad',
+      'menu.reports': 'Informes'
+    };
+    return shortLabels[nameKey] || this.t(nameKey);
   }
 
   toggleCollapse(): void {
