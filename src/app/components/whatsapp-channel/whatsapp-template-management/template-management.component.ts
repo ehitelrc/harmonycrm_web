@@ -36,6 +36,17 @@ export class TemplateManagementComponent implements OnInit {
   messageTemplates: MessageTemplate[] = [];
   loadingMessageTemplates = false;
   selectedMessageTemplate: MessageTemplate | null = null;
+  searchQuery = '';
+  isMetaPanelCollapsed = true;
+
+  get filteredTemplates(): MessageTemplate[] {
+    if (!this.searchQuery.trim()) return this.messageTemplates;
+    const q = this.searchQuery.toLowerCase().trim();
+    return this.messageTemplates.filter(t =>
+      t.template_name.toLowerCase().includes(q) ||
+      (t.description && t.description.toLowerCase().includes(q))
+    );
+  }
 
   selectedChannelId: number | null = null;
 
@@ -96,8 +107,11 @@ export class TemplateManagementComponent implements OnInit {
   }
 
   selectMessageTemplate(t: MessageTemplate): void {
-    // Clicking selected template again deselects it
-    this.selectedMessageTemplate = this.selectedMessageTemplate?.id === t.id ? null : t;
+    const isNew = this.selectedMessageTemplate?.id !== t.id;
+    this.selectedMessageTemplate = isNew ? t : null;
+    if (isNew) {
+      this.isMetaPanelCollapsed = true;
+    }
   }
 
   isSelected(t: MessageTemplate): boolean {
@@ -178,6 +192,46 @@ export class TemplateManagementComponent implements OnInit {
       this.alert.error(err?.error?.message || err?.message || 'Error al eliminar la plantilla');
     } finally {
       this.isDeleting = false;
+    }
+  }
+
+  // ── Meta integration Actions ────────────────────────────────────────────────
+
+  async registerMeta(t: MessageTemplate, event: Event): Promise<void> {
+    event.stopPropagation();
+    try {
+      this.alert.info('Registrando plantilla en Meta...');
+      const r = await this.templateService.registerMetaTemplate(t.id);
+      if (r?.success) {
+        this.alert.success('Plantilla registrada en Meta exitosamente');
+        await this.loadMessageTemplates();
+        if (this.selectedMessageTemplate?.id === t.id) {
+          this.selectedMessageTemplate = this.messageTemplates.find(mt => mt.id === t.id) || null;
+        }
+      } else {
+        this.alert.error(r?.message || 'Error al registrar en Meta');
+      }
+    } catch (err: any) {
+      this.alert.error(err?.error?.message || err?.message || 'Error al registrar en Meta');
+    }
+  }
+
+  async syncMetaStatus(t: MessageTemplate, event: Event): Promise<void> {
+    event.stopPropagation();
+    try {
+      this.alert.info('Sincronizando estado con Meta...');
+      const r = await this.templateService.syncMetaTemplate(t.id);
+      if (r?.success) {
+        this.alert.success('Estado sincronizado con Meta');
+        await this.loadMessageTemplates();
+        if (this.selectedMessageTemplate?.id === t.id) {
+          this.selectedMessageTemplate = this.messageTemplates.find(mt => mt.id === t.id) || null;
+        }
+      } else {
+        this.alert.error(r?.message || 'Error al sincronizar con Meta');
+      }
+    } catch (err: any) {
+      this.alert.error(err?.error?.message || err?.message || 'Error al sincronizar con Meta');
     }
   }
 }

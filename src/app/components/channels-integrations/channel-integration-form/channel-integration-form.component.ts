@@ -31,6 +31,7 @@ export class ChannelIntegrationFormComponent {
     webhook_url: '',
     access_token: '',
     app_identifier: '',
+    meta_waba_id: '',
     is_active: true
   };
 

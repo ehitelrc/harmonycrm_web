@@ -161,4 +161,18 @@ export class WhatsAppTemplateService {
       API_Gateway: `${MSG_TEMPLATE_URL}/preview/${templateName}/${integrationId}`,
     });
   }
+
+  /** POST /templates/:id/register-meta — register template in Meta */
+  async registerMetaTemplate(id: number): Promise<ApiResponse<MessageTemplate>> {
+    return await this.fetch.post<ApiResponse<MessageTemplate>>({
+      API_Gateway: `${MSG_TEMPLATE_URL}/${id}/register-meta`,
+    });
+  }
+
+  /** POST /templates/:id/sync-meta — sync template status with Meta */
+  async syncMetaTemplate(id: number): Promise<ApiResponse<MessageTemplate>> {
+    return await this.fetch.post<ApiResponse<MessageTemplate>>({
+      API_Gateway: `${MSG_TEMPLATE_URL}/${id}/sync-meta`,
+    });
+  }
 }

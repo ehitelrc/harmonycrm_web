@@ -1,5 +1,5 @@
 <!-- Modal overlay -->
-<div class="fixed inset-0 z-50 overflow-y-auto" (click)="onCancel()">
+<div class="fixed inset-0 z-50 overflow-y-auto">
     <div class="flex items-center justify-center min-h-screen px-4">
         <div class="fixed inset-0 bg-gray-900 bg-opacity-60 transition-opacity"></div>
 
@@ -43,21 +43,92 @@
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                             Idioma <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" formControlName="language_code" placeholder="ej. es, en, pt"
-                            class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                        <select formControlName="language_code"
+                            class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="" disabled>-- Selecciona un idioma --</option>
+                            <option *ngFor="let lang of languages" [value]="lang.code">
+                                {{ lang.name }}
+                            </option>
+                        </select>
                         <p *ngIf="form.get('language_code')?.invalid && form.get('language_code')?.touched"
                             class="mt-1 text-xs text-red-500">Idioma requerido.</p>
                     </div>
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Categoría
+                            Categoría Meta <span class="text-red-500">*</span>
                         </label>
-                        <input type="text" formControlName="category" placeholder="ej. UTILITY, MARKETING"
-                            class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                        <select formControlName="meta_category"
+                            class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <option value="" disabled>-- Selecciona una categoría Meta --</option>
+                            <option *ngFor="let cat of categories" [value]="cat.code">
+                                {{ cat.name }}
+                            </option>
+                        </select>
                     </div>
                 </div>
 
+                <!-- Categoría Interna (CRM) -->
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                        Categoría Interna (Clasificación) <span class="text-red-500">*</span>
+                    </label>
+                    <select formControlName="category"
+                        class="block w-full px-3 py-2 border border-gray-300 rounded-md text-sm text-gray-900 dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                        <option value="" disabled>-- Selecciona una categoría interna --</option>
+                        <option *ngFor="let cat of internalCategories" [value]="cat.code">
+                            {{ cat.name }}
+                        </option>
+                    </select>
+                </div>
+
+
+                <!-- Meta content fields -->
+                <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-lg space-y-3 border border-gray-100 dark:border-gray-700">
+                    <span class="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider block">
+                        Contenido Meta (WhatsApp)
+                    </span>
+                    
+                    <!-- Header -->
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Encabezado (Texto opcional)
+                        </label>
+                        <input type="text" formControlName="header_content" [placeholder]="'ej. ¡Hola {1}!'"
+                            class="block w-full px-3 py-1.5 border border-gray-300 rounded-md text-xs text-gray-900 dark:bg-gray-800 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    </div>
+
+                    <!-- Body -->
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Cuerpo del mensaje <span class="text-red-500">*</span>
+                        </label>
+                        <textarea formControlName="body_content" rows="3" [placeholder]="'ej. Gracias por tu compra. Tu pedido con número {1} está en camino.'"
+                            class="block w-full px-3 py-1.5 border rounded-md text-xs text-gray-900 dark:bg-gray-800 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 resize-none"
+                            [class.border-red-400]="form.get('body_content')?.invalid && form.get('body_content')?.touched"
+                            [class.border-gray-300]="!(form.get('body_content')?.invalid && form.get('body_content')?.touched)">
+                        </textarea>
+                        <p *ngIf="form.get('body_content')?.invalid && form.get('body_content')?.touched"
+                            class="mt-1 text-[10px] text-red-500">El cuerpo del mensaje es requerido para registrar en Meta.</p>
+                    </div>
+
+                    <!-- Footer -->
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+                            Pie de página (Texto opcional)
+                        </label>
+                        <input type="text" formControlName="footer_content" placeholder="ej. Responde STOP para cancelar suscripción."
+                            class="block w-full px-3 py-1.5 border border-gray-300 rounded-md text-xs text-gray-900 dark:bg-gray-800 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    </div>
+
+                    <!-- Buttons JSON -->
+                    <div>
+                        <label class="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1" [innerText]="'Botones (Formato JSON, ej. [ {\'type\':\'QUICK_REPLY\',\'text\':\'Ver Pedido\'} ])'">
+                        </label>
+                        <input type="text" formControlName="buttons_json" [placeholder]="'ej. [ {\'type\':\'QUICK_REPLY\',\'text\':\'Aceptar\'} ]'"
+                            class="block w-full px-3 py-1.5 border border-gray-300 rounded-md text-xs text-gray-900 dark:bg-gray-800 dark:border-gray-600 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-transparent" />
+                    </div>
+                </div>
 
                 <!-- Descripción -->
                 <div>

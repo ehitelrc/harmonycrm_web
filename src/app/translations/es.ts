@@ -128,7 +128,7 @@ export const esTranslations = {
   'menu.reports': 'Informes',
   'menu.payment-validations': 'Validaciones de Pagos',
   'menu.unreconciled-payments': 'Pagos ERP Sin Vincular',
-  'menu.convertions': "Conversiones",
+  'menu.convertions': "Conversiones y Alcance",
   'menu.cases-report': 'Gestión de Casos',
   'menu.cases-status-report': 'Casos por Estado',
   'menu.templates-report': 'Uso de Plantillas',

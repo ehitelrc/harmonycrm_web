@@ -18,7 +18,7 @@ export class ChannelFormComponent {
   @Output() success = new EventEmitter<Channel>();
   @Output() cancel = new EventEmitter<void>();
 
-  model: Partial<Channel> = { code: '', name: '', description: '' };
+  model: Partial<Channel> = { code: '', name: '', description: '', meta_waba_id: '' };
   isSubmitting = false;
 
   constructor(

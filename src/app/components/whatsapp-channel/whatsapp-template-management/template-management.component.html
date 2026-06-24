@@ -19,25 +19,52 @@
       </button>
     </div>
 
-    <!-- Filtro de Canal -->
-    <div class="bg-white dark:bg-gray-800 p-4 shadow rounded-lg">
-      <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">Canal</label>
-      <select [(ngModel)]="selectedChannelId" (ngModelChange)="onChannelChanged()"
-        class="block w-full max-w-xs px-3 py-2 border rounded-md text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-        <option [ngValue]="null">-- Selecciona un canal --</option>
-        <option *ngFor="let c of channels" [ngValue]="c.id">{{ c.name }}</option>
-      </select>
+    <!-- Selector de Canal -->
+    <div class="bg-white dark:bg-gray-800 p-5 shadow rounded-xl border border-gray-100 dark:border-gray-700 space-y-3">
+      <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wider">Canales de mensajería</label>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+        <div *ngFor="let c of channels"
+          (click)="selectedChannelId = c.id; onChannelChanged()"
+          class="cursor-pointer p-3 rounded-lg border transition-all flex flex-col items-center justify-center gap-1.5 text-center group"
+          [ngClass]="selectedChannelId === c.id
+            ? 'bg-blue-50/50 border-blue-600 dark:bg-blue-900/10 dark:border-blue-500'
+            : 'bg-gray-50/50 border-gray-100 hover:bg-gray-50 hover:border-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:hover:bg-gray-700/50 dark:hover:border-gray-600'">
+          
+          <div class="h-9 w-9 rounded-full flex items-center justify-center text-base"
+            [ngClass]="selectedChannelId === c.id
+              ? 'bg-blue-100 text-blue-600 dark:bg-blue-900/35 dark:text-blue-400'
+              : 'bg-gray-200/50 text-gray-600 dark:bg-gray-700 dark:text-gray-400'">
+            💬
+          </div>
+          
+          <span class="text-xs font-semibold truncate w-full"
+            [ngClass]="selectedChannelId === c.id ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'">
+            {{ c.name }}
+          </span>
+        </div>
+      </div>
     </div>
 
     <!-- Layout 2 columnas -->
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
       <!-- Columna izquierda: Lista de templates -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-        <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between">
+      <!-- Columna izquierda: Lista de templates -->
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden flex flex-col">
+        <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex items-center justify-between flex-shrink-0">
           <h2 class="text-sm font-semibold text-gray-700 dark:text-white">Plantillas</h2>
-          <span class="text-xs text-gray-400">{{ messageTemplates.length }} resultado{{ messageTemplates.length !== 1 ?
-            's' : '' }}</span>
+          <span class="text-xs text-gray-400">{{ filteredTemplates.length }} resultado{{ filteredTemplates.length !== 1 ? 's' : '' }}</span>
+        </div>
+
+        <!-- Buscador -->
+        <div *ngIf="selectedChannelId" class="p-3 border-b border-gray-100 dark:border-gray-700/80 bg-gray-50/50 dark:bg-gray-800/50">
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-450 text-xs">
+              🔍
+            </span>
+            <input type="text" [(ngModel)]="searchQuery" placeholder="Buscar por nombre o descripción..."
+              class="block w-full pl-8 pr-3 py-1.5 border border-gray-300 dark:border-gray-600 rounded-md text-xs text-gray-900 dark:bg-gray-700 dark:text-white focus:ring-1 focus:ring-blue-500 focus:border-transparent placeholder-gray-400 dark:placeholder-gray-500" />
+          </div>
         </div>
 
         <!-- Loading -->
@@ -60,33 +87,64 @@
         </div>
 
         <!-- Sin plantillas -->
-        <div *ngIf="selectedChannelId && !loadingMessageTemplates && messageTemplates.length === 0"
+        <div *ngIf="selectedChannelId && !loadingMessageTemplates && filteredTemplates.length === 0"
           class="flex flex-col items-center justify-center py-12 text-gray-400 dark:text-gray-500">
-          <p class="text-sm">No hay plantillas para este canal.</p>
-          <button (click)="openCreateDialog()" class="mt-3 text-sm text-blue-600 hover:underline dark:text-blue-400">
+          <p class="text-sm">{{ searchQuery ? 'No hay plantillas que coincidan con la búsqueda.' : 'No hay plantillas para este canal.' }}</p>
+          <button *ngIf="!searchQuery" (click)="openCreateDialog()" class="mt-3 text-sm text-blue-600 hover:underline dark:text-blue-400">
             + Crear la primera plantilla
           </button>
         </div>
 
         <!-- Lista -->
-        <ul *ngIf="!loadingMessageTemplates && messageTemplates.length > 0"
+        <ul *ngIf="!loadingMessageTemplates && filteredTemplates.length > 0"
           class="divide-y divide-gray-100 dark:divide-gray-700">
-          <li *ngFor="let tmpl of messageTemplates" (click)="selectMessageTemplate(tmpl)"
-            class="px-4 py-3 flex items-center gap-3 cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-700/50 group"
-            [class.bg-blue-50]="isSelected(tmpl)" [class.dark:bg-blue-900\/20]="isSelected(tmpl)"
-            [class.border-l-4]="isSelected(tmpl)" [class.border-blue-600]="isSelected(tmpl)">
-
-            <!-- Dot activo -->
-            <span class="flex-shrink-0 h-2 w-2 rounded-full" [class.bg-green-500]="tmpl.is_active"
-              [class.bg-gray-300]="!tmpl.is_active">
-            </span>
+          <li *ngFor="let tmpl of filteredTemplates" (click)="selectMessageTemplate(tmpl)"
+            class="px-4 py-3 flex items-center gap-3 cursor-pointer transition-all hover:bg-gray-50 dark:hover:bg-gray-700/50 group border-l-4"
+            [ngClass]="isSelected(tmpl) 
+              ? 'bg-blue-50/40 border-blue-600 dark:bg-blue-900/10 dark:border-blue-500' 
+              : 'border-transparent'">
 
             <!-- Info -->
             <div class="min-w-0 flex-1">
-              <p class="text-sm font-medium text-gray-800 dark:text-white truncate">{{ tmpl.template_name }}</p>
-              <p class="text-xs text-gray-500 dark:text-gray-400 truncate">
-                {{ tmpl.category || 'Sin categoría' }} · {{ tmpl.language_code }}
+              <!-- Description as primary title if exists -->
+              <div *ngIf="tmpl.description" class="flex items-center gap-2 flex-wrap">
+                <p class="text-sm font-semibold text-gray-800 dark:text-white truncate" [title]="tmpl.description">
+                  {{ tmpl.description }}
+                </p>
+                <!-- Active dot -->
+                <span class="h-1.5 w-1.5 rounded-full inline-block" [class.bg-green-500]="tmpl.is_active" [class.bg-gray-300]="!tmpl.is_active" [title]="tmpl.is_active ? 'Activa' : 'Inactiva'"></span>
+              </div>
+
+              <!-- Template Name as primary title if no description exists -->
+              <div *ngIf="!tmpl.description" class="flex items-center gap-2 flex-wrap">
+                <p class="text-sm font-semibold text-gray-800 dark:text-white truncate" [title]="tmpl.template_name">
+                  {{ tmpl.template_name }}
+                </p>
+                <!-- Active dot -->
+                <span class="h-1.5 w-1.5 rounded-full inline-block" [class.bg-green-500]="tmpl.is_active" [class.bg-gray-300]="!tmpl.is_active" [title]="tmpl.is_active ? 'Activa' : 'Inactiva'"></span>
+              </div>
+              
+              <!-- Template Name as secondary metadata if description exists -->
+              <p *ngIf="tmpl.description" class="text-xs text-gray-400 dark:text-gray-500 font-mono truncate mt-0.5" [title]="tmpl.template_name">
+                {{ tmpl.template_name }}
               </p>
+              
+              <div class="flex items-center gap-2 mt-1">
+                <span class="text-[10px] font-semibold text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                  {{ tmpl.language_code }} · {{ tmpl.category || 'SIN CATEGORÍA' }}
+                </span>
+                
+                <!-- Status Badge -->
+                <span class="text-[9px] px-1.5 py-0.5 rounded font-semibold border uppercase leading-none"
+                  [ngClass]="{
+                    'bg-gray-100 text-gray-700 border-gray-200 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-700': !tmpl.approval_status || tmpl.approval_status === 'local',
+                    'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-950/20 dark:text-yellow-400 dark:border-yellow-900/30': tmpl.approval_status === 'pending',
+                    'bg-green-100 text-green-800 border-green-200 dark:bg-green-950/20 dark:text-green-400 dark:border-green-900/30': tmpl.approval_status === 'approved',
+                    'bg-red-100 text-red-800 border-red-200 dark:bg-red-950/20 dark:text-red-400 dark:border-red-900/30': tmpl.approval_status === 'rejected'
+                  }">
+                  {{ tmpl.approval_status === 'local' || !tmpl.approval_status ? 'Local' : tmpl.approval_status }}
+                </span>
+              </div>
             </div>
 
             <!-- Starter badge -->
@@ -137,18 +195,142 @@
         </ul>
       </div>
 
-      <!-- Columna derecha: Panel de Integraciones -->
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
-        <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
-          <h2 class="text-sm font-semibold text-gray-700 dark:text-white">Integraciones vinculadas</h2>
-          <p class="text-xs text-gray-400 mt-0.5">
-            Activa o desactiva la vinculación con cada integración.
-          </p>
+      <!-- Columna derecha: Detalles e Integraciones -->
+      <div class="space-y-6">
+        
+        <!-- Detalle de la plantilla y Registro en Meta -->
+        <div *ngIf="selectedMessageTemplate" class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+          
+          <!-- Clickable Header to Expand/Collapse -->
+          <div (click)="isMetaPanelCollapsed = !isMetaPanelCollapsed" 
+            class="px-4 py-3 border-b border-gray-200 dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-800/80 cursor-pointer select-none hover:bg-gray-100 dark:hover:bg-gray-700/60 transition-colors">
+            
+            <div class="flex items-center gap-2">
+              <!-- Chevron Arrow icon -->
+              <svg class="h-4 w-4 text-gray-500 transition-transform duration-200 flex-shrink-0"
+                [ngClass]="{ 'rotate-180': !isMetaPanelCollapsed }"
+                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+              </svg>
+              <div>
+                <h2 class="text-sm font-semibold text-gray-700 dark:text-white">Registro en Meta (WhatsApp)</h2>
+                <p class="text-xs text-gray-400 mt-0.5">
+                  Envía y monitorea tu plantilla oficial.
+                </p>
+              </div>
+            </div>
+            
+            <!-- Badges -->
+            <div>
+              <span class="text-[10px] px-2.5 py-0.5 rounded-full font-medium border"
+                [ngClass]="{
+                  'bg-gray-100 text-gray-800 border-gray-200 dark:bg-gray-800 dark:text-gray-200 dark:border-gray-700': !selectedMessageTemplate.approval_status || selectedMessageTemplate.approval_status === 'local',
+                  'bg-yellow-100 text-yellow-800 border-yellow-200 dark:bg-yellow-900/30 dark:text-yellow-300 dark:border-yellow-700/50': selectedMessageTemplate.approval_status === 'pending',
+                  'bg-green-100 text-green-800 border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700/50': selectedMessageTemplate.approval_status === 'approved',
+                  'bg-red-100 text-red-800 border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700/50': selectedMessageTemplate.approval_status === 'rejected'
+                }">
+                {{ selectedMessageTemplate.approval_status === 'local' || !selectedMessageTemplate.approval_status ? 'Local' : selectedMessageTemplate.approval_status | uppercase }}
+              </span>
+            </div>
+          </div>
+          
+          <!-- Collapsible Content -->
+          <div *ngIf="!isMetaPanelCollapsed" class="p-4 space-y-4">
+            <!-- Acciones de Registro / Sincronización -->
+            <div class="flex items-center gap-3">
+              <!-- Registrar en Meta (if local/null or rejected) -->
+              <button *ngIf="!selectedMessageTemplate.approval_status || selectedMessageTemplate.approval_status === 'local' || selectedMessageTemplate.approval_status === 'rejected'"
+                (click)="registerMeta(selectedMessageTemplate, $event)"
+                class="flex-1 flex items-center justify-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 transition-colors">
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+                {{ selectedMessageTemplate.approval_status === 'rejected' ? 'Re-enviar a Meta' : 'Registrar en Meta' }}
+              </button>
+              
+              <!-- Sincronizar Estado (Always show so they can sync/pull existing templates registered externally) -->
+              <button (click)="syncMetaStatus(selectedMessageTemplate, $event)"
+                class="flex-1 flex items-center justify-center px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors">
+                <svg class="h-4 w-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.21 8H18" />
+                </svg>
+                Sincronizar Estado
+              </button>
+            </div>
+
+            <!-- Rejection reason if any -->
+            <div *ngIf="selectedMessageTemplate.approval_status === 'rejected' && selectedMessageTemplate.rejection_reason" 
+              class="p-3 bg-red-50 dark:bg-red-950/20 text-red-700 dark:text-red-400 rounded-lg text-xs border border-red-100 dark:border-red-900/50">
+              <span class="font-bold">Razón de Rechazo:</span> {{ selectedMessageTemplate.rejection_reason }}
+            </div>
+
+            <!-- Meta ID -->
+            <div *ngIf="selectedMessageTemplate.meta_template_id" class="text-xs text-gray-500 dark:text-gray-400">
+              <span class="font-semibold">ID en Meta:</span> <code class="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-gray-800 dark:text-gray-200">{{ selectedMessageTemplate.meta_template_id }}</code>
+            </div>
+
+            <!-- Meta Category -->
+            <div *ngIf="selectedMessageTemplate.meta_category" class="text-xs text-gray-500 dark:text-gray-400">
+              <span class="font-semibold">Categoría en Meta:</span> <code class="px-1 py-0.5 bg-gray-100 dark:bg-gray-700 rounded text-gray-800 dark:text-gray-200">{{ selectedMessageTemplate.meta_category }}</code>
+            </div>
+
+            <!-- WhatsApp Preview Bubble (Wow! looks like a real WhatsApp UI) -->
+            <div class="space-y-1.5">
+              <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Vista previa de WhatsApp</label>
+              
+              <div class="relative bg-[#efeae2] dark:bg-gray-900 border border-gray-200 dark:border-gray-800 rounded-xl p-4 min-h-[140px] flex flex-col justify-end bg-cover bg-center" 
+                style="background-image: url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png'); background-blend-mode: overlay;">
+                
+                <!-- Bubble -->
+                <div class="max-w-[85%] bg-white dark:bg-[#1f2c34] text-gray-900 dark:text-gray-100 rounded-lg shadow-sm p-3 relative text-xs">
+                  <!-- Header content -->
+                  <div *ngIf="selectedMessageTemplate.header_content" class="font-bold text-gray-700 dark:text-gray-300 border-b border-gray-100 dark:border-gray-700/50 pb-1 mb-1 truncate">
+                    {{ selectedMessageTemplate.header_content }}
+                  </div>
+                  
+                  <!-- Body content -->
+                  <div class="whitespace-pre-wrap leading-relaxed">
+                    {{ selectedMessageTemplate.body_content || '(El cuerpo del mensaje está vacío. Edita la plantilla para configurarlo.)' }}
+                  </div>
+                  
+                  <!-- Footer content -->
+                  <div *ngIf="selectedMessageTemplate.footer_content" class="text-[10px] text-gray-400 dark:text-gray-500 mt-1">
+                    {{ selectedMessageTemplate.footer_content }}
+                  </div>
+                  
+                  <!-- Message time check -->
+                  <div class="text-[9px] text-gray-400 text-right mt-1 select-none">
+                    10:30 AM
+                  </div>
+                </div>
+
+                <!-- Buttons if any -->
+                <div *ngIf="selectedMessageTemplate.buttons_json" class="max-w-[85%] mt-1.5 space-y-1">
+                  <div class="bg-white/95 dark:bg-[#1f2c34]/95 text-blue-500 dark:text-blue-400 py-2 rounded-lg text-center font-medium shadow-sm hover:bg-gray-50 dark:hover:bg-gray-700 text-xs cursor-pointer border-t border-gray-100 dark:border-gray-700/50">
+                    <svg class="h-3.5 w-3.5 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                    </svg>
+                    Botón de Acción
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="p-4">
-          <app-template-integration-panel [template]="selectedMessageTemplate"
-            (integrationToggled)="onIntegrationToggled($event)">
-          </app-template-integration-panel>
+
+        <!-- Integraciones vinculadas -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+          <div class="px-4 py-3 border-b border-gray-200 dark:border-gray-700">
+            <h2 class="text-sm font-semibold text-gray-700 dark:text-white">Integraciones vinculadas</h2>
+            <p class="text-xs text-gray-400 mt-0.5">
+              Activa o desactiva la vinculación con cada integración.
+            </p>
+          </div>
+          <div class="p-4">
+            <app-template-integration-panel [template]="selectedMessageTemplate"
+              (integrationToggled)="onIntegrationToggled($event)">
+            </app-template-integration-panel>
+          </div>
         </div>
       </div>
 
@@ -162,7 +344,7 @@
     <!-- Modal de eliminación -->
     <div *ngIf="isDeleteOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
       <!-- Backdrop -->
-      <div class="absolute inset-0 bg-black/40" (click)="cancelDelete()"></div>
+      <div class="absolute inset-0 bg-black/40"></div>
 
       <!-- Dialog -->
       <div class="relative z-10 bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-sm"

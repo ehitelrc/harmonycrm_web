@@ -38,4 +38,9 @@ export class CampaignPushService {
     });
   }
 
+  getCampaignReachReport(campaignId: number) {
+    return this.fetch.get<ApiResponse<any>>({
+      API_Gateway: `${BASE}campaigns/${campaignId}/reach`,
+    });
+  }
 }

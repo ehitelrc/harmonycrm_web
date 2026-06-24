@@ -10,67 +10,96 @@
             </p>
         </div>
 
-        <!-- Filtros -->
-        @if (!selectedCase){
-        <div class="bg-white dark:bg-gray-800 p-4 shadow rounded-lg flex gap-4">
-            <!-- Compañía -->
-
-            <div class="flex-1">
-                <select [(ngModel)]="selectedCompany" (ngModelChange)="filterCases()" class="block w-full sm:w-80 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
-               focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f]
-               dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+        @if (!selectedCase) {
+        <div class="bg-white dark:bg-gray-800 p-5 shadow-premium rounded-3xl flex flex-col gap-5 border border-gray-150 animate-fadeIn">
+            <!-- Selector de Compañía -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-50 dark:border-gray-700 pb-4">
+                <div>
+                    <h3 class="text-sm font-bold text-gray-800 dark:text-white">Selección de Compañía</h3>
+                    <p class="text-[11px] text-gray-400 mt-0.5">Elige la compañía para cargar sus campañas activas.</p>
+                </div>
+                <select [(ngModel)]="selectedCompany" (ngModelChange)="filterCases()" class="block w-full sm:w-80 px-3.5 py-2 border border-gray-300 rounded-2xl shadow-sm focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-xs text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white">
                     <option [ngValue]="null">{{ t('case.select_company_placeholder') }}</option>
                     <option *ngFor="let c of companies" [ngValue]="c.company_id">{{ c.company_name }}</option>
                 </select>
             </div>
 
-            <!-- Campaña -->
+            <!-- Selector de Campañas en formato Tarjetas -->
             @if (selectedCompany) {
-            <div class="flex-1">
-                <select [(ngModel)]="selectedFunnelObject" (ngModelChange)="campaignSelected()" class="block w-full sm:w-80 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
-               focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f]
-               dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    <option [ngValue]="null">{{ t('case.select_campaign_placeholder') }}</option>
-                    <option *ngFor="let c of campaigns" [ngValue]="c">{{ c.campaign_name }}</option>
-                </select>
+            <div class="flex flex-col gap-3 animate-fadeIn">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h3 class="text-sm font-bold text-gray-800 dark:text-white font-sans">Selecciona una Campaña</h3>
+                        <p class="text-[11px] text-gray-400 mt-0.5">Selecciona una campaña de la lista para cargar sus métricas de embudo y alcance.</p>
+                    </div>
+                    <!-- Buscador de Campañas -->
+                    <div *ngIf="campaigns.length > 5" class="relative w-full sm:w-64">
+                        <input 
+                            type="text" 
+                            [(ngModel)]="campaignSearchQuery" 
+                            placeholder="Buscar campaña..." 
+                            class="block w-full pl-8 pr-3 py-1.5 border border-gray-300 rounded-xl text-xs text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent"
+                        />
+                        <div class="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none">
+                            <svg class="h-3.5 w-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mensaje de Carga -->
+                <div *ngIf="campaignLoading" class="flex items-center gap-2 py-4 justify-center">
+                    <div class="w-5 h-5 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                    <span class="text-xs text-gray-400 font-semibold">Cargando campañas...</span>
+                </div>
+
+                <!-- Grid de Tarjetas de Campañas -->
+                <div *ngIf="!campaignLoading && campaigns.length > 0" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 max-h-60 overflow-y-auto p-1 scrollbar-thin">
+                    <div 
+                        *ngFor="let c of filteredCampaigns" 
+                        (click)="selectCampaignObject(c)"
+                        [class.border-blue-600]="selectedFunnelObject?.campaign_id === c.campaign_id"
+                        [class.bg-blue-50/40]="selectedFunnelObject?.campaign_id === c.campaign_id"
+                        [class.dark:bg-blue-900/10]="selectedFunnelObject?.campaign_id === c.campaign_id"
+                        [class.dark:border-blue-500]="selectedFunnelObject?.campaign_id === c.campaign_id"
+                        [class.border-gray-150]="selectedFunnelObject?.campaign_id !== c.campaign_id"
+                        [class.bg-white]="selectedFunnelObject?.campaign_id !== c.campaign_id"
+                        [class.dark:bg-gray-800]="selectedFunnelObject?.campaign_id !== c.campaign_id"
+                        class="border p-3.5 rounded-2xl cursor-pointer hover:shadow-md hover:border-gray-300 dark:hover:border-gray-600 transition-all flex items-center gap-3 select-none"
+                    >
+                        <div 
+                            [class.bg-blue-100]="selectedFunnelObject?.campaign_id === c.campaign_id"
+                            [class.text-blue-600]="selectedFunnelObject?.campaign_id === c.campaign_id"
+                            [class.bg-gray-50]="selectedFunnelObject?.campaign_id !== c.campaign_id"
+                            [class.text-gray-400]="selectedFunnelObject?.campaign_id !== c.campaign_id"
+                            class="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 transition-colors"
+                        >
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
+                            </svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h4 class="text-xs font-bold text-gray-800 dark:text-white truncate" [title]="c.campaign_name">
+                                {{ c.campaign_name }}
+                            </h4>
+                            <span class="text-[9px] font-semibold text-gray-400 mt-0.5 block">
+                                ID: {{ c.campaign_id }}
+                            </span>
+                        </div>
+                        <div *ngIf="selectedFunnelObject?.campaign_id === c.campaign_id" class="text-blue-600 dark:text-blue-400">
+                            <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div *ngIf="!campaignLoading && campaigns.length === 0" class="text-center py-4 text-xs text-gray-400">
+                    No hay campañas disponibles para esta compañía.
+                </div>
             </div>
             }
-            @if (campaignLoading && !selectedCompany) {
-            <div class="flex items-center">
-                <svg class="animate-spin h-5 w-5 text-[#00113f]" xmlns="http://www.w3.org/2000/svg" fill="none"
-                    viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                    </path>
-                </svg>
-            </div>
-            }
-
-            <!-- Estado -->
-            <!-- @if (selectedFunnel) {
-            <div class="flex-1">
-                <select [(ngModel)]="selectedFunnelStage" (ngModelChange)="stageSelected()" class="block w-full sm:w-80 px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none
-               focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f]
-               dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-                    <option [ngValue]="null">{{ t('case.select_funnel_stage_placeholder') }}</option>
-                    <option *ngFor="let c of funnelStages" [ngValue]="c.id">{{ c.name }}</option>
-                </select>
-            </div>
-            } -->
-
-            <!-- @if (funnelStageLoading && !selectedFunnel) {
-            <div class="flex items-center">
-                <svg class="animate-spin h-5 w-5 text-[#00113f]" xmlns="http://www.w3.org/2000/svg" fill="none"
-                    viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z">
-                    </path>
-                </svg>
-            </div>
-            } -->
-
         </div>
         }
 
@@ -99,6 +128,195 @@
  
     <!-- <app-campaign-funnel [stages]="data"></app-campaign-funnel>    -->
 
-    <app-campaign-funnel-organic [stages]="data"></app-campaign-funnel-organic>
+    <!-- Panel del Funnel Collapsible -->
+    <div *ngIf="hasFunnelData" class="bg-white dark:bg-gray-800 p-6 shadow-premium rounded-3xl mt-6 border border-gray-150 flex flex-col gap-4 animate-fadeIn select-none">
+        <div (click)="funnelCollapsed = !funnelCollapsed" class="flex items-center justify-between cursor-pointer">
+            <div>
+                <h3 class="text-sm font-bold text-gray-800 dark:text-white font-sans">Rendimiento del Embudo</h3>
+                <p class="text-[11px] text-gray-400 mt-0.5 font-sans">Distribución de casos por cada etapa del embudo de la campaña.</p>
+            </div>
+            <div class="text-gray-400 hover:text-gray-600 transition-colors">
+                <svg [class.rotate-180]="!funnelCollapsed" class="w-5 h-5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"></path>
+                </svg>
+            </div>
+        </div>
+
+        <div [class.hidden]="funnelCollapsed" class="transition-all duration-300">
+            <app-campaign-funnel-organic [stages]="data"></app-campaign-funnel-organic>
+        </div>
+    </div>
+
+    <!-- Reporte de Alcance de la Campaña -->
+    <div *ngIf="selectedCampaign" class="bg-white dark:bg-gray-800 p-6 shadow-premium rounded-3xl mt-6 border border-gray-150 flex flex-col gap-6 animate-fadeIn">
+        <div class="border-b border-gray-50 dark:border-gray-700 pb-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white">Alcance y Conversión</h3>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Efectividad de entrega, apertura y respuesta de los mensajes enviados en la campaña.</p>
+            </div>
+            <div *ngIf="reachLoading" class="flex items-center gap-2">
+                <div class="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                <span class="text-xs font-semibold text-gray-400">Actualizando...</span>
+            </div>
+        </div>
+
+        <div *ngIf="!reachLoading && reachSummary" class="flex flex-col gap-6">
+            <!-- Tarjetas de Métricas -->
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4">
+                <!-- Enviados -->
+                <div class="bg-gray-50/50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl flex flex-col">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Enviados</span>
+                    <span class="text-xl font-extrabold text-gray-800 dark:text-white mt-1">{{ reachSummary.sent_count }}</span>
+                </div>
+                <!-- Entregados -->
+                <div class="bg-gray-50/50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl flex flex-col">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Entregados</span>
+                    <span class="text-xl font-extrabold text-blue-600 dark:text-blue-400 mt-1">{{ reachSummary.delivered_count }}</span>
+                    <span class="text-[9px] text-gray-400 font-semibold mt-1">
+                        {{ (reachSummary.sent_count > 0 ? (reachSummary.delivered_count * 100 / reachSummary.sent_count) : 0) | number:'1.0-0' }}% de entrega
+                    </span>
+                </div>
+                <!-- Leídos -->
+                <div class="bg-gray-50/50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl flex flex-col">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Leídos / Abiertos</span>
+                    <span class="text-xl font-extrabold text-purple-600 dark:text-purple-400 mt-1">{{ reachSummary.read_count }}</span>
+                    <span class="text-[9px] text-gray-400 font-semibold mt-1">
+                        {{ (reachSummary.delivered_count > 0 ? (reachSummary.read_count * 100 / reachSummary.delivered_count) : 0) | number:'1.0-0' }}% de lectura
+                    </span>
+                </div>
+                <!-- Contestados -->
+                <div class="bg-gray-50/50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl flex flex-col">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Contestados</span>
+                    <span class="text-xl font-extrabold text-emerald-600 dark:text-emerald-400 mt-1">{{ reachSummary.replied_count }}</span>
+                    <span class="text-[9px] text-gray-400 font-semibold mt-1">
+                        {{ (reachSummary.sent_count > 0 ? (reachSummary.replied_count * 100 / reachSummary.sent_count) : 0) | number:'1.0-0' }}% respuesta
+                    </span>
+                </div>
+                <!-- Fallados -->
+                <div class="bg-gray-50/50 dark:bg-gray-700/50 border border-gray-100 dark:border-gray-700 p-4 rounded-2xl flex flex-col">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Fallados</span>
+                    <span class="text-xl font-extrabold text-rose-600 dark:text-rose-400 mt-1">{{ reachSummary.failed_count }}</span>
+                </div>
+            </div>
+
+            <!-- Buscador y Controles -->
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-t border-gray-100 dark:border-gray-700 pt-4">
+                <div class="relative w-full sm:w-72">
+                    <input 
+                        type="text" 
+                        [(ngModel)]="reachSearchQuery" 
+                        (ngModelChange)="reachPage = 1"
+                        placeholder="Buscar destinatario o teléfono..." 
+                        class="block w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-xs text-[#00113f] dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                    />
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <svg class="h-3.5 w-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </div>
+                </div>
+                <div class="text-[11px] font-semibold text-gray-400 select-none">
+                    Mostrando {{ filteredReachRecipients.length === 0 ? 0 : (reachPage - 1) * reachPageSize + 1 }} - 
+                    {{ (reachPage * reachPageSize > filteredReachRecipients.length) ? filteredReachRecipients.length : reachPage * reachPageSize }} 
+                    de {{ filteredReachRecipients.length }} registros
+                </div>
+            </div>
+
+            <!-- Listado de Destinatarios -->
+            <div class="overflow-x-auto border border-gray-100 dark:border-gray-700 rounded-2xl">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-gray-50/50 dark:bg-gray-700/30 border-b border-gray-100 dark:border-gray-700 text-[10px] font-bold text-gray-400 uppercase tracking-wider select-none">
+                            <th class="py-3 px-4">Destinatario</th>
+                            <th class="py-3 px-4">Teléfono</th>
+                            <th class="py-3 px-4">Caso #</th>
+                            <th class="py-3 px-4">Fecha Envío</th>
+                            <th class="py-3 px-4 text-center">Estado Entrega</th>
+                            <th class="py-3 px-4 text-center">Contestó</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-50 dark:divide-gray-700 text-xs text-gray-600 dark:text-gray-300">
+                        <tr *ngFor="let row of paginatedReachRecipients" class="hover:bg-gray-50/50 dark:hover:bg-gray-700/30 transition-colors">
+                            <td class="py-3 px-4 font-bold text-gray-800 dark:text-gray-200">
+                                {{ row.full_name || 'Desconocido' }}
+                            </td>
+                            <td class="py-3 px-4 font-mono font-semibold">{{ row.phone_number }}</td>
+                            <td class="py-3 px-4 font-mono font-bold text-blue-600 dark:text-blue-400">
+                                <span *ngIf="row.case_id > 0">
+                                    Caso #{{ row.case_id }}
+                                </span>
+                                <span *ngIf="row.case_id === 0" class="text-gray-400">—</span>
+                            </td>
+                            <td class="py-3 px-4 font-mono text-gray-400">
+                                {{ row.created_at | date:'dd/MM/yyyy HH:mm' }}
+                            </td>
+                            <td class="py-3 px-4 text-center">
+                                <span 
+                                    [class.bg-green-50]="row.status === 'read'"
+                                    [class.text-green-700]="row.status === 'read'"
+                                    [class.border-green-100]="row.status === 'read'"
+                                    [class.bg-blue-50]="row.status === 'delivered'"
+                                    [class.text-blue-700]="row.status === 'delivered'"
+                                    [class.border-blue-100]="row.status === 'delivered'"
+                                    [class.bg-gray-50]="row.status === 'sent' || row.status === 'pending'"
+                                    [class.text-gray-700]="row.status === 'sent' || row.status === 'pending'"
+                                    [class.border-gray-100]="row.status === 'sent' || row.status === 'pending'"
+                                    [class.bg-red-50]="row.status === 'failed'"
+                                    [class.text-red-700]="row.status === 'failed'"
+                                    [class.border-red-100]="row.status === 'failed'"
+                                    class="px-2 py-0.5 rounded-full font-bold text-[9px] uppercase tracking-wider border select-none"
+                                >
+                                    {{ row.status }}
+                                </span>
+                            </td>
+                            <td class="py-3 px-4 text-center">
+                                <span 
+                                    [class.bg-emerald-50]="row.replied"
+                                    [class.text-emerald-700]="row.replied"
+                                    [class.border-emerald-100]="row.replied"
+                                    [class.bg-gray-50]="!row.replied"
+                                    [class.text-gray-500]="!row.replied"
+                                    [class.border-gray-100]="!row.replied"
+                                    class="px-2 py-0.5 rounded-full font-bold text-[9px] uppercase tracking-wider border select-none"
+                                >
+                                    {{ row.replied ? 'Sí' : 'No' }}
+                                </span>
+                            </td>
+                        </tr>
+                        <tr *ngIf="filteredReachRecipients.length === 0" class="text-center text-gray-500 py-10">
+                            <td colspan="6" class="py-8 text-center text-gray-400">
+                                No se encontraron destinatarios que coincidan con la búsqueda.
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Paginación -->
+            <div *ngIf="totalReachPages > 1" class="flex items-center justify-between border-t border-gray-100 dark:border-gray-700 pt-4 select-none">
+                <button 
+                    [disabled]="reachPage === 1"
+                    (click)="onReachPageChange(reachPage - 1)"
+                    class="px-3 py-1.5 border border-gray-300 rounded-lg text-xs font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors"
+                >
+                    Anterior
+                </button>
+                <div class="flex items-center gap-1.5">
+                    <span class="text-xs text-gray-500">Página {{ reachPage }} de {{ totalReachPages }}</span>
+                </div>
+                <button 
+                    [disabled]="reachPage === totalReachPages"
+                    (click)="onReachPageChange(reachPage + 1)"
+                    class="px-3 py-1.5 border border-gray-300 rounded-lg text-xs font-semibold text-gray-600 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors"
+                >
+                    Siguiente
+                </button>
+            </div>
+        </div>
+
+        <div *ngIf="!reachLoading && !reachSummary" class="text-center text-gray-500 py-10">
+            Selecciona una campaña para ver el reporte de alcance y respuestas.
+        </div>
+    </div>
 
 </app-main-layout>

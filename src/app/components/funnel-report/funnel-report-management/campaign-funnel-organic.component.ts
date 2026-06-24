@@ -8,13 +8,9 @@ import { DashboardCampaignFunnelSummary } from '@app/models/campaign_funnel_summ
   imports: [CommonModule],
   styles: [`
     .funnel-wrapper {
-      background: white;
-      border-radius: 0.75rem;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-      padding: 1.5rem;
-      margin-top: 1.5rem;
       display: flex;
       gap: 2rem;
+      width: 100%;
     }
 
     .funnel-title {
@@ -84,7 +80,6 @@ import { DashboardCampaignFunnelSummary } from '@app/models/campaign_funnel_summ
     <div class="funnel-wrapper">
       <!-- Columna Funnel -->
       <div class="funnel-container">
-        <h3 class="funnel-title">Funnel de la campaña</h3>
         <div
           *ngFor="let stage of sortedStages"
           class="funnel-stage"
@@ -101,7 +96,6 @@ import { DashboardCampaignFunnelSummary } from '@app/models/campaign_funnel_summ
 
       <!-- Columna Datos -->
       <div class="funnel-data">
-        <h3 class="funnel-title">Resumen</h3>
         <div *ngFor="let stage of sortedStages" class="funnel-data-item">
           <div class="flex items-center">
             <span class="color-circle" [style.background]="stage.color_hex || '#9ca3af'"></span>

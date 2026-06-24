@@ -24,6 +24,7 @@ import { ClientService } from '@app/services/client.service';
 import { DashboardCampaignFunnelSummary } from '@app/models/campaign_funnel_summary_view';
 import { CampaignFunnelOrganicComponent } from './campaign-funnel-organic.component';
 import { CampaignFunnelComponent } from './campaign-funnel.component';
+import { CampaignPushService } from '@app/services/campaign-push.service';
 
 @Component({
     selector: 'app-cases-management',
@@ -82,6 +83,70 @@ export class FunnelReportManagementComponent implements OnInit {
     currentClient: Client | null = null;
     tmpClient: Client | null = null;
 
+    // Reach Report fields
+    reachSummary: any = null;
+    reachRecipients: any[] = [];
+    reachLoading = false;
+    reachSearchQuery: string = '';
+    reachPage: number = 1;
+    reachPageSize: number = 50;
+
+    campaignSearchQuery: string = '';
+    funnelCollapsed: boolean = false;
+
+    get hasFunnelData() {
+        if (!this.data || this.data.length === 0) return false;
+        const total = this.data.reduce((sum, s) => sum + Number(s.total_cases ?? 0), 0);
+        return total > 0;
+    }
+
+    get filteredCampaigns() {
+        let result = this.campaigns || [];
+        if (this.campaignSearchQuery) {
+            const query = this.campaignSearchQuery.toLowerCase().trim();
+            result = result.filter(c => c.campaign_name && c.campaign_name.toLowerCase().includes(query));
+        }
+        return result;
+    }
+
+    selectCampaignObject(campaign: any) {
+        if (this.selectedFunnelObject?.campaign_id === campaign.campaign_id) {
+            this.selectedFunnelObject = null;
+        } else {
+            this.selectedFunnelObject = campaign;
+        }
+        this.campaignSelected();
+    }
+
+    get filteredReachRecipients() {
+        let result = this.reachRecipients || [];
+        if (this.reachSearchQuery) {
+            const query = this.reachSearchQuery.trim().toLowerCase();
+            result = result.filter(r => 
+                (r.full_name && r.full_name.toLowerCase().includes(query)) ||
+                (r.phone_number && r.phone_number.includes(query)) ||
+                (r.status && r.status.toLowerCase().includes(query))
+            );
+        }
+        return result;
+    }
+
+    get paginatedReachRecipients() {
+        const start = (this.reachPage - 1) * this.reachPageSize;
+        return this.filteredReachRecipients.slice(start, start + this.reachPageSize);
+    }
+
+    get totalReachPages() {
+        const count = this.filteredReachRecipients.length;
+        return Math.max(1, Math.ceil(count / this.reachPageSize));
+    }
+
+    onReachPageChange(page: number) {
+        if (page >= 1 && page <= this.totalReachPages) {
+            this.reachPage = page;
+        }
+    }
+
     constructor(
         private agentUserService: AgentUserService,
         private languageService: LanguageService,
@@ -92,7 +157,8 @@ export class FunnelReportManagementComponent implements OnInit {
         private companyService: CompanyService,
         private funnelService: FunnelService,
         private clientService: ClientService,
-        private dashboardService: DashboardService
+        private dashboardService: DashboardService,
+        private campaignPushService: CampaignPushService
     ) {
 
 
@@ -115,6 +181,10 @@ export class FunnelReportManagementComponent implements OnInit {
         this.selectedFunnel = null;
         this.selectedFunnelStage = null;
         this.funnelStages = [];
+        this.reachSummary = null;
+        this.reachRecipients = [];
+        this.selectedFunnelObject = null;
+        this.campaignSearchQuery = '';
         this.loadCampaignsForCompany(this.selectedCompany!);
     }
 
@@ -165,8 +235,9 @@ export class FunnelReportManagementComponent implements OnInit {
         this.selectedCampaign = this.selectedFunnelObject?.campaign_id || null;
         // this.loadFunnelStagesForCampaign(this.selectedFunnel!);
 
-        // Cargar aquí el gráfico del funnel
+        // Cargar aquí el gráfico del funnel y el alcance de campaña
         if (this.selectedCampaign) {
+            this.loadReachReport(this.selectedCampaign);
             this.dashboardService.getCampaignFunnelSummaryByCompany(this.selectedCampaign).then(response => {
                 if (response && response.data) {
                     this.data = response.data;
@@ -185,7 +256,30 @@ export class FunnelReportManagementComponent implements OnInit {
             });
         } else {
             this.data = [];
+            this.reachSummary = null;
+            this.reachRecipients = [];
         }
+    }
+
+    loadReachReport(campaignId: number) {
+        this.reachLoading = true;
+        this.reachPage = 1;
+        this.reachSearchQuery = '';
+        this.campaignPushService.getCampaignReachReport(campaignId).then(response => {
+            if (response && response.success && response.data) {
+                this.reachSummary = response.data.summary;
+                this.reachRecipients = response.data.recipients || [];
+            } else {
+                this.reachSummary = null;
+                this.reachRecipients = [];
+            }
+            this.reachLoading = false;
+        }).catch(error => {
+            console.error('Error loading reach report:', error);
+            this.reachSummary = null;
+            this.reachRecipients = [];
+            this.reachLoading = false;
+        });
     }
 
     loadFunnelStagesForCampaign(funnelId: number) {

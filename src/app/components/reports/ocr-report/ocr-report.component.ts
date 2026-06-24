@@ -66,7 +66,10 @@ export class OcrReportComponent implements OnInit {
       const response = await this.companyService.getCompaniesByUserId(this.user!.user_id);
       if (response?.success && response.data) {
         this.companies = response.data;
-        this.selectedCompanyId = this.companies[0]?.company_id ?? null;
+        const storedCompanyId = this.authService.getStoredAuthData()?.company_id;
+        const hasStoredCompany = storedCompanyId && this.companies.some(c => c.company_id === storedCompanyId);
+        this.selectedCompanyId = hasStoredCompany ? storedCompanyId! : (this.companies[0]?.company_id ?? null);
+        
         if (this.selectedCompanyId) {
           await this.loadReportData();
         }

@@ -7,6 +7,7 @@ export interface ChannelIntegration {
   webhook_url: string;
   access_token?: string;
   app_identifier?: string;
+  meta_waba_id?: string;
   is_active: boolean;
   created_at?: string;
   updated_at?: string;
@@ -23,6 +24,7 @@ export interface ChannelIntegrationDTO {
   webhook_url: string;
   access_token?: string;
   app_identifier?: string;
+  meta_waba_id?: string;
   is_active: boolean;
   created_at?: string;
   updated_at?: string;
