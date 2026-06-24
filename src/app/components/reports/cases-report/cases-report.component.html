@@ -49,7 +49,7 @@
           class="p-2 bg-blue-50 hover:bg-blue-100 text-blue-600 active:scale-95 transition-all rounded-xl border border-blue-200 flex items-center justify-center disabled:opacity-50 disabled:scale-100 cursor-pointer"
           title="Refrescar reporte"
         >
-          <svg class="h-4 w-4" [class.animate-spin]="loading" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+          <svg class="h-4 w-4" [class.animate-spin]="loading" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
           </svg>
         </button>
@@ -58,7 +58,7 @@
 
     <!-- Spinner Loader -->
     <div *ngIf="loading && !stats" class="flex flex-col items-center justify-center py-20 bg-white border border-gray-100 rounded-3xl shadow-premium">
-      <svg class="animate-spin h-10 w-10 text-[#3e66ea]" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+      <svg class="animate-spin h-10 w-10 text-[#3e66ea]" width="40" height="40" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"></circle>
         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
       </svg>
@@ -78,7 +78,7 @@
             <div class="text-[10px] text-blue-500 font-semibold mt-1">Registrados en la compañía</div>
           </div>
           <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 shadow-sm border border-blue-100/50">
-            <svg class="h-6 w-6 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="h-6 w-6 stroke-[1.8]" width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
           </div>
@@ -92,7 +92,7 @@
             <div class="text-[10px] text-amber-500 font-semibold mt-1">Nuevos hoy: {{ stats.opened_today }}</div>
           </div>
           <div class="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 shadow-sm border border-amber-100/50">
-            <svg class="h-6 w-6 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="h-6 w-6 stroke-[1.8]" width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
@@ -106,7 +106,7 @@
             <div class="text-[10px] text-emerald-500 font-semibold mt-1">Cerrados hoy: {{ stats.closed_today }}</div>
           </div>
           <div class="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm border border-emerald-100/50">
-            <svg class="h-6 w-6 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="h-6 w-6 stroke-[1.8]" width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
@@ -120,7 +120,7 @@
             <div class="text-[10px] text-purple-500 font-semibold mt-1">Tiempo promedio de resolución</div>
           </div>
           <div class="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600 shadow-sm border border-purple-100/50">
-            <svg class="h-6 w-6 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="h-6 w-6 stroke-[1.8]" width="24" height="24" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
           </div>
@@ -197,7 +197,7 @@
                 placeholder="Buscar agente..."
                 class="w-full bg-gray-50 hover:bg-gray-100/50 border border-gray-200 text-gray-700 text-xs rounded-xl pl-8 pr-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500"
               />
-              <svg class="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg class="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-gray-400" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
@@ -305,37 +305,74 @@
       </div>
 
       <!-- Oldest Active Cases (Alert section) -->
-      <div class="bg-white border border-gray-100 p-5 rounded-3xl shadow-premium flex flex-col">
-        <h3 class="text-sm font-bold text-gray-800 tracking-wide uppercase border-b border-gray-50 pb-3 mb-4 flex items-center gap-2">
-          <svg class="h-5 w-5 text-red-500 animate-pulse flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-          </svg>
-          Alertas de Atención: Casos Activos Más Antiguos
-        </h3>
+      <div class="bg-white border border-gray-100 p-5 rounded-3xl shadow-premium flex flex-col gap-4">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-50 pb-3 mb-4 select-none">
+          <h3 class="text-sm font-bold text-gray-800 tracking-wide uppercase flex items-center gap-2">
+            <svg class="h-5 w-5 text-red-500 animate-pulse flex-shrink-0" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+            Alertas de Atención: Casos Activos Más Antiguos
+          </h3>
+
+          <!-- Search input for oldest cases -->
+          <div class="relative w-full sm:w-[240px]" *ngIf="stats.oldest_open_cases && stats.oldest_open_cases.length > 0">
+            <input 
+              type="text" 
+              [(ngModel)]="oldestSearch"
+              placeholder="Buscar por cliente o ID..."
+              class="w-full bg-gray-50 hover:bg-gray-100/50 border border-gray-200 text-gray-700 text-xs rounded-xl pl-8 pr-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            />
+            <svg class="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-gray-400" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+          </div>
+        </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          <div *ngFor="let oldest of stats.oldest_open_cases" class="bg-red-50/20 hover:bg-red-50/40 transition-colors border border-red-100/50 p-4 rounded-2xl flex flex-col justify-between gap-3">
+          <div *ngFor="let oldest of getFilteredOldestOpenCases()" class="bg-red-50/20 hover:bg-red-50/40 transition-colors border border-red-100/50 p-4 rounded-2xl flex flex-col justify-between gap-3">
             <div>
-              <div class="flex justify-between items-center text-xs">
+              <div class="flex justify-between items-center text-xs mb-2">
                 <span class="font-black text-gray-800">Caso #{{ oldest.case_id }}</span>
                 <span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-md text-[9px] uppercase tracking-wider">Prioridad</span>
               </div>
-              <div class="text-xs text-gray-600 font-semibold mt-2 truncate">
-                Cliente: <b class="text-gray-800">{{ oldest.client_name || 'Desconocido' }}</b>
+              <div class="text-xs text-gray-600 font-semibold truncate flex flex-col gap-0.5">
+                <span>Cliente: <b class="text-gray-800">{{ oldest.client_name || 'Desconocido' }}</b></span>
+                <span class="text-[10px] text-gray-400">Tel: <b class="text-gray-500 font-mono">{{ oldest.client_phone || 'N/D' }}</b></span>
               </div>
             </div>
             
-            <div class="flex items-center justify-between text-[10px] text-gray-400 mt-1 select-none">
-              <span>Creado: {{ oldest.created_at | date:'dd/MM/yyyy HH:mm' }}</span>
-              <a 
-                [routerLink]="['/conversations']" 
-                class="text-blue-600 font-bold hover:underline"
-              >
-                Atender chat
-              </a>
+            <div class="flex flex-col gap-1 text-[10px] text-gray-400 border-t border-red-100/20 pt-2.5 select-none">
+              <div class="flex justify-between items-center">
+                <span>Creado: <b class="text-gray-600 font-mono">{{ oldest.created_at ? (oldest.created_at | date:'dd/MM/yyyy HH:mm') : 'N/D' }}</b></span>
+                <a 
+                  [routerLink]="['/conversations']" 
+                  class="text-blue-600 font-bold hover:underline text-[10px]"
+                >
+                  Atender chat
+                </a>
+              </div>
+              <div class="flex justify-between items-center">
+                <span>Último msg: <b class="text-gray-600 font-mono">{{ oldest.last_message_at ? (oldest.last_message_at | date:'dd/MM/yyyy HH:mm') : 'N/D' }}</b></span>
+                <span *ngIf="oldest.last_message_sender_type" 
+                      class="px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider border select-none"
+                      [class.bg-amber-50]="oldest.last_message_sender_type === 'client'"
+                      [class.text-amber-700]="oldest.last_message_sender_type === 'client'"
+                      [class.border-amber-200]="oldest.last_message_sender_type === 'client'"
+                      [class.bg-blue-50]="oldest.last_message_sender_type !== 'client'"
+                      [class.text-blue-700]="oldest.last_message_sender_type !== 'client'"
+                      [class.border-blue-200]="oldest.last_message_sender_type !== 'client'">
+                  {{ oldest.last_message_sender_type === 'client' ? 'Cliente' : 'Agente' }}
+                </span>
+              </div>
             </div>
           </div>
 
+          <!-- Empty search results -->
+          <div *ngIf="stats.oldest_open_cases && stats.oldest_open_cases.length > 0 && getFilteredOldestOpenCases().length === 0" class="col-span-full py-8 text-center text-xs font-bold text-gray-400 select-none bg-gray-50 border border-gray-150 rounded-2xl">
+            No se encontraron alertas coincidentes con la búsqueda.
+          </div>
+
+          <!-- No open cases at all -->
           <div *ngIf="!stats.oldest_open_cases || stats.oldest_open_cases.length === 0" class="col-span-full py-6 text-center text-xs font-semibold text-emerald-600 select-none bg-emerald-50/10 border border-emerald-100/30 rounded-2xl">
             ¡Gran trabajo! No hay casos activos pendientes de atención crítica.
           </div>
@@ -347,7 +384,7 @@
     <!-- Empty/No Stats View -->
     <div *ngIf="!loading && !stats" class="flex flex-col items-center justify-center py-20 bg-white border border-gray-100 rounded-3xl shadow-premium">
       <div class="w-16 h-16 bg-gray-50 border border-gray-150 rounded-2xl flex items-center justify-center text-gray-400 mb-4">
-        <svg class="h-8 w-8 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="h-8 w-8 stroke-[1.8]" width="32" height="32" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
         </svg>
       </div>

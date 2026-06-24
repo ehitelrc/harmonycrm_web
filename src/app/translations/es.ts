@@ -130,6 +130,7 @@ export const esTranslations = {
   'menu.unreconciled-payments': 'Pagos ERP Sin Vincular',
   'menu.convertions': "Conversiones",
   'menu.cases-report': 'Gestión de Casos',
+  'menu.cases-status-report': 'Casos por Estado',
 
   'menu.security': 'Seguridad',
 

@@ -32,6 +32,26 @@ export class CaseDashboardService {
       API_Gateway: `${DASHBOARD_URL}/company/${companyId}/department/${departmentId}`,
     });
   }
+
+  async getCasesByStatus(
+    companyId: number,
+    departmentId: number | null,
+    status: string,
+    search: string = '',
+    page: number = 1,
+    limit: number = 10
+  ): Promise<ApiResponse<{ cases: any[]; total: number; page: number; limit: number }>> {
+    let query = `status=${status}&page=${page}&limit=${limit}`;
+    if (departmentId) {
+      query += `&department_id=${departmentId}`;
+    }
+    if (search) {
+      query += `&search=${encodeURIComponent(search)}`;
+    }
+    return await this.fetchService.get<ApiResponse<{ cases: any[]; total: number; page: number; limit: number }>>({
+      API_Gateway: `${DASHBOARD_URL}/company/${companyId}/cases?${query}`,
+    });
+  }
  
  
  

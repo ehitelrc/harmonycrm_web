@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
 import { MainLayoutComponent } from '../../layout/main-layout.component';
 import { CaseDashboardService } from '@app/services/case-dashboard.service';
 import { AuthService } from '@app/services/auth.service';
@@ -8,10 +9,9 @@ import { CompanyService } from '@app/services/company.service';
 import { DepartmentService } from '@app/services/department.service';
 import { LanguageService } from '@app/services/extras/language.service';
 import { User } from '@app/models/auth.model';
-import { DashboardStats, CaseChannelStat, CaseAgentStat } from '@app/models/dashboard-stats.model';
+import { DashboardStats, CaseChannelStat, CaseAgentStat, OldestOpenCase } from '@app/models/dashboard-stats.model';
 import { Department } from '@app/models/department.model';
 import { NgApexchartsModule, ApexOptions } from 'ng-apexcharts';
-import { RouterLink } from '@angular/router';
 
 @Component({
   selector: 'app-cases-report',
@@ -19,9 +19,9 @@ import { RouterLink } from '@angular/router';
   imports: [
     CommonModule,
     FormsModule,
+    RouterLink,
     MainLayoutComponent,
-    NgApexchartsModule,
-    RouterLink
+    NgApexchartsModule
   ],
   templateUrl: './cases-report.component.html',
   styleUrls: ['./cases-report.component.css']
@@ -39,6 +39,7 @@ export class CasesReportComponent implements OnInit {
 
   // Search and Sort properties for Agent table
   agentSearch = '';
+  oldestSearch = '';
   agentSortColumn = 'total'; // 'name', 'open', 'closed', 'total', 'avg_time'
   agentSortAsc = false;
 
@@ -189,6 +190,19 @@ export class CasesReportComponent implements OnInit {
     });
 
     return agents;
+  }
+
+  getFilteredOldestOpenCases(): OldestOpenCase[] {
+    if (!this.stats?.oldest_open_cases) return [];
+    if (!this.oldestSearch.trim()) return this.stats.oldest_open_cases;
+
+    const query = this.oldestSearch.toLowerCase().trim();
+    return this.stats.oldest_open_cases.filter(c => {
+      const name = (c.client_name || '').toLowerCase();
+      const id = String(c.case_id);
+      const phone = (c.client_phone || '').toLowerCase();
+      return name.includes(query) || id.includes(query) || phone.includes(query);
+    });
   }
 
   setAgentSort(column: string): void {

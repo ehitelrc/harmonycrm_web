@@ -182,6 +182,11 @@ export const routes: Routes = [
     loadComponent: () => import('./components/reports/cases-report/cases-report.component').then(m => m.CasesReportComponent),
     canActivate: [AuthGuard]
   },
+  {
+    path: 'report-cases-status',
+    loadComponent: () => import('./components/reports/cases-status-report/cases-status-report.component').then(m => m.CasesStatusReportComponent),
+    canActivate: [AuthGuard]
+  },
   //push whatsapp
   {
     path: 'whatsapp-campaign-push',

@@ -7,6 +7,7 @@ export interface DashboardStats {
   closed_today: number;
   opened_today: number;
   cancelled_cases: number;
+  unanswered_cases?: number;
   unassigned_agents: number;
   unassigned_clients: number;
   avg_close_hours: number;
@@ -35,4 +36,7 @@ export interface OldestOpenCase {
   case_id: number;
   client_name?: string | null;
   created_at?: string | null;
+  client_phone?: string | null;
+  last_message_at?: string | null;
+  last_message_sender_type?: 'client' | 'agent' | string | null;
 }

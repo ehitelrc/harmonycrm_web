@@ -73,10 +73,11 @@ export class NavigationService {
       name: 'menu.reports',
       icon: 'Folder',
       children: [
-        { type: 'item', name: 'menu.payment-validations', href: '/payment-validations', icon: 'list', permission: 'dashboard.access' },
-        { type: 'item', name: 'menu.unreconciled-payments', href: '/unreconciled-payments', icon: 'error', permission: 'dashboard.access' },
-        { type: 'item', name: 'menu.convertions', href: '/report-funnels', icon: 'PackageOpen', permission: 'reports.access' },
+        { type: 'item', name: 'menu.payment-validations', href: '/payment-validations', icon: 'list', permission: 'reports.payment_validations.access' },
+        { type: 'item', name: 'menu.unreconciled-payments', href: '/unreconciled-payments', icon: 'error', permission: 'reports.unreconciled_payments.access' },
+        { type: 'item', name: 'menu.convertions', href: '/report-funnels', icon: 'PackageOpen', permission: 'reports.convertions.access' },
         { type: 'item', name: 'menu.cases-report', href: '/report-cases', icon: 'BarChart', permission: 'reports.cases.access' },
+        { type: 'item', name: 'menu.cases-status-report', href: '/report-cases-status', icon: 'PieChart', permission: 'reports.cases_status.access' },
       ],
     }
   ];
