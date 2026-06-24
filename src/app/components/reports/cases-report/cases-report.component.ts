@@ -256,7 +256,7 @@ export class CasesReportComponent implements OnInit {
 
     // 2. Agent Chart (Stacked/Grouped Bars)
     const agents = (this.stats.cases_by_agent || []).slice(0, 10); // Limit to top 10 agents for display
-    const agentNames = agents.map(a => a.agent_name || 'Desconocido');
+    const agentNames = agents.map(a => (a.agent_name || 'Desconocido').toUpperCase());
     const agentOpenCases = agents.map(a => a.open_cases || 0);
     const agentClosedCases = agents.map(a => a.closed_cases || 0);
 
