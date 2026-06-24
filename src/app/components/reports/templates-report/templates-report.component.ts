@@ -43,6 +43,12 @@ export class TemplatesReportComponent implements OnInit {
   bulkSearch = '';
   individualSearch = '';
 
+  // Filter properties
+  selectedAgent = '';
+  selectedCampaign = '';
+  startDate = '';
+  endDate = '';
+
   // Modal template preview
   isPreviewModalOpen = false;
   previewTemplateName = '';
@@ -115,6 +121,20 @@ export class TemplatesReportComponent implements OnInit {
       const deptId = Number(this.selectedDepartmentId);
       filtered = filtered.filter(b => b.department_id === deptId);
     }
+    if (this.selectedAgent) {
+      filtered = filtered.filter(b => b.agent_name === this.selectedAgent);
+    }
+    if (this.selectedCampaign) {
+      filtered = filtered.filter(b => b.description === this.selectedCampaign);
+    }
+    if (this.startDate) {
+      const start = new Date(this.startDate + 'T00:00:00');
+      filtered = filtered.filter(b => new Date(b.created_at) >= start);
+    }
+    if (this.endDate) {
+      const end = new Date(this.endDate + 'T23:59:59');
+      filtered = filtered.filter(b => new Date(b.created_at) <= end);
+    }
     if (!this.bulkSearch.trim()) return filtered;
     const query = this.bulkSearch.toLowerCase().trim();
     return filtered.filter(b => {
@@ -130,6 +150,17 @@ export class TemplatesReportComponent implements OnInit {
     if (this.selectedDepartmentId) {
       const deptId = Number(this.selectedDepartmentId);
       filtered = filtered.filter(i => i.department_id === deptId);
+    }
+    if (this.selectedAgent) {
+      filtered = filtered.filter(i => i.agent_name === this.selectedAgent);
+    }
+    if (this.startDate) {
+      const start = new Date(this.startDate + 'T00:00:00');
+      filtered = filtered.filter(i => new Date(i.created_at) >= start);
+    }
+    if (this.endDate) {
+      const end = new Date(this.endDate + 'T23:59:59');
+      filtered = filtered.filter(i => new Date(i.created_at) <= end);
     }
     if (!this.individualSearch.trim()) return filtered;
     const query = this.individualSearch.toLowerCase().trim();
@@ -182,6 +213,29 @@ export class TemplatesReportComponent implements OnInit {
 
   t(key: string): string {
     return this.languageService.t(key);
+  }
+
+  getUniqueAgents(): string[] {
+    const agents = new Set<string>();
+    this.bulkSends.forEach(b => { if (b.agent_name) agents.add(b.agent_name); });
+    this.individualSends.forEach(i => { if (i.agent_name) agents.add(i.agent_name); });
+    return Array.from(agents).sort();
+  }
+
+  getUniqueCampaigns(): string[] {
+    const campaigns = new Set<string>();
+    this.bulkSends.forEach(b => { if (b.description) campaigns.add(b.description); });
+    return Array.from(campaigns).sort();
+  }
+
+  clearFilters(): void {
+    this.selectedDepartmentId = null;
+    this.selectedAgent = '';
+    this.selectedCampaign = '';
+    this.startDate = '';
+    this.endDate = '';
+    this.bulkSearch = '';
+    this.individualSearch = '';
   }
 
   async showTemplatePreview(templateName: string, integrationId: number): Promise<void> {

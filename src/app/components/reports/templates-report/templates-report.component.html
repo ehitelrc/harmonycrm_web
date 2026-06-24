@@ -7,15 +7,28 @@
         <h2 class="text-xl font-extrabold text-gray-900 tracking-tight">{{ t('menu.templates-report') }}</h2>
         <p class="text-xs text-gray-500 mt-1">Monitorea y analiza la efectividad y el volumen de envío de plantillas de WhatsApp masivas e individuales.</p>
       </div>
+    </div>
 
-      <div class="flex flex-wrap items-center gap-3">
+    <!-- Filters Control Panel -->
+    <div class="bg-white border border-gray-100 p-5 rounded-3xl shadow-premium flex flex-col gap-4 select-none">
+      <div class="flex items-center justify-between border-b border-gray-50 pb-2.5">
+        <h3 class="text-xs font-bold text-gray-800 tracking-wide uppercase">Filtros de Búsqueda</h3>
+        <button 
+          (click)="clearFilters()"
+          class="text-[10px] font-bold text-blue-600 hover:text-blue-800 transition-colors uppercase tracking-wider"
+        >
+          Limpiar Filtros
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
         <!-- Company Filter -->
         <div class="flex flex-col gap-1">
           <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Empresa</label>
           <select 
             [(ngModel)]="selectedCompanyId" 
             (change)="onCompanyChange()"
-            class="bg-white border border-gray-200 text-gray-700 text-xs rounded-xl px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold min-w-[200px]"
+            class="bg-gray-50 hover:bg-gray-100/50 border border-gray-200 text-gray-700 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold transition-all cursor-pointer"
           >
             <option *ngFor="let c of companies" [value]="c.company_id">
               {{ c.company_name }}
@@ -28,13 +41,62 @@
           <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Departamento</label>
           <select 
             [(ngModel)]="selectedDepartmentId"
-            class="bg-white border border-gray-200 text-gray-700 text-xs rounded-xl px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold min-w-[200px]"
+            class="bg-gray-50 hover:bg-gray-100/50 border border-gray-200 text-gray-700 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold transition-all cursor-pointer"
           >
             <option [value]="null">Todos los departamentos</option>
             <option *ngFor="let d of departments" [value]="d.id">
               {{ d.name }}
             </option>
           </select>
+        </div>
+
+        <!-- Agent/User Filter -->
+        <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Agente / Usuario</label>
+          <select 
+            [(ngModel)]="selectedAgent"
+            class="bg-gray-50 hover:bg-gray-100/50 border border-gray-200 text-gray-700 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold transition-all cursor-pointer"
+          >
+            <option value="">Todos los agentes</option>
+            <option *ngFor="let agent of getUniqueAgents()" [value]="agent">
+              {{ agent }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Campaign Filter (Visible/Active for Bulk Sends) -->
+        <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Campaña</label>
+          <select 
+            [(ngModel)]="selectedCampaign"
+            [disabled]="activeTab !== 'bulk'"
+            class="bg-gray-50 hover:bg-gray-100/50 border border-gray-200 text-gray-700 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold transition-all cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <option value="">Todas las campañas</option>
+            <option *ngFor="let camp of getUniqueCampaigns()" [value]="camp">
+              {{ camp }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Start Date Filter -->
+        <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Fecha Inicio</label>
+          <input 
+            type="date"
+            [(ngModel)]="startDate"
+            class="bg-gray-50 hover:bg-gray-100/50 border border-gray-200 text-gray-700 text-xs rounded-xl px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold transition-all cursor-pointer"
+          />
+        </div>
+
+        <!-- End Date Filter -->
+        <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Fecha Fin</label>
+          <input 
+            type="date"
+            [(ngModel)]="endDate"
+            class="bg-gray-50 hover:bg-gray-100/50 border border-gray-200 text-gray-700 text-xs rounded-xl px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold transition-all cursor-pointer"
+          />
         </div>
       </div>
     </div>
