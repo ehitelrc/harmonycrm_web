@@ -23,7 +23,7 @@ import { TagIconComponent } from '../settings/tags-management/tag-icon/tag-icon.
       <app-sidebar></app-sidebar>
       
       <!-- Main Content Area -->
-      <div class="lg:pl-[308px] min-h-screen flex flex-col transition-all duration-300">
+      <div class="lg:pl-[312px] min-h-screen flex flex-col transition-all duration-300">
         <!-- Topbar -->
         <app-topbar></app-topbar>
         
@@ -38,7 +38,7 @@ import { TagIconComponent } from '../settings/tags-management/tag-icon/tag-icon.
       <!-- Bottom Tabs Bar (Dynamic Multi-tabs System) -->
       <div *ngIf="tabs.length > 0" 
         class="fixed bottom-0 right-0 z-40 bg-white/80 dark:bg-gray-900/80 backdrop-blur-md border-t border-gray-200/50 dark:border-gray-800/50 shadow-lg px-6 py-2 flex items-center justify-between select-none h-14 transition-all duration-300"
-        [style.left]="isSidebarCollapsed() ? '84px' : '308px'"
+        [style.left]="isSidebarCollapsed() ? '88px' : '312px'"
         style="transition-property: left;"
       >
         <div class="flex items-center gap-1.5 overflow-x-auto nav-scroll w-full py-1">
