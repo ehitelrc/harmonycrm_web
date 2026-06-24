@@ -336,18 +336,18 @@
 .case-card-item:hover:not(.active-case)::after {
   content: "";
   position: absolute;
-  right: -14px;
+  right: -34px;
   top: calc(50% - 28px);
-  width: 14px;
+  width: 34px;
   height: 56px;
-  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 56'><path d='M 0 0 L 0 8 C 0 14, 14 21, 14 28 C 14 35, 0 42, 0 48 L 0 56 Z' fill='%23e0e7ff'/><path d='M 0 8 C 0 14, 14 21, 14 28 C 14 35, 0 42, 0 48' fill='none' stroke='rgba(0,0,0,0.04)' stroke-width='1'/></svg>") no-repeat center;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 56'><path d='M 0 0 L 0 8 C 0 16, 34 20, 34 28 C 34 36, 0 40, 0 48 L 0 56 Z' fill='%23e0e7ff'/><path d='M 0 8 C 0 16, 34 20, 34 28 C 34 36, 0 40, 0 48' fill='none' stroke='rgba(0,0,0,0.04)' stroke-width='1'/></svg>") no-repeat center;
   background-size: contain;
   pointer-events: none;
   z-index: 5;
 }
 
 .dark .case-card-item:hover:not(.active-case)::after {
-  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 56'><path d='M 0 0 L 0 8 C 0 14, 14 21, 14 28 C 14 35, 0 42, 0 48 L 0 56 Z' fill='%231d2247'/><path d='M 0 8 C 0 14, 14 21, 14 28 C 14 35, 0 42, 0 48' fill='none' stroke='rgba(255,255,255,0.04)' stroke-width='1'/></svg>") no-repeat center;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 34 56'><path d='M 0 0 L 0 8 C 0 16, 34 20, 34 28 C 34 36, 0 40, 0 48 L 0 56 Z' fill='%231d2247'/><path d='M 0 8 C 0 16, 34 20, 34 28 C 34 36, 0 40, 0 48' fill='none' stroke='rgba(255,255,255,0.04)' stroke-width='1'/></svg>") no-repeat center;
   background-size: contain;
 }
 
