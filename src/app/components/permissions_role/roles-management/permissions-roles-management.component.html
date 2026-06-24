@@ -28,21 +28,36 @@
       </select>
     </div>
 
-    <!-- Permissions Actions -->
+    <!-- Permissions Actions & Search -->
     @if (selectedRoleId){
-    <div class="flex gap-2 mb-4">
-      <button type="button" (click)="selectAll()"
-        class="px-3 py-1 bg-green-600 text-white rounded-md shadow hover:bg-green-700 text-sm">
-        Marcar todo
-      </button>
-      <button type="button" (click)="deselectAll()"
-        class="px-3 py-1 bg-red-600 text-white rounded-md shadow hover:bg-red-700 text-sm">
-        Desmarcar todo
-      </button>
-      <button type="button" (click)="invertSelection()"
-        class="px-3 py-1 bg-yellow-600 text-white rounded-md shadow hover:bg-yellow-700 text-sm">
-        Invertir selección
-      </button>
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4 select-none">
+      <div class="flex gap-2 flex-wrap">
+        <button type="button" (click)="selectAll()"
+          class="px-3.5 py-1.5 bg-green-600 hover:bg-green-700 text-white font-semibold text-xs rounded-xl shadow transition-all active:scale-95 cursor-pointer">
+          Marcar todo
+        </button>
+        <button type="button" (click)="deselectAll()"
+          class="px-3.5 py-1.5 bg-red-600 hover:bg-red-700 text-white font-semibold text-xs rounded-xl shadow transition-all active:scale-95 cursor-pointer">
+          Desmarcar todo
+        </button>
+        <button type="button" (click)="invertSelection()"
+          class="px-3.5 py-1.5 bg-amber-600 hover:bg-amber-700 text-white font-semibold text-xs rounded-xl shadow transition-all active:scale-95 cursor-pointer">
+          Invertir selección
+        </button>
+      </div>
+
+      <!-- Search Input -->
+      <div class="relative w-full sm:w-[260px]">
+        <input 
+          type="text" 
+          [(ngModel)]="searchTerm"
+          placeholder="Buscar permiso..."
+          class="w-full bg-white hover:bg-gray-50 border border-gray-300 text-gray-700 text-xs rounded-xl pl-8 pr-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-[#3e66ea] focus:border-[#3e66ea]"
+        />
+        <svg class="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        </svg>
+      </div>
     </div>
     }
 
@@ -58,12 +73,17 @@
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
-            <tr *ngFor="let p of permissions" class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+            <tr *ngFor="let p of getFilteredPermissions()" class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
               <!-- <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">{{ p.code }}</td> -->
               <td class="px-4 py-3.5 text-sm text-gray-900 dark:text-white">{{ p.description }}</td>
               <td class="px-4 py-3.5 text-center">
                 <input type="checkbox" [(ngModel)]="p.assigned"
                   class="h-4 w-4 text-[#3e66ea] border-gray-300 rounded focus:ring-[#3e66ea] cursor-pointer" />
+              </td>
+            </tr>
+            <tr *ngIf="getFilteredPermissions().length === 0">
+              <td colspan="2" class="py-8 text-center text-gray-400 font-medium text-xs select-none">
+                No se encontraron permisos coincidentes.
               </td>
             </tr>
           </tbody>

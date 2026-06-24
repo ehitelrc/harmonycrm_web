@@ -21,6 +21,7 @@ export class PermissionsRoleManagementComponent implements OnInit {
   permissions: RolePermissionView[] = [];
   selectedRoleId: number | null = null;
   isLoading = false;
+  searchTerm = '';
 
   constructor(
     private roleService: RoleService,
@@ -50,6 +51,7 @@ export class PermissionsRoleManagementComponent implements OnInit {
 
   async onRoleChange(): Promise<void> {
     if (!this.selectedRoleId) return;
+    this.searchTerm = '';
     try {
       const response = await this.roleService.getPermissionsByRoleId(this.selectedRoleId);
       if (response.success && response.data) {
@@ -61,6 +63,17 @@ export class PermissionsRoleManagementComponent implements OnInit {
       console.error('Error loading permissions:', err);
       this.alertService.error(this.t('error'), this.t('failed_load_permissions'));
     }
+  }
+
+  getFilteredPermissions(): RolePermissionView[] {
+    if (!this.searchTerm.trim()) {
+      return this.permissions;
+    }
+    const term = this.searchTerm.toLowerCase();
+    return this.permissions.filter(p => 
+      p.description?.toLowerCase().includes(term) || 
+      p.code?.toLowerCase().includes(term)
+    );
   }
 
   async savePermissions(): Promise<void> {
@@ -85,14 +98,14 @@ export class PermissionsRoleManagementComponent implements OnInit {
   }
 
   selectAll(): void {
-    this.permissions = this.permissions.map(p => ({ ...p, assigned: true }));
+    this.getFilteredPermissions().forEach(p => p.assigned = true);
   }
 
   deselectAll(): void {
-    this.permissions = this.permissions.map(p => ({ ...p, assigned: false }));
+    this.getFilteredPermissions().forEach(p => p.assigned = false);
   }
 
   invertSelection(): void {
-    this.permissions = this.permissions.map(p => ({ ...p, assigned: !p.assigned }));
+    this.getFilteredPermissions().forEach(p => p.assigned = !p.assigned);
   }
 }
