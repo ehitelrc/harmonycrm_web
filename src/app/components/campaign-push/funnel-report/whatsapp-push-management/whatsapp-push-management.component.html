@@ -88,47 +88,67 @@
                    focus:ring-2 focus:ring-[#3e66ea] focus:border-transparent text-sm text-[#00113f]
                    dark:bg-gray-700 dark:border-gray-600 dark:text-white" />
                 </div>
-
-                <!-- CSV -->
+                              <!-- CSV & Manual client selection -->
                 @if (leads.length === 0) {
-                <div class="md:col-span-2 lg:col-span-3">
-                    <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
-                        {{ t('whatsapp_template.upload_file_title') }}
-                    </label>
-                    <!-- DRAG & DROP FILE UPLOADER -->
-                    <div class="mt-2 flex flex-col items-center justify-center w-full border-2 border-dashed rounded-lg
-         transition-all duration-300 cursor-pointer
-         border-gray-300 dark:border-gray-600 hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-gray-700/40"
-                        (drop)="handleDrop($event)" (dragover)="handleDragOver($event)"
-                        (dragleave)="handleDragLeave($event)" (click)="fileInput.click()"
-                        [class.bg-blue-50]="isDragOver" [class.border-blue-600]="isDragOver">
+                <div class="md:col-span-2 lg:col-span-3 flex flex-col md:flex-row gap-6">
+                    <!-- DRAG & DROP FILE UPLOADER (60%) -->
+                    <div class="flex-1">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                            {{ t('whatsapp_template.upload_file_title') }}
+                        </label>
+                        <!-- DRAG & DROP FILE UPLOADER -->
+                        <div class="mt-2 flex flex-col items-center justify-center w-full border-2 border-dashed rounded-lg
+                             transition-all duration-300 cursor-pointer h-[160px]
+                             border-gray-300 dark:border-gray-600 hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-gray-700/40"
+                            (drop)="handleDrop($event)" (dragover)="handleDragOver($event)"
+                            (dragleave)="handleDragLeave($event)" (click)="fileInput.click()"
+                            [class.bg-blue-50]="isDragOver" [class.border-blue-600]="isDragOver">
 
-                        <!-- Ícono -->
-                        <div class="text-center p-6">
-                            <svg class="mx-auto h-12 w-12 text-gray-400 dark:text-gray-300" fill="none"
-                                viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 0116.9 9.1a4.5 4.5 0 11-.4 8.9H7z" />
-                            </svg>
+                            <!-- Ícono -->
+                            <div class="text-center p-4">
+                                <svg class="mx-auto h-10 w-10 text-gray-400 dark:text-gray-300" fill="none"
+                                    viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 0116.9 9.1a4.5 4.5 0 11-.4 8.9H7z" />
+                                </svg>
 
-                            <p class="mt-4 text-sm font-medium text-gray-700 dark:text-gray-300">
-                                Arrastra tu archivo CSV aquí<br />
-                                <span class="text-xs text-gray-500 dark:text-gray-400">o haz clic para
-                                    seleccionarlo</span>
-                            </p>
+                                <p class="mt-2 text-xs font-semibold text-gray-700 dark:text-gray-300">
+                                    Arrastra tu archivo CSV aquí o haz clic para seleccionarlo
+                                </p>
 
-                            <p class="mt-2 text-xs text-gray-400">
-                                Formato aceptado: <code>phone_number, full_name</code>
-                            </p>
+                                <p class="mt-1 text-[10px] text-gray-400">
+                                    Formato aceptado: <code>phone_number, full_name</code>
+                                </p>
+                            </div>
+
+                            <!-- Input oculto -->
+                            <input #fileInput type="file" class="hidden" accept=".csv,text/csv"
+                                (change)="onFileSelected($event)" />
                         </div>
-
-                        <!-- Input oculto -->
-                        <input #fileInput type="file" class="hidden" accept=".csv,text/csv"
-                            (change)="onFileSelected($event)" />
                     </div>
-                    <p class="text-xs text-gray-500 mt-2">
-                        {{ t('whatsapp_template.upload_file_example') }}<br />
-                        <code>{{ t('whatsapp_template.upload_file_example_sub1') }}</code><br />
+
+                    <!-- ADD CLIENT FROM CATALOG / MANUAL (40%) -->
+                    <div class="w-full md:w-[35%] flex flex-col justify-end">
+                        <label class="block text-sm font-medium text-gray-700 dark:text-gray-200 mb-1">
+                            Cargar Clientes Individuales
+                        </label>
+                        <div class="mt-2 border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/40 rounded-lg p-5 flex flex-col items-center justify-center gap-3 h-[160px]">
+                            <p class="text-xs text-center text-gray-500 dark:text-gray-400">
+                                ¿Prefieres no usar un archivo? Selecciona clientes directamente del catálogo o agrégalos de forma manual.
+                            </p>
+                            <button type="button" (click)="openAddClientModal()" class="w-full flex items-center justify-center gap-2 py-2 px-4 bg-white dark:bg-gray-700 border border-gray-250 dark:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-650 hover:border-blue-500 dark:hover:border-blue-500 text-[#3e66ea] hover:text-blue-600 dark:text-blue-400 dark:hover:text-blue-300 text-xs font-bold rounded-xl transition shadow-premium">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                </svg>
+                                Agregar del Catálogo
+                              </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="md:col-span-2 lg:col-span-3">
+                    <p class="text-[10px] text-gray-450 mt-1">
+                        {{ t('whatsapp_template.upload_file_example') }}
+                        <code>{{ t('whatsapp_template.upload_file_example_sub1') }}</code> | 
                         <code>{{ t('whatsapp_template.upload_file_example_sub2') }}</code>
                     </p>
                 </div>
@@ -137,10 +157,18 @@
 
             <!-- Preview de leads -->
             <div *ngIf="leads.length > 0" class="mt-6">
-                <h3 class="text-lg font-semibold text-[#00113f] dark:text-white mb-2">Leads cargados</h3>
-                <div class="overflow-hidden border border-gray-200 dark:border-gray-700 rounded-lg">
+                <div class="flex items-center justify-between mb-2">
+                    <h3 class="text-lg font-semibold text-[#00113f] dark:text-white">Leads cargados</h3>
+                    <button type="button" (click)="openAddClientModal()" class="flex items-center gap-1.5 py-1.5 px-3 bg-blue-50 hover:bg-blue-100 dark:bg-blue-900/30 border border-blue-100 hover:border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300 text-xs font-bold rounded-xl transition shadow-sm">
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                        </svg>
+                        Agregar más clientes
+                    </button>
+                </div>
+                <div class="overflow-hidden border border-gray-250 dark:border-gray-700 rounded-xl max-h-[350px] overflow-y-auto">
                     <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-                        <thead class="bg-gray-50 dark:bg-gray-900">
+                        <thead class="bg-gray-50 dark:bg-gray-900 sticky top-0">
                             <tr>
                                 <th
                                     class="px-4 py-2 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
@@ -151,12 +179,12 @@
                                 <th class="px-4 py-2"></th>
                             </tr>
                         </thead>
-                        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                        <tbody class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700 text-xs text-gray-700">
                             <tr *ngFor="let l of leads; let i = index">
-                                <td class="px-4 py-2 text-sm text-gray-700">{{ l.phone_number }}</td>
-                                <td class="px-4 py-2 text-sm text-gray-700">{{ l.full_name || '—' }}</td>
+                                <td class="px-4 py-2 font-mono">{{ l.phone_number }}</td>
+                                <td class="px-4 py-2 font-medium">{{ l.full_name || '—' }}</td>
                                 <td class="px-4 py-2 text-right">
-                                    <button (click)="removeLead(i)" class="text-red-600 hover:text-red-700 text-sm">
+                                    <button (click)="removeLead(i)" class="text-red-600 hover:text-red-700 font-bold text-xs transition">
                                         {{ t('whatsapp_template.remove') }}
                                     </button>
                                 </td>
@@ -165,13 +193,13 @@
                     </table>
                 </div>
 
-                <div class="mt-3 flex justify-between">
-                    <button (click)="clearLeads()" class="text-gray-600 hover:text-gray-800 text-sm">
+                <div class="mt-4 flex justify-between">
+                    <button (click)="clearLeads()" class="text-gray-500 hover:text-gray-700 text-xs font-bold transition">
                         {{ t('whatsapp_template.clear_all') }}
                     </button>
                     <div class="flex gap-2">
-                        <button (click)="sendPush()" [disabled]="!canSend()" class="px-5 py-2 bg-[#3e66ea] hover:bg-[#2f52c9] disabled:bg-gray-300 disabled:cursor-not-allowed
-                     text-white font-medium rounded-md shadow">
+                        <button (click)="sendPush()" [disabled]="!canSend()" class="px-6 py-2 bg-[#3e66ea] hover:bg-[#2f52c9] disabled:bg-gray-200 dark:disabled:bg-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed
+                     text-white text-xs font-bold rounded-xl transition shadow">
                             {{ submitting ? t('whatsapp_template.sending') : t('whatsapp_template.send_messages') }}
                         </button>
                     </div>
@@ -179,5 +207,106 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- Modal Agregar Cliente (Catálogo / Manual) -->
+    <div *ngIf="isAddClientModalOpen"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-black/55 backdrop-blur-sm"
+        (click)="closeAddClientModal()">
+        <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg p-6 m-4 flex flex-col max-h-[85vh] animate-fadeInUp"
+            (click)="$event.stopPropagation()">
+
+            <!-- Modal Header -->
+            <div class="flex items-center justify-between mb-4 pb-2 border-b border-gray-100 dark:border-gray-700">
+                <h3 class="text-base font-bold text-gray-900 dark:text-white">Agregar Cliente</h3>
+                <button (click)="closeAddClientModal()"
+                    class="p-1 rounded-full text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 hover:text-gray-600 dark:hover:text-gray-300 transition">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Modal Body -->
+            <div class="flex-1 overflow-y-auto space-y-4 px-1 py-1 custom-scrollbar text-left">
+                
+                <!-- Autocomplete Buscar Cliente -->
+                <div>
+                    <label class="block text-[10px] font-bold text-gray-400 dark:text-gray-300 uppercase tracking-wider mb-1">Buscar en Catálogo</label>
+                    <div class="relative">
+                        <input type="text" [(ngModel)]="clientSearchQuery" (ngModelChange)="searchCatalogClients()"
+                            placeholder="Escribe el nombre, correo o teléfono..."
+                            class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500 focus:border-blue-500 outline-none">
+                        
+                        <!-- Autocomplete dropdown results -->
+                        <div *ngIf="clientSearchResults.length > 0"
+                            class="absolute z-10 w-full mt-1 bg-white dark:bg-gray-700 border border-gray-250 dark:border-gray-650 rounded-xl shadow-2xl max-h-48 overflow-y-auto divide-y divide-gray-100 dark:divide-gray-600 border-gray-100">
+                            <div *ngFor="let c of clientSearchResults"
+                                (click)="selectCatalogClient(c); clientSearchResults = []"
+                                class="px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer text-xs text-gray-700 dark:text-gray-200 flex flex-col gap-0.5">
+                                <span class="font-bold">{{ c.full_name }}</span>
+                                <span class="text-[10px] text-gray-400 font-mono">Teléfono: {{ c.phone }} | Email: {{ c.email || 'N/D' }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Selected catalog client info -->
+                    <div *ngIf="selectedCatalogClient"
+                        class="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl text-xs text-blue-800 dark:text-blue-200 flex justify-between items-center">
+                        <span>Cliente Vinculado: <strong>{{ selectedCatalogClient.full_name }}</strong></span>
+                        <button (click)="selectedCatalogClient = null; manualPhone = ''; manualFullName = ''"
+                            class="text-blue-600 hover:text-blue-800 dark:hover:text-blue-300 font-bold">Desvincular</button>
+                    </div>
+                </div>
+
+                <div class="border-t border-dashed border-gray-100 dark:border-gray-700 my-4"></div>
+
+                <!-- Manual Fields (Or filled from Catalog selection) -->
+                <div class="space-y-4">
+                    <!-- Teléfono Destino -->
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 dark:text-gray-300 uppercase tracking-wider mb-1">
+                            Teléfono de Contacto <span class="text-red-500">*</span>
+                        </label>
+                        <div class="flex gap-2">
+                            <!-- Código de país -->
+                            <div class="flex-shrink-0 w-24">
+                                <div class="relative">
+                                    <span
+                                        class="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium select-none">+</span>
+                                    <input type="text" [(ngModel)]="manualCountryCode"
+                                        placeholder="506" maxlength="4"
+                                        class="w-full pl-6 pr-2 py-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500 outline-none text-center font-mono">
+                                </div>
+                            </div>
+                            <!-- Número local -->
+                            <input type="text" [(ngModel)]="manualPhone" placeholder="Ej: 88888888"
+                                class="flex-1 p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500 outline-none font-mono">
+                        </div>
+                        <p class="text-[10px] text-gray-400 mt-1 font-mono">
+                            Número completo: <span>+{{ manualCountryCode }}{{ manualPhone }}</span>
+                        </p>
+                    </div>
+
+                    <!-- Nombre completo -->
+                    <div>
+                        <label class="block text-[10px] font-bold text-gray-400 dark:text-gray-300 uppercase tracking-wider mb-1">Nombre Completo (Opcional)</label>
+                        <input type="text" [(ngModel)]="manualFullName" placeholder="Ej: Juan Pérez"
+                            class="w-full p-2.5 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl text-sm text-gray-900 dark:text-white focus:ring-1 focus:ring-blue-500 outline-none">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="mt-6 pt-3 border-t border-gray-100 dark:border-gray-700 flex justify-end gap-2">
+                <button (click)="closeAddClientModal()"
+                    class="px-4 py-2 text-xs font-bold text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200 transition">
+                    Cancelar
+                </button>
+                <button (click)="addClientToList()" [disabled]="!manualPhone"
+                    class="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-200 disabled:dark:bg-gray-700 disabled:text-gray-400 disabled:cursor-not-allowed text-white text-xs font-bold rounded-xl transition shadow-premium">
+                    Agregar a la Lista
+                </button>
+            </div>
+        </div>
     </div>
 </app-main-layout>

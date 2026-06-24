@@ -21,6 +21,8 @@ import { AgentUserService } from '@app/services/agent-user.service';
 import { VWChannelIntegration } from '@app/models/vw-channel-integration.model';
 import { ChannelTemplateIntegration } from '@app/models/channel-template-integration.model';
 import { WhatsAppTemplateService } from '@app/services/whatsapp-template.service';
+import { Client } from '@app/models/client.model';
+import { ClientService } from '@app/services/client.service';
 
 @Component({
   selector: 'app-whatsapp-push-management',
@@ -56,6 +58,15 @@ export class WhatsappPushManagementComponent implements OnInit {
   description = '';
   leads: CampaignWhatsappPushLeadInput[] = [];
 
+  // Client catalog modal state
+  isAddClientModalOpen = false;
+  clientSearchQuery = '';
+  clientSearchResults: Client[] = [];
+  selectedCatalogClient: Client | null = null;
+  manualPhone = '';
+  manualCountryCode = '506'; // Default country code
+  manualFullName = '';
+
   // Drag state
   isDragOver = false;
 
@@ -76,6 +87,7 @@ export class WhatsappPushManagementComponent implements OnInit {
     private agentUserService: AgentUserService,
     private alert: AlertService,
     private whatsappTemplateService: WhatsAppTemplateService,
+    private clientService: ClientService,
   ) { }
 
   get t() {
@@ -299,5 +311,75 @@ export class WhatsappPushManagementComponent implements OnInit {
     } finally {
       this.submitting = false;
     }
+  }
+
+  async searchCatalogClients() {
+    const q = this.clientSearchQuery.trim();
+    if (!q) {
+      this.clientSearchResults = [];
+      return;
+    }
+    try {
+      const res = await this.clientService.getAll();
+      const list = Array.isArray(res?.data) ? res.data : [];
+      this.clientSearchResults = list.filter((c: Client) =>
+        (c.full_name || '').toLowerCase().includes(q.toLowerCase()) ||
+        (c.phone || '').includes(q) ||
+        (c.email || '').toLowerCase().includes(q.toLowerCase())
+      );
+    } catch (err) {
+      console.error('Error searching clients:', err);
+    }
+  }
+
+  selectCatalogClient(c: Client) {
+    this.selectedCatalogClient = c;
+    this.manualFullName = c.full_name || '';
+    
+    const raw = (c.phone || '').replace(/^\+/, '').replace(/\s+/g, '');
+    if (!raw) return;
+
+    if (raw.startsWith(this.manualCountryCode)) {
+      this.manualPhone = raw.slice(this.manualCountryCode.length);
+    } else {
+      if (raw.length > 8) {
+        this.manualCountryCode = raw.slice(0, raw.length - 8);
+        this.manualPhone = raw.slice(raw.length - 8);
+      } else {
+        this.manualPhone = raw;
+      }
+    }
+  }
+
+  addClientToList() {
+    const phone = `${this.manualCountryCode}${this.manualPhone}`.trim();
+    if (!phone) {
+      this.alert.error('El número de teléfono es obligatorio.');
+      return;
+    }
+
+    this.leads.push({
+      phone_number: phone,
+      full_name: this.manualFullName.trim() || undefined
+    });
+
+    this.closeAddClientModal();
+  }
+
+  closeAddClientModal() {
+    this.isAddClientModalOpen = false;
+    this.clientSearchQuery = '';
+    this.clientSearchResults = [];
+    this.selectedCatalogClient = null;
+    this.manualPhone = '';
+    this.manualFullName = '';
+  }
+
+  openAddClientModal() {
+    if (!this.selectedCompany) {
+      this.alert.info('Por favor, seleccione primero una empresa.');
+      return;
+    }
+    this.isAddClientModalOpen = true;
   }
 }
