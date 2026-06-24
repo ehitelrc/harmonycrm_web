@@ -132,6 +132,7 @@ export const esTranslations = {
   'menu.cases-report': 'Gestión de Casos',
   'menu.cases-status-report': 'Casos por Estado',
   'menu.templates-report': 'Uso de Plantillas',
+  'menu.ocr-report': 'Reporte de Pagos OCR',
 
   'menu.security': 'Seguridad',
 

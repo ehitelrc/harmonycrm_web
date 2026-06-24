@@ -192,6 +192,11 @@ export const routes: Routes = [
     loadComponent: () => import('./components/reports/templates-report/templates-report.component').then(m => m.TemplatesReportComponent),
     canActivate: [AuthGuard]
   },
+  {
+    path: 'report-ocr',
+    loadComponent: () => import('./components/reports/ocr-report/ocr-report.component').then(m => m.OcrReportComponent), 
+    canActivate: [AuthGuard]
+  },
   //push whatsapp
   {
     path: 'whatsapp-campaign-push',

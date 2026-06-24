@@ -1,0 +1,367 @@
+<app-main-layout>
+  <div class="p-6 max-w-7xl mx-auto flex flex-col gap-6 animate-fadeInUp">
+    
+    <!-- Title Section -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 select-none">
+      <div>
+        <h2 class="text-xl font-extrabold text-gray-900 tracking-tight">Reporte de Procesamiento OCR</h2>
+        <p class="text-xs text-gray-500 mt-1">Análisis operativo de lectura de recibos de pago adjuntos por clientes y conciliación automática con el ERP.</p>
+      </div>
+    </div>
+
+    <!-- Filters Control Panel -->
+    <div class="bg-white border border-gray-100 p-5 rounded-3xl shadow-premium flex flex-col gap-4 select-none">
+      <div class="flex items-center justify-between border-b border-gray-50 pb-2.5">
+        <h3 class="text-xs font-bold text-gray-800 tracking-wide uppercase">Filtros Generales</h3>
+        <button 
+          (click)="clearFilters()"
+          class="text-[10px] font-bold text-blue-600 hover:text-blue-800 transition-colors uppercase tracking-wider"
+        >
+          Limpiar Filtros
+        </button>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+        <!-- Company Filter -->
+        <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Empresa</label>
+          <select 
+            [(ngModel)]="selectedCompanyId" 
+            (change)="onFilterChange()"
+            class="bg-gray-50 hover:bg-gray-100/50 border border-gray-200 text-gray-700 text-xs rounded-xl px-3 py-2.5 focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold transition-all cursor-pointer"
+          >
+            <option *ngFor="let c of companies" [value]="c.company_id">
+              {{ c.company_name }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Start Date Filter -->
+        <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Fecha Inicio</label>
+          <input 
+            type="date"
+            [(ngModel)]="startDate"
+            (change)="onFilterChange()"
+            class="bg-gray-50 hover:bg-gray-100/50 border border-gray-200 text-gray-700 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold transition-all cursor-pointer"
+          />
+        </div>
+
+        <!-- End Date Filter -->
+        <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Fecha Fin</label>
+          <input 
+            type="date"
+            [(ngModel)]="endDate"
+            (change)="onFilterChange()"
+            class="bg-gray-50 hover:bg-gray-100/50 border border-gray-200 text-gray-700 text-xs rounded-xl px-3 py-2 focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold transition-all cursor-pointer"
+          />
+        </div>
+
+        <!-- Info Card -->
+        <div class="bg-blue-50/40 border border-blue-100/50 p-3 rounded-2xl flex items-center gap-3">
+          <div class="p-2 bg-blue-100 text-blue-600 rounded-xl flex-shrink-0">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div>
+            <h4 class="text-[10px] font-bold text-blue-800 uppercase tracking-wide">OCR Integrado</h4>
+            <p class="text-[10px] text-blue-600 leading-snug mt-0.5">El sistema escanea y procesa automáticamente los archivos adjuntos en busca de comprobantes bancarios.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    <div *ngIf="loading" class="flex flex-col items-center justify-center py-20 gap-3 select-none">
+      <div class="w-8 h-8 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      <span class="text-xs font-semibold text-gray-400">Cargando reporte de OCR...</span>
+    </div>
+
+    <!-- Metrics and Charts -->
+    <div *ngIf="!loading" class="flex flex-col gap-6">
+
+      <!-- Summary Metrics Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 select-none">
+        <!-- Total Cases -->
+        <div class="bg-white border border-gray-100 p-5 rounded-3xl shadow-premium flex items-center justify-between transition-all duration-200">
+          <div class="flex flex-col gap-1.5">
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Total Gestiones</span>
+            <span class="text-2xl font-black text-gray-900 mt-1">{{ summary.total_cases }}</span>
+            <span class="text-[9px] text-gray-400 font-semibold">Casos en la empresa</span>
+          </div>
+          <div class="w-12 h-12 bg-blue-50 border border-blue-100/50 text-blue-600 rounded-2xl flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Cases with OCR -->
+        <div class="bg-white border border-gray-100 p-5 rounded-3xl shadow-premium flex items-center justify-between transition-all duration-200">
+          <div class="flex flex-col gap-1.5">
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Casos con OCR</span>
+            <span class="text-2xl font-black text-blue-600 mt-1">{{ summary.ocr_cases }}</span>
+            <span class="text-[9px] text-blue-500 font-bold bg-blue-50 px-1.5 py-0.5 rounded-md self-start">
+              {{ summary.ocr_percentage | number:'1.1-1' }}% del total
+            </span>
+          </div>
+          <div class="w-12 h-12 bg-blue-50 border border-blue-100/50 text-blue-600 rounded-2xl flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Total OCR Receipts -->
+        <div class="bg-white border border-gray-100 p-5 rounded-3xl shadow-premium flex items-center justify-between transition-all duration-200">
+          <div class="flex flex-col gap-1.5">
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Recibos Procesados</span>
+            <span class="text-2xl font-black text-gray-900 mt-1">{{ summary.total_ocr_receipts }}</span>
+            <span class="text-[9px] text-gray-400 font-semibold">Mensajes con imágenes OCR</span>
+          </div>
+          <div class="w-12 h-12 bg-purple-50 border border-purple-100/50 text-purple-600 rounded-2xl flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0115.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 4.5h.007m-.007 3h.007m-.007 3h.007m-1.5 9h.007m0 0v-.008m0 0h-.008m0 0v.008m-2.25-6h.007m0 0v-.008m0 0h-.008m0 0v.008M2.25 9.75h.007m0 0v-.008m0 0h-.008m0 0v.008m0-3h.007m0 0v-.008m0 0h-.008m0 0v.008M2.25 4.5h.007m0 0v-.008m0 0h-.008m0 0v.008z" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- ERP Reconciliation Rate -->
+        <div class="bg-white border border-gray-100 p-5 rounded-3xl shadow-premium flex items-center justify-between transition-all duration-200">
+          <div class="flex flex-col gap-1.5">
+            <span class="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Tasa Conciliación</span>
+            <span class="text-2xl font-black text-emerald-600 mt-1">
+              {{ (summary.total_ocr_receipts > 0 ? (summary.matched_receipts * 100 / summary.total_ocr_receipts) : 0) | number:'1.1-1' }}%
+            </span>
+            <span class="text-[9px] text-emerald-600 font-bold bg-emerald-50 px-1.5 py-0.5 rounded-md self-start">
+              {{ summary.matched_receipts }} Conciliados ERP
+            </span>
+          </div>
+          <div class="w-12 h-12 bg-emerald-50 border border-emerald-100/50 text-emerald-600 rounded-2xl flex items-center justify-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.745 3.745 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Advanced Data Insights Grid -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 select-none">
+        
+        <!-- Column 1: Conciliation details and bar chart progress -->
+        <div class="lg:col-span-5 bg-white border border-gray-100 p-5 rounded-3xl shadow-premium flex flex-col justify-between animate-fadeIn">
+          <div>
+            <h3 class="text-xs font-bold text-gray-800 tracking-wide uppercase border-b border-gray-50 pb-3 mb-4">Conciliación con ERP</h3>
+            <p class="text-[11px] text-gray-500 leading-relaxed mb-5">Porcentaje de comprobantes leídos por el OCR que pudieron ser enlazados automáticamente con su respectivo registro en el ERP a través del número de referencia del depósito.</p>
+            
+            <div class="flex flex-col gap-4">
+              <!-- Matched Receipts -->
+              <div class="flex flex-col gap-1.5">
+                <div class="flex justify-between items-center text-xs">
+                  <span class="font-bold text-gray-700">Conciliados (Coincidencia ERP)</span>
+                  <span class="font-black text-emerald-600">{{ summary.matched_receipts }} / {{ summary.total_ocr_receipts }}</span>
+                </div>
+                <div class="w-full bg-gray-100 h-3 rounded-full overflow-hidden">
+                  <div 
+                    class="bg-emerald-500 h-full rounded-full transition-width"
+                    [style.width.%]="summary.total_ocr_receipts > 0 ? (summary.matched_receipts * 100 / summary.total_ocr_receipts) : 0"
+                  ></div>
+                </div>
+              </div>
+
+              <!-- Unmatched Receipts -->
+              <div class="flex flex-col gap-1.5">
+                <div class="flex justify-between items-center text-xs">
+                  <span class="font-bold text-gray-700">Pendientes (Sin coincidencia ERP)</span>
+                  <span class="font-black text-amber-500">{{ summary.unmatched_receipts }} / {{ summary.total_ocr_receipts }}</span>
+                </div>
+                <div class="w-full bg-gray-100 h-3 rounded-full overflow-hidden">
+                  <div 
+                    class="bg-amber-400 h-full rounded-full transition-width"
+                    [style.width.%]="summary.total_ocr_receipts > 0 ? (summary.unmatched_receipts * 100 / summary.total_ocr_receipts) : 0"
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="mt-6 bg-gray-50 border border-gray-100 p-3 rounded-2xl flex items-start gap-2.5">
+            <svg class="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />
+            </svg>
+            <p class="text-[10px] text-gray-500 leading-normal">Los comprobantes conciliados impactan directamente en la efectividad operativa y la velocidad de validación en el canal del chat.</p>
+          </div>
+        </div>
+
+        <!-- Column 2: Frequency Distribution of OCR files per case -->
+        <div class="lg:col-span-7 bg-white border border-gray-100 p-5 rounded-3xl shadow-premium animate-fadeIn">
+          <h3 class="text-xs font-bold text-gray-800 tracking-wide uppercase border-b border-gray-50 pb-3 mb-4">Comprobantes Procesados por Caso</h3>
+          <p class="text-[11px] text-gray-500 leading-relaxed mb-5">Distribución de cantidad de mensajes con procesamiento de imágenes OCR por cada caso. Algunos clientes envían múltiples recibos de pago en el mismo chat.</p>
+
+          <div class="flex flex-col gap-3 max-h-[220px] overflow-y-auto pr-2">
+            <div 
+              *ngFor="let dist of distribution" 
+              class="flex items-center gap-4 py-1"
+            >
+              <!-- Message count label -->
+              <span class="text-xs font-bold text-gray-700 w-24 flex-shrink-0">
+                {{ dist.message_count }} {{ dist.message_count === 1 ? 'Mensaje' : 'Mensajes' }}
+              </span>
+
+              <!-- Distribution Bar -->
+              <div class="flex-grow bg-gray-100 h-6 rounded-lg overflow-hidden relative flex items-center">
+                <div 
+                  class="bg-blue-500/80 hover:bg-blue-600/90 h-full rounded-lg transition-width"
+                  [style.width.%]="summary.ocr_cases > 0 ? (dist.case_count * 100 / summary.ocr_cases) : 0"
+                ></div>
+                <!-- Percentage label on inside/outside -->
+                <span class="absolute left-3 text-[10px] font-black text-gray-800">
+                  {{ dist.case_count }} {{ dist.case_count === 1 ? 'Caso' : 'Casos' }}
+                </span>
+              </div>
+
+              <!-- Percent value -->
+              <span class="text-[10px] font-bold text-gray-400 w-12 text-right">
+                {{ (summary.ocr_cases > 0 ? (dist.case_count * 100 / summary.ocr_cases) : 0) | number:'1.0-0' }}%
+              </span>
+            </div>
+
+            <!-- Empty distribution fallback -->
+            <div *ngIf="distribution.length === 0" class="py-8 text-center text-xs text-gray-400 font-bold">
+              No hay datos de distribución disponibles.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detail list Card -->
+      <div class="bg-white border border-gray-100 rounded-3xl shadow-premium p-5 flex flex-col gap-4">
+        
+        <!-- Search & Filter Area inside Details -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-50 pb-3">
+          <h3 class="text-xs font-bold text-gray-800 tracking-wide uppercase select-none">Listado de Comprobantes Leídos</h3>
+          
+          <div class="flex flex-wrap items-center gap-3 w-full sm:w-auto">
+            <!-- Filter by Bank -->
+            <select 
+              [(ngModel)]="selectedBank"
+              class="bg-gray-50 border border-gray-200 text-gray-700 text-[11px] rounded-xl px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold"
+            >
+              <option value="">Todos los bancos</option>
+              <option *ngFor="let bank of getUniqueBanks()" [value]="bank">{{ bank }}</option>
+            </select>
+
+            <!-- Filter by Status -->
+            <select 
+              [(ngModel)]="selectedMatchStatus"
+              class="bg-gray-50 border border-gray-200 text-gray-700 text-[11px] rounded-xl px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold"
+            >
+              <option value="">Todos los estados</option>
+              <option value="matched">Conciliado ERP</option>
+              <option value="unmatched">Pendiente ERP</option>
+            </select>
+
+            <!-- Search input local -->
+            <div class="relative w-full sm:w-[240px]">
+              <input 
+                type="text" 
+                [(ngModel)]="searchQuery"
+                placeholder="Buscar caso, cliente, doc, ref..."
+                class="w-full bg-gray-50 hover:bg-gray-100/50 border border-gray-200 text-gray-700 text-xs rounded-xl pl-8 pr-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+              <svg class="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-gray-400" width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Validations Table -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="border-b border-gray-100 text-[10px] font-bold text-gray-400 uppercase tracking-wider select-none">
+                <th class="py-3 px-4">Caso #</th>
+                <th class="py-3 px-4">Cliente / Contrato</th>
+                <th class="py-3 px-4">Fecha Lectura</th>
+                <th class="py-3 px-4">Banco</th>
+                <th class="py-3 px-4">Referencia</th>
+                <th class="py-3 px-4 text-right">Importe Recibo</th>
+                <th class="py-3 px-4 text-right">Importe ERP</th>
+                <th class="py-3 px-4 text-center">Estado ERP</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-gray-50 text-xs text-gray-600">
+              <tr *ngFor="let row of getFilteredValidations()" class="hover:bg-gray-50/50 transition-colors">
+                <!-- Case ID -->
+                <td class="py-3.5 px-4 font-mono font-bold text-gray-800">
+                  <a [routerLink]="['/conversations']" class="text-blue-600 hover:underline">
+                    Caso #{{ row.case_id }}
+                  </a>
+                </td>
+
+                <!-- Client / Document / Contract -->
+                <td class="py-3.5 px-4">
+                  <div class="flex flex-col gap-0.5">
+                    <span class="font-bold text-gray-800">{{ row.client_name || row.sender_name || 'Desconocido' }}</span>
+                    <span class="text-[9px] text-gray-400 font-mono">Doc: {{ row.client_document || 'N/D' }} (Contrato: #{{ row.contract_id || 'N/D' }})</span>
+                  </div>
+                </td>
+
+                <!-- OCR Date -->
+                <td class="py-3.5 px-4 text-gray-400 font-mono">
+                  {{ row.ocr_date | date:'dd/MM/yyyy HH:mm' }}
+                </td>
+
+                <!-- Bank Name -->
+                <td class="py-3.5 px-4 font-semibold text-gray-700">
+                  {{ row.bank_name || 'Desconocido' }}
+                </td>
+
+                <!-- Reference Number -->
+                <td class="py-3.5 px-4 font-mono font-bold text-gray-600">
+                  {{ row.receipt_reference_number }}
+                </td>
+
+                <!-- Receipt Amount -->
+                <td class="py-3.5 px-4 text-right font-bold text-gray-800">
+                  {{ row.receipt_amount | currency:'USD':'symbol':'1.2-2' }}
+                </td>
+
+                <!-- ERP Amount -->
+                <td class="py-3.5 px-4 text-right font-mono text-gray-400">
+                  {{ row.erp_id > 0 ? (row.erp_amount | currency:'USD':'symbol':'1.2-2') : '—' }}
+                </td>
+
+                <!-- State Badge -->
+                <td class="py-3.5 px-4 text-center">
+                  <span 
+                    [class.bg-emerald-50]="row.erp_id > 0"
+                    [class.text-emerald-700]="row.erp_id > 0"
+                    [class.bg-amber-50]="!row.erp_id"
+                    [class.text-amber-700]="!row.erp_id"
+                    class="px-2.5 py-0.5 rounded-full font-bold text-[9px] uppercase tracking-wider select-none border"
+                    [class.border-emerald-100]="row.erp_id > 0"
+                    [class.border-amber-100]="!row.erp_id"
+                  >
+                    {{ row.erp_id > 0 ? 'Conciliado' : 'Pendiente' }}
+                  </span>
+                </td>
+              </tr>
+
+              <!-- Empty State -->
+              <tr *ngIf="getFilteredValidations().length === 0">
+                <td colspan="8" class="py-12 text-center text-xs font-bold text-gray-400 select-none bg-gray-50 border border-gray-150 rounded-2xl">
+                  No se encontraron registros de comprobantes OCR para la búsqueda o rango seleccionado.
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</app-main-layout>

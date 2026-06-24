@@ -61,5 +61,21 @@ export class CaseDashboardService {
       API_Gateway: reportURL,
     });
   }
+
+  async getOcrReport(companyId: number, startDate?: string, endDate?: string): Promise<ApiResponse<any>> {
+    let query = '';
+    if (startDate && endDate) {
+      query = `?start_date=${startDate}&end_date=${endDate}`;
+    } else if (startDate) {
+      query = `?start_date=${startDate}`;
+    }
+    const reportURL = returnCompleteURI({
+      URI: environment.API.BASE,
+      API_Gateway: `/reports/ocr/company/${companyId}${query}`,
+    });
+    return await this.fetchService.get<ApiResponse<any>>({
+      API_Gateway: reportURL,
+    });
+  }
 }
 
