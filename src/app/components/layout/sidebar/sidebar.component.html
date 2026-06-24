@@ -23,7 +23,7 @@
         <!-- Hover background with Gaussian curves (only for inactive tab) -->
         <div 
           *ngIf="activeTabId !== tab.id"
-          class="absolute left-0 w-[89px] h-full bg-white/15 rounded-l-full z-10 opacity-0 group-hover:opacity-100 hover-tab-funnel transition-all duration-200 pointer-events-none"
+          class="absolute left-0 w-[89px] h-full bg-white/15 z-10 opacity-0 group-hover:opacity-100 hover-tab-funnel transition-all duration-200 pointer-events-none"
         ></div>
  
         <!-- Icon wrapper -->
@@ -81,7 +81,7 @@
       <!-- Sliding active tab background with Gaussian curves -->
       <div 
         *ngIf="tabs.length > 0 && activeTabId"
-        class="absolute left-0 w-[89px] h-14 bg-white rounded-l-full z-10 active-tab-funnel transition-all duration-300 ease-in-out"
+        class="absolute left-0 w-[89px] h-14 bg-white z-10 active-tab-funnel transition-all duration-300 ease-in-out"
         [style.transform]="'translateY(' + getActiveTabTop() + 'px)'"
       ></div>
     </div>
