@@ -1,122 +1,143 @@
 @if (!isCaseMode) {
 <div class="h-[calc(100vh-2rem)] w-full bg-white dark:bg-gray-900 rounded-xl shadow-lg overflow-hidden flex">
 
-    <!-- ========== Columna izquierda: contactos/casos ========== -->
-    <aside class="w-full sm:w-80 lg:w-96 border-r border-gray-200 dark:border-gray-800 flex flex-col">
-        <div class="p-4">
-            <div *ngIf="!preSelectedCase" class="flex items-center gap-2 mb-3">
-                <button type="button"
-                    class="inline-flex items-center justify-center   w-8 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"
-                    (click)="goBack()" aria-label="Regresar" title="Regresar">
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                    </svg>
-                </button>
-
-                <div class="text-base font-semibold text-[#00113f] dark:text-white">
-                    Conversaciones
-                </div>
+    <!-- ========== Sleek Navigation Icon Sidebar on the left ========== -->
+    <div class="w-16 bg-[#00113f] dark:bg-gray-950 flex flex-col items-center py-6 gap-6 shrink-0 text-white justify-between select-none">
+        <div class="flex flex-col items-center gap-6 w-full">
+            <!-- App Logo / Chat Icon -->
+            <div class="w-10 h-10 rounded-xl bg-blue-600/10 flex items-center justify-center text-blue-400 mb-2 border border-blue-500/20">
+                <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                </svg>
             </div>
 
+            <!-- New Conversation Icon (First, with stronger blue) -->
+            <button (click)="openNewConversationModal()"
+                class="w-10 h-10 rounded-xl bg-blue-700 hover:bg-blue-800 text-white flex items-center justify-center transition-all duration-200 shadow-md shadow-blue-600/30"
+                title="Nueva Conversación">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4" />
+                </svg>
+            </button>
+
+            <!-- Filter Icon -->
+            <button (click)="toggleInlineFilters()" 
+                class="w-10 h-10 rounded-xl flex items-center justify-center transition-all duration-200"
+                [class.bg-blue-600]="showInlineFilters"
+                [class.text-white]="showInlineFilters"
+                [class.text-gray-400]="!showInlineFilters"
+                [class.hover:bg-gray-800]="!showInlineFilters"
+                title="Filtros de Conversación">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                </svg>
+            </button>
+
+            <!-- Global History Icon (Buscador Historial) -->
+            <button (click)="openGlobalHistoryModal()" 
+                class="w-10 h-10 rounded-xl flex items-center justify-center text-gray-400 hover:bg-gray-800 hover:text-white transition-all duration-200"
+                title="Buscador Historial Global">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3l2 2" />
+                </svg>
+            </button>
         </div>
-        <div class="px-4 py-3">
-            <div class="relative mb-2">
+
+        <div class="flex flex-col items-center gap-4 w-full">
+            <button (click)="goBack()" 
+                class="w-10 h-10 rounded-xl flex items-center justify-center text-gray-400 hover:bg-gray-800 hover:text-white transition-all duration-200"
+                title="Regresar">
+                <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- ========== Columna izquierda: contactos/casos ========== -->
+    <aside class="w-full sm:w-80 lg:w-96 flex flex-col bg-gray-50 dark:bg-gray-900/50 relative">
+        
+        <!-- Unified Header Row -->
+        <div class="h-16 px-6 flex items-center justify-between bg-[#EEF1FB] dark:bg-[#1e293b] sticky top-0 z-30 relative select-none shadow-sm shrink-0">
+            <h2 class="text-lg font-bold text-gray-900 dark:text-white">Conversaciones</h2>
+            <div class="flex items-center gap-1">
+                <span class="text-xs font-semibold px-2.5 py-0.5 bg-blue-50 dark:bg-blue-950/30 text-blue-600 dark:text-blue-400 rounded-full select-none">
+                    {{ filteredCases.length }}
+                </span>
+            </div>
+        </div>
+        
+        <!-- Search bar underneath header -->
+        <div class="p-4 shrink-0">
+            <!-- Styled Search Input matching chat1.png design -->
+            <div class="relative">
                 <input [(ngModel)]="searchContact" (ngModelChange)="applyContactFilter()" type="text"
-                    placeholder="Buscar contacto o #caso" class="w-full pl-9 pr-4 py-2 bg-gray-100 dark:bg-gray-800 border-none rounded-lg
-                           text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500
-                           focus:ring-2 focus:ring-[#3e66ea]/20 focus:bg-white dark:focus:bg-gray-700
+                    placeholder="Buscar contacto o #caso..." class="w-full pl-10 pr-4 py-2.5 bg-[#EEF1FB] dark:bg-gray-800 border-none rounded-2xl
+                           text-sm text-gray-900 dark:text-gray-100 placeholder-gray-400
+                           focus:ring-2 focus:ring-blue-500/20 focus:bg-white dark:focus:bg-gray-750
                            transition-all duration-200 outline-none" />
 
-                <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                    <svg class="h-4 w-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none">
+                    <svg class="h-4 w-4 text-[#4F46E5] dark:text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                 </span>
             </div>
+        </div>
 
-            <!-- Filtros avanzados -->
-            <div class="flex items-center gap-2">
-                <!-- Filter by Tag -->
-                <div class="relative flex-1 group">
-                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-[#3e66ea] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-                        </svg>
-                    </div>
+        <!-- Inline Filters Section (collapsable via vertical icon panel) -->
+        <div *ngIf="showInlineFilters" class="px-4 py-3 bg-gray-50/50 dark:bg-gray-800/10 space-y-3">
+            <div class="flex items-center justify-between">
+                <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Filtros Activos</span>
+                <button (click)="searchContact = ''; selectedFilterTag = null; filterUnread = false; applyContactFilter()" 
+                        class="text-[10px] text-blue-600 dark:text-blue-400 hover:underline font-semibold">
+                    Limpiar Filtros
+                </button>
+            </div>
+            
+            <!-- tag selection -->
+            <div>
+                <label class="block text-[9px] font-bold text-gray-500 uppercase tracking-wider mb-1">Filtrar por etiqueta</label>
+                <div class="relative">
                     <select [(ngModel)]="selectedFilterTag" (ngModelChange)="applyContactFilter()" 
-                            class="w-full appearance-none text-xs py-2 pl-8 pr-8 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 
-                                   border border-transparent focus:border-[#3e66ea]/30 text-gray-700 dark:text-gray-200 rounded-full 
-                                   focus:ring-2 focus:ring-[#3e66ea]/20 outline-none transition-all cursor-pointer shadow-sm">
+                            class="w-full appearance-none text-xs py-2 pl-3 pr-8 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 outline-none transition-all cursor-pointer shadow-sm">
                         <option [ngValue]="null">Todas las etiquetas</option>
                         <option *ngFor="let t of globalTags" [ngValue]="t.id">{{ t.name }}</option>
                     </select>
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none text-gray-400">
+                        <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
                         </svg>
                     </div>
                 </div>
+            </div>
 
-                <!-- Filter Unread -->
-                <button (click)="filterUnread = !filterUnread; applyContactFilter()" 
-                        class="shrink-0 px-3.5 py-2 text-xs font-semibold rounded-full transition-all flex items-center gap-1.5 shadow-sm border border-transparent"
-                        [class.bg-[#3e66ea]]="filterUnread"
-                        [class.text-white]="filterUnread"
-                        [class.shadow-md]="filterUnread"
-                        [class.shadow-[#3e66ea]/30]="filterUnread"
-                        [class.bg-gray-100]="!filterUnread"
-                        [class.hover:bg-gray-200]="!filterUnread"
-                        [class.text-gray-600]="!filterUnread"
-                        [class.dark:bg-gray-800]="!filterUnread"
-                        [class.dark:hover:bg-gray-700]="!filterUnread"
-                        [class.dark:text-gray-300]="!filterUnread"
-                        title="Filtrar mensajes sin leer">
-                    <span class="relative flex h-2 w-2">
-                      <span *ngIf="filterUnread" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-white opacity-75"></span>
-                      <span class="relative inline-flex rounded-full h-2 w-2" [class.bg-white]="filterUnread" [class.bg-[#3e66ea]]="!filterUnread"></span>
-                    </span>
-                    <span class="hidden sm:inline-block tracking-wide">Nuevos</span>
+            <!-- unread indicator toggle -->
+            <div class="flex items-center justify-between py-1">
+                <span class="text-xs font-semibold text-gray-700 dark:text-gray-300">Mostrar solo no leídos</span>
+                <button (click)="filterUnread = !filterUnread; applyContactFilter()"
+                        class="relative inline-flex h-5 w-9 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none"
+                        [class.bg-blue-600]="filterUnread"
+                        [class.bg-gray-200]="!filterUnread"
+                        [class.dark:bg-gray-700]="!filterUnread">
+                    <span class="pointer-events-none inline-block h-4 w-4 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+                          [class.translate-x-4]="filterUnread"
+                          [class.translate-x-0]="!filterUnread"></span>
                 </button>
             </div>
         </div>
 
-        <!-- BOTONES PRINCIPALES -->
-        <div class="px-4 mt-2 pb-4 flex flex-col gap-2">
-            <button (click)="openNewConversationModal()" class="w-full flex items-center justify-center gap-2 py-2.5 
-               rounded-xl bg-[#00113f] hover:bg-[#3e66ea] 
-               text-white text-sm font-semibold shadow-md transition">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
-                    stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-                </svg>
-                Nueva Conversación
-            </button>
-            <button (click)="openGlobalHistoryModal()" class="w-full flex items-center justify-center gap-2 py-2.5 
-               rounded-xl bg-gray-100 dark:bg-gray-800 hover:bg-gray-200 dark:hover:bg-gray-700
-               text-gray-700 dark:text-gray-300 text-sm font-semibold shadow-sm border border-transparent hover:border-gray-300 transition">
-                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3l2 2" />
-                </svg>
-                Buscar Historial
-            </button>
-        </div>
-
-        <div class="flex-1 overflow-y-auto">
-
-
+        <div class="flex-1 overflow-y-auto conversation-list-scroll">
             <ng-container *ngIf="!isLoadingCases; else leftLoading">
 
                 <button *ngFor="let c of filteredCases" [class.highlight]="c._highlight" (click)="selectCase(c)"
-                    class="w-full text-left px-4 py-3 border-b border-gray-100 dark:border-gray-800 
-                           hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-all duration-200 cursor-pointer group relative" [class.bg-green-100]="c.payment_found && c.case_id !== selectedCase?.case_id"
+                    class="w-full text-left px-4 py-3 transition-all duration-200 cursor-pointer group relative case-card-item"
+                    [class.active-case]="c.case_id === selectedCase?.case_id"
+                    [class.bg-green-100]="c.payment_found && c.case_id !== selectedCase?.case_id"
                     [class.dark:bg-blue-900]="c.payment_found && c.case_id !== selectedCase?.case_id"
-                    [class.bg-blue-50]="c.case_id === selectedCase?.case_id && !c.payment_found"
-                    [class.dark:bg-gray-800]="c.case_id === selectedCase?.case_id && !c.payment_found"
                     [class.bg-blue-300]="c.case_id === selectedCase?.case_id && c.payment_found"
-                    [class.dark:bg-blue-800]="c.case_id === selectedCase?.case_id && c.payment_found"
-                    [class.border-l-4]="c.case_id === selectedCase?.case_id"
-                    [class.border-l-blue-500]="c.case_id === selectedCase?.case_id">
+                    [class.dark:bg-blue-800]="c.case_id === selectedCase?.case_id && c.payment_found">
 
                     <!-- Unread Indicator Line -->
                     <div *ngIf="c.unread_count && c.unread_count > 0"
@@ -127,7 +148,7 @@
                         <!-- Icono del canal -->
                         <div class="relative shrink-0 mb-2">
                             <img [src]="channelIcon(c.channel_code!)" alt="canal"
-                                class="h-10 w-10 rounded-full object-cover bg-white p-0.5 shadow-sm border border-gray-100 dark:border-gray-700" />
+                                class="h-12 w-12 rounded-2xl object-cover bg-white p-0.5 shadow-sm border border-gray-100 dark:border-gray-700" />
 
                             <span *ngIf="c.is_non_commercial"
                                 class="absolute -bottom-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-blue-100 border border-white dark:border-gray-900"
@@ -212,13 +233,23 @@
                 <div class="p-6 text-sm text-gray-500 dark:text-gray-400">Cargando conversaciones…</div>
             </ng-template>
         </div>
+        
+        <!-- Vertical 22px connecting bar on the right, below header -->
+        <div *ngIf="selectedCase" class="absolute right-0 top-16 bottom-0 w-[22px] chat-conversation-bg z-10 pointer-events-none border-l border-black/[0.08] dark:border-white/[0.08]"></div>
     </aside>
 
     <!-- ========== Columna central: chat ========== -->
-    <section class="flex-1 flex flex-col min-w-0 bg-white dark:bg-gray-900">
-        <!-- Header del chat -->
+    <section class="flex-1 flex flex-col min-w-0 bg-white dark:bg-gray-900" [class.chat-conversation-bg]="selectedCase">
+        <!-- Header del chat (Sleek colored background with zero borders and Gaussian bell-curve tab) -->
         <div
-            class="h-16 px-6 flex items-center justify-between border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 sticky top-0 z-10">
+            class="h-16 px-6 flex items-center justify-between bg-[#EEF1FB] dark:bg-[#1e293b] sticky top-0 z-30 relative select-none shadow-sm">
+            
+            <!-- Gaussian bell curve tab protruding downwards (wider and more pronounced) -->
+            <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-80 h-6 overflow-hidden translate-y-full pointer-events-none select-none z-20">
+                <svg class="w-full h-full text-[#EEF1FB] dark:text-[#1e293b] fill-current" viewBox="0 0 100 24" preserveAspectRatio="none">
+                    <path d="M 0 0 L 15 0 C 28 0, 34 24, 50 24 C 66 24, 72 0, 85 0 L 100 0 Z"></path>
+                </svg>
+            </div>
 
             <div class="flex items-center gap-3 overflow-hidden">
                 <!-- Ícono canal -->
@@ -316,154 +347,187 @@
 
 
         <!-- Mensajes -->
-        <div class="flex-1 chat-scrollbox overflow-y-auto px-4 py-6 space-y-4 bg-gray-50 dark:bg-gray-900/50">
+        <div class="flex-1 chat-scrollbox overflow-y-auto px-4 py-6 space-y-4 bg-transparent">
 
             <ng-container *ngIf="selectedCase; else emptyState">
                 <ng-container *ngIf="!isLoadingMessages; else loadingMessages">
                     <!-- 🔄 Loop de mensajes -->
-                    <div *ngFor="let m of messages" class="w-full flex" [class.justify-end]="isFromAgent(m)"
+                    <div *ngFor="let m of messages" class="w-full flex my-3" [class.justify-end]="isFromAgent(m)"
                         [class.justify-start]="!isFromAgent(m)">
 
-                        <div class="max-w-[75%] px-4 py-3 shadow-sm transition-all message-bubble animate-in relative group"
-                            [class.bg-[#3e66ea]]="isFromAgent(m)" [class.text-white]="isFromAgent(m)"
-                            [class.rounded-2xl]="true" [class.rounded-tr-sm]="isFromAgent(m)"
-                            [class.rounded-tl-sm]="!isFromAgent(m)" [class.bg-white]="!isFromAgent(m)"
-                            [class.dark:bg-gray-800]="!isFromAgent(m)" [class.border]="!isFromAgent(m)"
-                            [class.border-gray-200]="!isFromAgent(m)" [class.dark:border-gray-700]="!isFromAgent(m)"
-                            [class.text-gray-900]="!isFromAgent(m)" [class.dark:text-gray-100]="!isFromAgent(m)"
-                            [class.animate-in]="m._justArrived">
-
-                            <!-- Texto -->
-                            <div *ngIf="isText(m) && m.text_content?.trim()?.length"
-                                class="text-sm whitespace-pre-wrap break-words leading-relaxed"
-                                [innerHTML]="parseUrls(m.text_content || '')">
+                        <!-- CLIENT MESSAGE BLOCK -->
+                        <div *ngIf="!isFromAgent(m)" class="flex items-end gap-3 max-w-[80%] md:max-w-[70%] group">
+                            <!-- Client initials avatar -->
+                            <div class="h-9 w-9 rounded-xl bg-[#EEF1FB] dark:bg-gray-800 flex items-center justify-center text-xs font-bold text-[#4F46E5] dark:text-blue-400 border border-blue-100 dark:border-gray-750 shrink-0 select-none shadow-sm"
+                                 [title]="selectedCase.client_name || 'Cliente'">
+                                {{ (selectedCase.client_name || 'C').charAt(0) | uppercase }}
                             </div>
 
-                            <!-- Adjuntos -->
-                            <div *ngIf="isMedia(m)" class="text-sm">
+                            <!-- Bubble -->
+                            <div class="px-4 py-3 shadow-sm transition-all message-bubble client-bubble animate-in relative bg-[#EEF1FB] dark:bg-gray-800 text-gray-900 dark:text-gray-100 rounded-2xl rounded-bl-sm border border-gray-100 dark:border-gray-700 flex flex-col gap-1"
+                                [class.animate-in]="m._justArrived">
+                                <!-- Sender Name -->
+                                <div class="text-[10px] font-bold text-[#4F46E5] dark:text-blue-400 uppercase tracking-wide">
+                                    {{ selectedCase.client_name || 'Cliente' }}
+                                </div>
 
-                                <!-- Imagen -->
-                                <ng-container *ngIf="m.message_type === 'image'">
-                                    <!-- IMAGEN -->
-                                    <div *ngIf="m.message_type === 'image'" class="cursor-pointer"
-                                        (click)="openAttachment(m)">
-                                        <img [src]="attachmentImageSrc(m)"
-                                            class="rounded-lg max-h-72 object-cover border border-black/10"
-                                            alt="Imagen" />
-                                        <div class="text-xs mt-2 break-words opacity-90" *ngIf="m.text_content">
-                                            {{ m.text_content }}
+                                <!-- Texto -->
+                                <div *ngIf="isText(m) && m.text_content?.trim()?.length"
+                                    class="text-sm whitespace-pre-wrap break-words leading-relaxed"
+                                    [innerHTML]="parseUrls(m.text_content || '')">
+                                </div>
+
+                                <!-- Adjuntos -->
+                                <div *ngIf="isMedia(m)" class="text-sm">
+                                    <!-- Imagen -->
+                                    <ng-container *ngIf="m.message_type === 'image'">
+                                        <div class="cursor-pointer" (click)="openAttachment(m)">
+                                            <img [src]="attachmentImageSrc(m)" class="rounded-xl max-h-72 object-cover border border-black/10 shadow-sm" alt="Imagen" />
+                                            <div class="text-xs mt-2 break-words opacity-90" *ngIf="m.text_content">
+                                                {{ m.text_content }}
+                                            </div>
                                         </div>
-                                    </div>
-                                </ng-container>
+                                    </ng-container>
 
-                                <!-- Audio -->
-                                <ng-container *ngIf="m.message_type === 'audio'">
-                                    <div class="flex items-center gap-2 mb-2 opacity-80">
-                                        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
-                                        </svg>
-                                        <span class="text-xs">Nota de voz</span>
-                                    </div>
-
-                                    <audio [src]="attachmentAudioSrc(m)" controls
-                                        class="w-full min-w-[240px] max-w-full h-10 rounded-lg shadow-sm">
-                                    </audio>
-
-                                    <div *ngIf="m.text_content" class="mt-2 opacity-90 whitespace-pre-wrap">
-                                        {{ m.text_content }}
-                                    </div>
-                                </ng-container>
-
-                                <!-- Otros archivos -->
-                                <ng-container *ngIf="m.message_type !== 'image'
-                              && m.message_type !== 'audio'
-                              && m.message_type !== 'text'">
-                                    <div
-                                        class="flex items-center gap-3 p-3 rounded-lg bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5">
-                                        <div class="p-2 bg-white dark:bg-gray-700 rounded-lg shadow-sm">
-                                            <svg class="w-6 h-6 text-gray-500 dark:text-gray-300" fill="none"
-                                                viewBox="0 0 24 24" stroke="currentColor">
-                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                    d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                    <!-- Audio -->
+                                    <ng-container *ngIf="m.message_type === 'audio'">
+                                        <div class="flex items-center gap-2 mb-2 opacity-80">
+                                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                                             </svg>
+                                            <span class="text-xs">Nota de voz</span>
                                         </div>
-                                        <div class="flex-1 min-w-0">
-                                            <div class="text-xs font-medium truncate opacity-90">Archivo adjunto</div>
-                                            <a (click)="downloadFile(m)"
-                                                class="text-xs underline cursor-pointer hover:opacity-80 truncate block">
-                                                Descargar
-                                            </a>
+                                        <audio [src]="attachmentAudioSrc(m)" controls class="w-full min-w-[240px] max-w-full h-10 rounded-lg shadow-sm"></audio>
+                                        <div *ngIf="m.text_content" class="mt-2 opacity-90 whitespace-pre-wrap">{{ m.text_content }}</div>
+                                    </ng-container>
+
+                                    <!-- Otros archivos -->
+                                    <ng-container *ngIf="m.message_type !== 'image' && m.message_type !== 'audio' && m.message_type !== 'text'">
+                                        <div class="flex items-center gap-3 p-3 rounded-lg bg-black/5 dark:bg-white/5 border border-black/5 dark:border-white/5">
+                                            <div class="p-2 bg-white dark:bg-gray-700 rounded-lg shadow-sm">
+                                                <svg class="w-6 h-6 text-gray-500 dark:text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                </svg>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <div class="text-xs font-medium truncate opacity-90">Archivo adjunto</div>
+                                                <a (click)="downloadFile(m)" class="text-xs underline cursor-pointer hover:opacity-80 truncate block text-blue-600 dark:text-blue-400">Descargar</a>
+                                            </div>
                                         </div>
-                                    </div>
-
-                                    <div *ngIf="m.text_content" class="mt-2 opacity-90 whitespace-pre-wrap">
-                                        {{ m.text_content }}
-                                    </div>
-                                </ng-container>
-
-                            </div>
-
-                            <div class="mt-1 flex items-center justify-end gap-1 opacity-70 select-none">
-                                <span class="text-[10px]">
-                                    {{ formatMessageDate(m.created_at) }}
-                                </span>
-
-                                <!-- Status Icons (only for agent/system messages) -->
-                                <ng-container *ngIf="isFromAgent(m)">
-                                    <!-- Pending / Null / Empty -> Clock -->
-                                    <svg *ngIf="!m.status" xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5"
-                                        fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-
-                                    <!-- Delivered -> Single Check -->
-                                    <svg *ngIf="m.status === 'delivered' || m.status === 'sent'"
-                                        xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                                    </svg>
-
-                                    <!-- Read -> Double Check (Blue) -->
-                                    <svg *ngIf="m.status === 'read'" xmlns="http://www.w3.org/2000/svg"
-                                        class="h-3.5 w-3.5 text-blue-200" fill="none" viewBox="0 0 24 24"
-                                        stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M16 6L9 13L6.5 10.5M21 6L14 13L11.5 10.5" />
-                                    </svg>
-
-                                    <!-- Failed -> Error -->
-                                    <svg *ngIf="m.status === 'failed' || m.status === 'fail'"
-                                        xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-red-300" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                                        <path stroke-linecap="round" stroke-linejoin="round"
-                                            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                    </svg>
-                                </ng-container>
-                            </div>
-
-                            <!-- Error -->
-                            <div *ngIf="m.has_error"
-                                class="absolute -left-8 top-1/2 -translate-y-1/2 flex items-center justify-center cursor-pointer group">
-
-                                <div class="p-1 rounded-full bg-red-100 hover:bg-red-200 transition-colors">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                                        class="w-5 h-5 text-red-600">
-                                        <path fill-rule="evenodd"
-                                            d="M12 2c-.38 0-.73.21-.9.55L1.18 20.4c-.18.33-.17.73.02 1.05.2.32.54.55.92.55h19.78c.38 0 .72-.23.92-.55.19-.32.2-.72.02-1.05L12.9 2.55A1 1 0 0 0 12 2Zm0 6c.55 0 1 .45 1 1v4a1 1 0 1 1-2 0V9c0-.55.45-1 1-1Zm1 10a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"
-                                            clip-rule="evenodd" />
-                                    </svg>
+                                        <div *ngIf="m.text_content" class="mt-2 opacity-90 whitespace-pre-wrap">{{ m.text_content }}</div>
+                                    </ng-container>
                                 </div>
 
-                                <!-- Tooltip -->
-                                <div
-                                    class="hidden group-hover:block absolute left-full ml-2 top-1/2 -translate-y-1/2 z-50 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg">
-                                    {{ m.message_error }}
+                                <div class="mt-1 flex items-center justify-end gap-1 opacity-60 select-none">
+                                    <span class="text-[10px]">{{ formatMessageDate(m.created_at) }}</span>
                                 </div>
                             </div>
-
                         </div>
+
+                        <!-- AGENT MESSAGE BLOCK -->
+                        <div *ngIf="isFromAgent(m)" class="flex items-end gap-3 max-w-[80%] md:max-w-[70%] group justify-end">
+                            <!-- Bubble -->
+                            <div class="px-4 py-3 shadow-sm transition-all message-bubble agent-bubble animate-in relative bg-[#6366F1] text-white rounded-2xl rounded-br-sm flex flex-col gap-1"
+                                [class.animate-in]="m._justArrived">
+                                <!-- Sender Name -->
+                                <div class="text-[10px] font-bold text-indigo-200 uppercase tracking-wide">
+                                    Agente
+                                </div>
+
+                                <!-- Texto -->
+                                <div *ngIf="isText(m) && m.text_content?.trim()?.length"
+                                    class="text-sm whitespace-pre-wrap break-words leading-relaxed text-white"
+                                    [innerHTML]="parseUrls(m.text_content || '')">
+                                </div>
+
+                                <!-- Adjuntos -->
+                                <div *ngIf="isMedia(m)" class="text-sm">
+                                    <!-- Imagen -->
+                                    <ng-container *ngIf="m.message_type === 'image'">
+                                        <div class="cursor-pointer" (click)="openAttachment(m)">
+                                            <img [src]="attachmentImageSrc(m)" class="rounded-xl max-h-72 object-cover border border-white/10 shadow-sm" alt="Imagen" />
+                                            <div class="text-xs mt-2 break-words opacity-90 text-white" *ngIf="m.text_content">
+                                                {{ m.text_content }}
+                                            </div>
+                                        </div>
+                                    </ng-container>
+
+                                    <!-- Audio -->
+                                    <ng-container *ngIf="m.message_type === 'audio'">
+                                        <div class="flex items-center gap-2 mb-2 opacity-80">
+                                            <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
+                                            </svg>
+                                            <span class="text-xs text-white">Nota de voz</span>
+                                        </div>
+                                        <audio [src]="attachmentAudioSrc(m)" controls class="w-full min-w-[240px] max-w-full h-10 rounded-lg shadow-sm"></audio>
+                                        <div *ngIf="m.text_content" class="mt-2 opacity-90 whitespace-pre-wrap text-white">{{ m.text_content }}</div>
+                                    </ng-container>
+
+                                    <!-- Otros archivos -->
+                                    <ng-container *ngIf="m.message_type !== 'image' && m.message_type !== 'audio' && m.message_type !== 'text'">
+                                        <div class="flex items-center gap-3 p-3 rounded-lg bg-white/10 border border-white/10">
+                                            <div class="p-2 bg-white/20 rounded-lg shadow-sm">
+                                                <svg class="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                                </svg>
+                                            </div>
+                                            <div class="flex-1 min-w-0">
+                                                <div class="text-xs font-medium truncate text-white">Archivo adjunto</div>
+                                                <a (click)="downloadFile(m)" class="text-xs underline cursor-pointer hover:opacity-80 truncate block text-indigo-200">Descargar</a>
+                                            </div>
+                                        </div>
+                                        <div *ngIf="m.text_content" class="mt-2 opacity-90 whitespace-pre-wrap text-white">{{ m.text_content }}</div>
+                                    </ng-container>
+                                </div>
+
+                                <div class="mt-1 flex items-center justify-end gap-1 opacity-70 select-none text-white">
+                                    <span class="text-[10px]">{{ formatMessageDate(m.created_at) }}</span>
+
+                                    <!-- Status Icons -->
+                                    <ng-container *ngIf="isFromAgent(m)">
+                                        <!-- Pending / Null / Empty -> Clock -->
+                                        <svg *ngIf="!m.status" xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+
+                                        <!-- Delivered -> Single Check -->
+                                        <svg *ngIf="m.status === 'delivered' || m.status === 'sent'" xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                                        </svg>
+
+                                        <!-- Read -> Double Check (Blue/Cyan) -->
+                                        <svg *ngIf="m.status === 'read'" xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-cyan-200" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M16 6L9 13L6.5 10.5M21 6L14 13L11.5 10.5" />
+                                        </svg>
+
+                                        <!-- Failed -> Error -->
+                                        <svg *ngIf="m.status === 'failed' || m.status === 'fail'" xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 text-red-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                        </svg>
+                                    </ng-container>
+                                </div>
+
+                                <!-- Error absolute link -->
+                                <div *ngIf="m.has_error" class="absolute -left-8 top-1/2 -translate-y-1/2 flex items-center justify-center cursor-pointer group">
+                                    <div class="p-1 rounded-full bg-red-100 hover:bg-red-200 transition-colors">
+                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-5 h-5 text-red-600">
+                                            <path fill-rule="evenodd" d="M9.401 3.003c1.155-2 4.043-2 5.197 0l7.355 12.748c1.154 2-.29 4.5-2.599 4.5H4.645c-2.309 0-3.752-2.5-2.598-4.5L9.4 3.003zM12 8.25a.75.75 0 01.75.75v3.75a.75.75 0 01-1.5 0V9a.75.75 0 01.75-.75zm0 8.25a.75.75 0 100-1.5.75.75 0 000 1.5z" clip-rule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <div class="hidden group-hover:block absolute left-full ml-2 top-1/2 -translate-y-1/2 z-50 w-48 p-2 bg-gray-900 text-white text-xs rounded shadow-lg">
+                                        {{ m.message_error }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Agent avatar -->
+                            <div class="h-9 w-9 rounded-xl bg-indigo-100 dark:bg-indigo-900/40 flex items-center justify-center text-xs font-bold text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-800 shrink-0 select-none shadow-sm"
+                                 [title]="'Agente'">
+                                A
+                            </div>
+                        </div>
+
                     </div>
 
                 </ng-container>
@@ -542,105 +606,95 @@
             </button>
         </div>
 
-        <!-- Input area -->
-        <div class="p-4 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 flex items-end gap-2 relative">
+        <!-- Input area styled like a sleek unified pill matching chat1.png -->
+        <div class="p-4 bg-transparent flex items-center gap-3 relative shrink-0">
 
-            <!-- Botones izquierda -->
-            <div class="flex items-center gap-1 mb-1">
-                <!-- Templates -->
-                <div class="relative">
+            <!-- Sleek Unified Pill Container -->
+            <div class="flex-1 flex items-center gap-2 bg-[#EEF1FB] dark:bg-gray-800/60 hover:bg-gray-100/50 dark:hover:bg-gray-800/80 border border-transparent focus-within:border-blue-500/20 focus-within:bg-white dark:focus-within:bg-gray-900 rounded-2xl px-3 py-2 transition-all duration-200">
+                
+                <!-- Templates Dropdown trigger inside pill -->
+                <div class="relative shrink-0 flex items-center justify-center">
                     <button (click)="toggleTemplateMenu()"
-                        class="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                        class="p-1.5 text-gray-500 hover:text-[#4F46E5] dark:hover:text-blue-400 rounded-lg hover:bg-white dark:hover:bg-gray-800/50 transition-all"
                         title="Plantillas">
-                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                 d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
                         </svg>
                     </button>
 
-                    <!-- Menu Templates -->
+                    <!-- Menu Templates dropdown -->
                     <div *ngIf="showTemplateMenu"
-                        class="absolute bottom-full left-0 mb-2 w-80 bg-white dark:bg-gray-800 shadow-xl rounded-xl border border-gray-200 dark:border-gray-700 p-2 z-50">
-                        <div
-                            class="flex items-center justify-between px-2 py-1 mb-2 border-b border-gray-100 dark:border-gray-700">
-                            <span class="font-semibold text-xs text-gray-500 uppercase tracking-wider">Plantillas</span>
-                            <button (click)="toggleTemplateMenu()"
-                                class="text-gray-400 hover:text-gray-600">&times;</button>
+                        class="absolute bottom-full left-0 mb-3 w-80 bg-white dark:bg-gray-850 shadow-2xl rounded-2xl border border-gray-150 dark:border-gray-800 p-2.5 z-50">
+                        <div class="flex items-center justify-between px-2 py-1 mb-2 border-b border-gray-100 dark:border-gray-800">
+                            <span class="font-bold text-xs text-gray-500 uppercase tracking-wider">Plantillas</span>
+                            <button (click)="toggleTemplateMenu()" class="text-gray-400 hover:text-gray-600">&times;</button>
                         </div>
 
-                        <div class="max-h-64 overflow-y-auto space-y-1">
-                            <!-- Loading -->
+                        <div class="max-h-60 overflow-y-auto space-y-1 custom-scrollbar">
                             <div *ngIf="templateLoading" class="flex justify-center py-4">
-                                <div
-                                    class="animate-spin h-4 w-4 border-2 border-blue-500 rounded-full border-t-transparent">
-                                </div>
+                                <div class="animate-spin h-4 w-4 border-2 border-blue-500 rounded-full border-t-transparent"></div>
                             </div>
-                            <!-- Empty -->
-                            <div *ngIf="!templateLoading && templates.length === 0"
-                                class="text-center py-4 text-xs text-gray-400">
+                            <div *ngIf="!templateLoading && templates.length === 0" class="text-center py-4 text-xs text-gray-400">
                                 Sin plantillas para este canal.
                             </div>
-                            <!-- Items -->
                             <div *ngFor="let t of templates" (click)="sendSelectedTemplate(t)"
-                                class="p-2.5 hover:bg-gray-50 dark:hover:bg-gray-700/50 rounded-lg cursor-pointer transition-colors">
-                                <div class="text-sm text-gray-800 dark:text-gray-100 font-medium">
+                                class="p-2 hover:bg-gray-50 dark:hover:bg-gray-800/40 rounded-xl cursor-pointer transition-colors">
+                                <div class="text-xs font-semibold text-gray-800 dark:text-gray-200">
                                     {{ t.description || t.template_name }}
                                 </div>
-                                <div class="text-xs text-gray-400 mt-0.5">{{ t.language_code }}</div>
+                                <div class="text-[10px] text-gray-400 mt-0.5">{{ t.language_code }}</div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Archivo -->
+                <!-- Archivo Button inside pill -->
                 <button (click)="openFilePicker()"
-                    class="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                    class="p-1.5 text-gray-500 hover:text-[#4F46E5] dark:hover:text-blue-400 rounded-lg hover:bg-white dark:hover:bg-gray-800/50 transition-all shrink-0"
                     title="Adjuntar archivo">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" />
                     </svg>
                 </button>
 
-                <!-- Imagen -->
+                <!-- Imagen Button inside pill -->
                 <button (click)="openImageModal()"
-                    class="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg transition-colors"
+                    class="p-1.5 text-gray-500 hover:text-[#4F46E5] dark:hover:text-blue-400 rounded-lg hover:bg-white dark:hover:bg-gray-800/50 transition-all shrink-0"
                     title="Imagen">
-                    <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
                 </button>
-            </div>
 
-            <!-- Input Principal -->
-            <div class="flex-1 relative">
-                <textarea [(ngModel)]="draft" (keydown.enter)="send()" [disabled]="!selectedCase" rows="1"
-                    placeholder="Escribe un mensaje…" class="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800
-                           focus:ring-2 focus:ring-[#3e66ea]/50 focus:border-[#3e66ea] focus:bg-white dark:focus:bg-gray-800
-                           text-sm text-gray-900 dark:text-white placeholder-gray-400
-                           resize-none shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                <!-- Textarea (Transparent, borderless) inside pill -->
+                <textarea [(ngModel)]="draft" (keydown.enter)="send(); $event.preventDefault();" [disabled]="!selectedCase" rows="1"
+                    placeholder="Escribe un mensaje…" 
+                    class="flex-1 bg-transparent border-0 outline-none text-sm text-gray-900 dark:text-white placeholder-gray-400 resize-none py-1.5 focus:ring-0 focus:outline-none transition-all disabled:opacity-50">
                 </textarea>
 
-                <!-- Botón audio absoluto derecha input -->
+                <!-- Voice note Button inside pill -->
                 <button (click)="startAudioRecording()"
-                    class="absolute right-2 bottom-2 p-1.5 text-gray-400 hover:text-[#3e66ea] rounded-full hover:bg-blue-50 dark:hover:bg-gray-700 transition-colors"
+                    class="p-1.5 text-gray-500 hover:text-[#4F46E5] dark:hover:text-blue-400 rounded-lg hover:bg-white dark:hover:bg-gray-800/50 transition-all shrink-0"
                     title="Grabar audio">
                     <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z" />
                     </svg>
                 </button>
-            </div>
 
-            <!-- Botón enviar -->
-            <button (click)="send()" [disabled]="!selectedCase || !draft.trim()"
-                class="mb-1 p-3 rounded-xl bg-[#3e66ea] hover:bg-blue-600 text-white shadow-lg shadow-blue-500/30 transition-all disabled:opacity-50 disabled:shadow-none disabled:cursor-not-allowed">
-                <svg class="w-5 h-5 translate-x-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
-                </svg>
-            </button>
+                <!-- Send Button inside pill -->
+                <button (click)="send()" [disabled]="!selectedCase || !draft.trim()"
+                    class="p-1.5 text-[#4F46E5] hover:text-indigo-700 dark:text-blue-400 dark:hover:text-blue-300 transition-all disabled:opacity-30 disabled:cursor-not-allowed shrink-0">
+                    <svg class="w-5 h-5 transform rotate-90" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    </svg>
+                </button>
+
+            </div>
 
         </div>
         }
@@ -649,11 +703,11 @@
 
     <!-- ========== Columna derecha: adjuntos (colapsable) ========== -->
     <aside
-        class="hidden lg:flex flex-col border-l border-gray-200 dark:border-gray-800 transition-all duration-300 ease-in-out bg-white dark:bg-gray-900"
+        class="hidden lg:flex flex-col transition-all duration-300 ease-in-out bg-white dark:bg-gray-900"
         [style.width.px]="isRightPanelOpen ? 320 : 0" [style.minWidth.px]="isRightPanelOpen ? 320 : 0"
         [style.opacity]="isRightPanelOpen ? 1 : 0" [class.overflow-hidden]="!isRightPanelOpen">
 
-        <div class="h-16 flex items-center justify-between px-6 border-b border-gray-200 dark:border-gray-800">
+        <div class="h-16 flex items-center justify-between px-6 bg-[#EEF1FB] dark:bg-[#1e293b] sticky top-0 z-30 relative select-none shadow-sm shrink-0">
             <h3 class="font-bold text-gray-900 dark:text-white">Información</h3>
             <button (click)="toggleRightPanel()" class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300">
                 <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -662,7 +716,7 @@
             </button>
         </div>
 
-        <div class="p-6 border-b border-gray-200 dark:border-gray-800">
+        <div class="p-6">
             <!-- Info del cliente duplicada para mayor contexto -->
             <div class="flex flex-col items-center text-center">
                 <div
@@ -747,15 +801,10 @@
 </div>
 
 <!-- ========== Modal de adjunto ========== -->
-<div *ngIf="isAttachmentModalOpen" class="fixed inset-0 z-50" (click)="closeAttachmentModal()">
-    <!-- Backdrop -->
-    <div class="absolute inset-0 bg-black/80 backdrop-blur-sm"></div>
-
-    <!-- Contenedor del modal (centrado) -->
-    <div class="absolute inset-0 flex items-center justify-center p-4" (click)="$event.stopPropagation()">
-        <!-- Caja del modal con altura limitada y layout en columna -->
-        <div
-            class="modal-box bg-white dark:bg-gray-900 rounded-xl shadow-2xl w-full max-w-5xl overflow-hidden border border-gray-200 dark:border-gray-700">
+<div *ngIf="isAttachmentModalOpen" class="fixed inset-0 z-50 flex items-center justify-center glass-backdrop p-4" (click)="closeAttachmentModal()">
+    <!-- Caja del modal con altura limitada y layout en columna -->
+    <div
+        class="premium-modal-card w-full max-w-5xl overflow-hidden flex flex-col max-h-[90vh]" (click)="$event.stopPropagation()">
 
             <!-- Header -->
             <div class="px-4 py-3 flex items-center gap-2 border-b border-gray-200 dark:border-gray-700">
@@ -928,8 +977,6 @@
             <!-- /Cuerpo -->
         </div>
     </div>
-</div>
-
 }
 
 <!-- ========== Modal de Previsualización de PDF ========== -->
@@ -993,94 +1040,106 @@
 </div>
 
 @if (isCaseMode) {
-<div class="h-[calc(100vh-2rem)] w-full bg-white dark:bg-gray-900 rounded-xl shadow-lg overflow-hidden flex">
+<div class="h-[calc(100vh-2rem)] w-full bg-slate-50 dark:bg-gray-950 rounded-xl shadow-lg overflow-hidden flex">
     <section class="flex-1 flex flex-col min-w-0">
 
-        <!-- Header (alineado y con el mismo margen visual que “Conversaciones”) -->
-        <div class="p-4 border-b border-gray-200 dark:border-gray-800">
-            <div class="flex items-center gap-2">
+        <!-- Header con aspecto premium y alineado -->
+        <div class="px-6 py-4 bg-white dark:bg-gray-900 flex items-center justify-between shrink-0 shadow-sm">
+            <div class="flex items-center gap-3">
                 <button type="button"
-                    class="inline-flex items-center justify-center h-8 w-8 rounded-md hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"
+                    class="inline-flex items-center justify-center h-9 w-9 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-600 dark:text-gray-300 transition-colors"
                     (click)="isCaseMode = false" aria-label="Regresar" title="Regresar">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7" />
                     </svg>
                 </button>
 
-                <div class="text-base font-semibold text-[#00113f] dark:text-white">
-                    Tarjeta del caso
+                <div>
+                    <span class="block text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-widest leading-none mb-1">Control de Caso</span>
+                    <h2 class="text-base font-bold text-gray-900 dark:text-white leading-none">Tarjeta del Caso</h2>
                 </div>
+            </div>
+
+            <!-- Acciones rápidas de cabecera -->
+            <div class="flex items-center gap-2">
+                <button (click)="isCaseMode = false" class="chip-btn flex items-center gap-1.5 font-semibold text-xs py-2 px-3">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                    </svg>
+                    Ir al Chat
+                </button>
+                <button (click)="closeCase()" class="chip-btn !bg-red-50 hover:!bg-red-100 !text-red-650 !border-red-200 dark:!bg-red-950/20 dark:!border-red-900/30 font-semibold text-xs py-2 px-3 flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                    </svg>
+                    Cerrar Caso
+                </button>
             </div>
         </div>
 
         <!-- Contenido -->
-        <div class="flex-1 overflow-y-auto p-4">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
                 <!-- Columna izquierda (2/3) -->
-                <div class="lg:col-span-2 space-y-4">
+                <div class="lg:col-span-2 space-y-6">
                     <!-- Resumen del caso -->
-                    <div
-                        class="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 shadow-sm">
-                        <div
-                            class="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <img [src]="selectedCase ? channelIcon(selectedCase.channel_code || '') : 'assets/icons/default-channel.svg'"
-                                    class="h-9 w-9 rounded-md bg-white p-1 shadow-sm" alt="canal" />
+                    <div class="info-grid-card p-6">
+                        <div class="flex items-start justify-between border-b border-gray-100 dark:border-gray-800/80 pb-4 mb-4">
+                            <div class="flex items-center gap-4">
+                                <div class="p-2 bg-gray-50 dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm shrink-0">
+                                    <img [src]="selectedCase ? channelIcon(selectedCase.channel_code || '') : 'assets/icons/default-channel.svg'"
+                                        class="h-10 w-10 object-contain" alt="canal" />
+                                </div>
                                 <div>
-                                    <div class="text-sm font-semibold text-[#00113f] dark:text-white">
+                                    <div class="text-[10px] font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">
                                         Caso #{{ selectedCase?.case_id }}
                                     </div>
-                                    <div class="text-xs text-gray-500 dark:text-gray-400">
+                                    <h3 class="text-base font-bold text-gray-900 dark:text-white mt-0.5">
                                         {{ selectedCase?.client_name || 'Cliente no asignado' }}
-                                    </div>
+                                    </h3>
                                 </div>
                             </div>
 
-
                             <div class="flex items-center gap-2">
                                 @if(selectedCase?.unread_count ) {
-                                <span
-                                    class="px-2 py-1 text-xs font-bold text-red-600 bg-red-100 rounded-full flex items-center gap-1">
-                                    <span class="w-2 h-2 rounded-full bg-red-600"></span>
+                                <span class="px-2.5 py-1 text-[11px] font-bold text-red-600 bg-red-50 dark:bg-red-950/20 border border-red-100 dark:border-red-900/30 rounded-full flex items-center gap-1.5">
+                                    <span class="w-1.5 h-1.5 rounded-full bg-red-650 animate-pulse"></span>
                                     {{ selectedCase?.unread_count }} sin leer
                                 </span>
                                 }
-                                <span class="px-2 py-1 text-xs font-medium text-gray-600 bg-gray-100 rounded-full">
-                                    {{ selectedCase?.status | uppercase }}
+                                <span class="px-2.5 py-1 text-[11px] font-bold text-[#00113f] bg-gray-100 border border-gray-200 dark:bg-gray-850 dark:text-gray-300 dark:border-gray-700 rounded-full uppercase tracking-wider">
+                                    {{ selectedCase?.status }}
                                 </span>
                             </div>
                         </div>
 
                         <!-- Detalles rápidos -->
-                        <div class="p-4 grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                        <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-sm">
                             <div>
-                                <span class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Lead ID /
-                                    Sender</span>
-                                <div class="font-medium text-[#00113f] dark:text-gray-200">
+                                <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Lead ID / Sender</span>
+                                <div class="font-semibold text-gray-905 dark:text-gray-100">
                                     {{ selectedCase?.sender_id || '—' }}
                                 </div>
                             </div>
                             <div>
-                                <span class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Fecha de
-                                    creación</span>
-                                <div class="font-medium text-[#00113f] dark:text-gray-200">
+                                <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Fecha de creación</span>
+                                <div class="font-semibold text-gray-905 dark:text-gray-100">
                                     {{ selectedCase?.created_at | date:'medium' }}
                                 </div>
                             </div>
                             <div>
-                                <span class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Canal</span>
-                                <div class="font-medium text-[#00113f] dark:text-gray-200 flex items-center gap-1">
+                                <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Canal</span>
+                                <div class="font-semibold text-gray-905 dark:text-gray-100 flex items-center gap-1.5">
                                     {{ selectedCase?.channel_code || '—' }}
-                                    <span *ngIf="selectedCase?.integration_name" class="text-xs text-gray-400">
+                                    <span *ngIf="selectedCase?.integration_name" class="text-xs font-semibold text-gray-400">
                                         ({{ selectedCase?.integration_name }})
                                     </span>
                                 </div>
                             </div>
                             <div>
-                                <span class="block text-xs text-gray-500 dark:text-gray-400 mb-1">Última
-                                    interacción</span>
-                                <div class="font-medium text-[#00113f] dark:text-gray-200">
+                                <span class="block text-[10px] font-bold text-gray-400 uppercase tracking-wider mb-1">Última interacción</span>
+                                <div class="font-semibold text-gray-905 dark:text-gray-100">
                                     {{ selectedCase?.last_message_at | date:'short' }}
                                 </div>
                             </div>
@@ -1088,47 +1147,49 @@
                     </div>
 
                     <!-- Notas del Caso -->
-                    <div
-                        class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 flex flex-col h-[400px]">
-                        <div
-                            class="p-3 border-b border-gray-200 dark:border-gray-800 font-semibold text-gray-700 dark:text-gray-200">
-                            Notas internas
+                    <div class="info-grid-card flex flex-col h-[480px] overflow-hidden">
+                        <div class="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between">
+                            <div class="font-bold text-sm text-gray-800 dark:text-gray-200 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-blue-600"></span>
+                                Notas Internas
+                            </div>
+                            <span class="text-xs text-gray-400 font-medium">{{ notes.length }} nota(s)</span>
                         </div>
 
-                        <div class="flex-1 overflow-y-auto p-3 space-y-3 bg-gray-50 dark:bg-gray-900/50">
-                            <div *ngIf="isLoadingNotes" class="flex justify-center py-4">
-                                <div
-                                    class="animate-spin h-5 w-5 border-2 border-blue-500 rounded-full border-t-transparent">
-                                </div>
+                        <div class="flex-1 overflow-y-auto p-4 space-y-3 bg-gray-50/50 dark:bg-gray-950/20 custom-scrollbar">
+                            <div *ngIf="isLoadingNotes" class="flex justify-center py-8">
+                                <div class="animate-spin h-5 w-5 border-2 border-blue-500 rounded-full border-t-transparent"></div>
                             </div>
 
                             <div *ngIf="!isLoadingNotes && notes.length === 0"
-                                class="text-center py-8 text-gray-400 text-sm">
-                                No hay notas aún.
+                                class="text-center py-12 text-gray-450 text-xs font-medium">
+                                No hay anotaciones registradas para este caso.
                             </div>
 
                             <div *ngFor="let n of notes"
-                                class="bg-white dark:bg-gray-800 p-3 rounded-lg shadow-sm border border-gray-100 dark:border-gray-700">
-                                <div class="text-sm text-gray-800 dark:text-gray-200 whitespace-pre-wrap mb-1">{{ n.note
-                                    }}</div>
-                                <div class="text-xs text-gray-400 flex justify-between items-center">
-                                    <span>{{ n.author_name || 'Agente' }}</span>
-                                    <span>{{ n.created_at | date:'short' }}</span>
+                                class="bg-white dark:bg-gray-900 p-4 rounded-2xl border border-gray-150 dark:border-gray-800 shadow-sm transition-all hover:shadow-md hover:border-gray-200 dark:hover:border-gray-700">
+                                <div class="text-xs font-semibold text-gray-500 dark:text-gray-450 flex items-center justify-between mb-2 pb-1.5 border-b border-gray-50 dark:border-gray-800">
+                                    <span class="flex items-center gap-1.5 text-blue-650 dark:text-blue-400">
+                                        👤 {{ n.author_name || 'Agente' }}
+                                    </span>
+                                    <span>{{ n.created_at | date:'dd/MM/yyyy HH:mm' }}</span>
+                                </div>
+                                <div class="text-sm text-gray-850 dark:text-gray-200 whitespace-pre-wrap leading-relaxed">
+                                    {{ n.note }}
                                 </div>
                             </div>
                         </div>
 
-                        <div
-                            class="p-3 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 rounded-b-xl">
+                        <div class="p-4 border-t border-gray-100 dark:border-gray-800 bg-white dark:bg-gray-900">
                             <textarea [(ngModel)]="newNote" rows="2"
-                                class="w-full text-sm p-2 border border-gray-300 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none resize-none mb-2"
-                                placeholder="Escribe una nota..."></textarea>
+                                class="w-full text-sm p-3 border border-gray-200 dark:border-gray-800 rounded-xl bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 outline-none resize-none mb-3 transition-all"
+                                placeholder="Escribe una anotación para el caso..."></textarea>
                             <div class="flex justify-end">
                                 <button (click)="addNote()" [disabled]="!newNote.trim() || isSavingNote"
-                                    class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium rounded-lg transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1">
+                                    class="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-300 dark:disabled:bg-gray-800 text-white text-xs font-bold rounded-xl transition-all shadow-sm flex items-center gap-1.5">
                                     <span *ngIf="isSavingNote"
-                                        class="animate-spin h-3 w-3 border-2 border-white rounded-full border-t-transparent"></span>
-                                    Agregar nota
+                                        class="animate-spin h-3.5 w-3.5 border-2 border-white rounded-full border-t-transparent"></span>
+                                    Agregar Nota
                                 </button>
                             </div>
                         </div>
@@ -1137,29 +1198,34 @@
                 </div>
 
                 <!-- Columna derecha (1/3) -->
-                <div class="space-y-4">
-                    <!-- Acciones rápidas -->
-                    <div
-                        class="bg-white dark:bg-gray-900 rounded-xl shadow-sm border border-gray-200 dark:border-gray-800 p-4">
-                        <h4 class="text-sm font-semibold text-gray-900 dark:text-white mb-3">Acciones</h4>
-                        <div class="flex flex-col gap-2">
-                            <button (click)="isCaseMode = false"
-                                class="w-full text-left px-3 py-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800 text-sm font-medium text-blue-600 transition-colors flex items-center gap-2">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                </svg>
-                                Ir al chat
-                            </button>
-                            <button (click)="closeCase()"
-                                class="w-full text-left px-3 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 text-sm font-medium text-red-600 transition-colors flex items-center gap-2">
-                                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M5 13l4 4L19 7" />
-                                </svg>
-                                Cerrar caso (Resolver)
-                            </button>
+                <div class="space-y-6">
+                    <!-- Tarjeta de Acciones -->
+                    <div class="info-grid-card p-5 space-y-4">
+                        <div class="border-b border-gray-100 dark:border-gray-800 pb-3">
+                            <h4 class="text-xs font-bold text-gray-400 uppercase tracking-wider">Información del Cliente</h4>
                         </div>
+                        <div class="flex items-center gap-3">
+                            <div class="h-11 w-11 rounded-full bg-blue-50 dark:bg-blue-900/35 flex items-center justify-center text-sm font-bold text-blue-600 dark:text-blue-400 border border-blue-100 dark:border-blue-800">
+                                {{ (selectedCase?.client_name || 'C').charAt(0) | uppercase }}
+                            </div>
+                            <div class="min-w-0">
+                                <div class="text-sm font-bold text-gray-900 dark:text-white truncate">
+                                    {{ selectedCase?.client_name || 'Cliente Desconocido' }}
+                                </div>
+                                <div class="text-xs text-gray-400 font-mono mt-0.5 truncate">
+                                    ID: {{ selectedCase?.client_id || 'Sin Asignar' }}
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Vincular Cliente Button -->
+                        <button (click)="openAssignClientModal()"
+                            class="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 text-xs font-bold hover:bg-blue-100 dark:hover:bg-blue-900/40 transition border border-transparent shadow-sm">
+                            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+                            </svg>
+                            {{ selectedCase?.client_id ? 'Cambiar cliente' : 'Vincular cliente' }}
+                        </button>
                     </div>
                 </div>
 
@@ -1170,9 +1236,9 @@
 }
 
 <!-- Modal Assign Client -->
-<div *ngIf="isAssignClientOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+<div *ngIf="isAssignClientOpen" class="fixed inset-0 z-50 flex items-center justify-center glass-backdrop p-4"
     (click)="closeAssignClientModal()">
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-lg p-6 m-4 flex flex-col max-h-[85vh]"
+    <div class="premium-modal-card w-full max-w-lg p-6 flex flex-col max-h-[85vh] overflow-hidden"
         (click)="$event.stopPropagation()">
 
         <div class="flex items-center justify-between mb-4">
@@ -1286,9 +1352,9 @@
 
 
 <!-- Modal Close Case -->
-<div *ngIf="isCloseCaseOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+<div *ngIf="isCloseCaseOpen" class="fixed inset-0 z-50 flex items-center justify-center glass-backdrop p-4"
     (click)="closeCloseCaseModal()">
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-md p-6 m-4"
+    <div class="premium-modal-card w-full max-w-md p-6 overflow-hidden"
         (click)="$event.stopPropagation()">
         <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-4">Cerrar Caso</h3>
 
@@ -1321,9 +1387,9 @@
 
 <!-- Modal Nueva Conversación -->
 <div *ngIf="isNewConversationOpen"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm"
+    class="fixed inset-0 z-50 flex items-center justify-center glass-backdrop p-4"
     (click)="isNewConversationOpen = false">
-    <div class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-lg p-6 m-4 flex flex-col max-h-[85vh]"
+    <div class="premium-modal-card w-full max-w-lg p-6 flex flex-col max-h-[85vh] overflow-hidden"
         (click)="$event.stopPropagation()">
 
         <div class="flex items-center justify-between mb-4">
@@ -1501,12 +1567,9 @@
 </div>
 
 <!-- ========== Modal de Casos Anteriores ========== -->
-<div *ngIf="isPreviousCasesModalOpen" class="fixed inset-0 z-50" style="z-index: 9999;">
-    <!-- Backdrop -->
-    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" (click)="closePreviousCasesModal()"></div>
-
-    <!-- Contenedor -->
-    <div class="absolute inset-4 md:inset-10 flex flex-col bg-white dark:bg-gray-900 rounded-2xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-800 pointer-events-auto">
+<div *ngIf="isPreviousCasesModalOpen" class="fixed inset-0 z-50 flex items-center justify-center glass-backdrop p-4"
+    (click)="closePreviousCasesModal()">
+    <div class="premium-modal-card w-full max-w-4xl flex flex-col max-h-[90vh] overflow-hidden" (click)="$event.stopPropagation()">
         
         <!-- Header -->
         <div class="h-16 px-6 flex items-center justify-between border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50 shrink-0">
@@ -1674,13 +1737,9 @@
     </div>
 </div>
 <!-- ================= MODAL HISTORIAL GLOBAL ================= -->
-<div *ngIf="isGlobalHistoryModalOpen" class="fixed inset-0 z-[60] flex items-center justify-center overflow-hidden">
-    <!-- Overlay -->
-    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" (click)="closeGlobalHistoryModal()"></div>
-
-    <!-- Contenedor principal del Modal -->
-    <div
-        class="relative bg-white dark:bg-[#1a1b1e] w-[90vw] max-w-5xl h-[85vh] rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-fade-in-up border border-gray-200 dark:border-gray-800">
+<div *ngIf="isGlobalHistoryModalOpen" class="fixed inset-0 z-[60] flex items-center justify-center glass-backdrop p-4"
+    (click)="closeGlobalHistoryModal()">
+    <div class="premium-modal-card w-full max-w-6xl flex flex-col max-h-[90vh] overflow-hidden" (click)="$event.stopPropagation()">
         
         <!-- Header -->
         <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50">
@@ -1831,12 +1890,12 @@
 </div>
 
 <!-- ================= MODAL DE PREVISUALIZACIÓN DE PLANTILLA ================= -->
-<div *ngIf="isPreviewTemplateModalOpen" class="fixed inset-0 z-[70] flex items-center justify-center p-4">
-    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" (click)="cancelTemplatePreview()"></div>
+<div *ngIf="isPreviewTemplateModalOpen" class="fixed inset-0 z-[70] flex items-center justify-center glass-backdrop p-4"
+    (click)="cancelTemplatePreview()">
     
-    <div class="relative bg-white dark:bg-[#1a1b1e] w-full max-w-md rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-fade-in-up border border-gray-200 dark:border-gray-800">
+    <div class="premium-modal-card w-full max-w-lg p-6" (click)="$event.stopPropagation()">
         <!-- Header -->
-        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-900/50">
+        <div class="flex items-center justify-between mb-6">
             <h3 class="text-lg font-bold text-gray-900 dark:text-white">Previsualizar Plantilla</h3>
             <button (click)="cancelTemplatePreview()"
                 class="p-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors">

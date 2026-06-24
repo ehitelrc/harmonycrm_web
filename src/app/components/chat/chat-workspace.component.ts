@@ -154,6 +154,11 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
   selectedFilterTag: number | null = null;
   filterUnread: boolean = false;
   isRightPanelOpen = false;
+  showInlineFilters = false;
+  toggleInlineFilters() {
+    this.showInlineFilters = !this.showInlineFilters;
+    this.cdr.markForCheck();
+  }
 
   // --- Datos ---
   cases: CaseWithChannel[] = [];
