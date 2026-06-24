@@ -36,3 +36,32 @@
   pointer-events: none;
   z-index: 10;
 }
+
+/* Gaussian bell curves for hovered inactive tab */
+.hover-tab-funnel {
+  overflow: visible !important;
+}
+
+.hover-tab-funnel::before {
+  content: '';
+  position: absolute;
+  right: 0;
+  top: -32px;
+  width: 32px;
+  height: 32px;
+  background: radial-gradient(circle at 0 0, transparent 32px, rgba(255, 255, 255, 0.05) 33px);
+  pointer-events: none;
+  z-index: 10;
+}
+
+.hover-tab-funnel::after {
+  content: '';
+  position: absolute;
+  right: 0;
+  bottom: -32px;
+  width: 32px;
+  height: 32px;
+  background: radial-gradient(circle at 0 100%, transparent 32px, rgba(255, 255, 255, 0.05) 33px);
+  pointer-events: none;
+  z-index: 10;
+}
