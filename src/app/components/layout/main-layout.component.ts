@@ -15,7 +15,7 @@ import { TagIconComponent } from '../settings/tags-management/tag-icon/tag-icon.
   standalone: true,
   imports: [CommonModule, SidebarComponent, TopbarComponent, AlertComponent, TagIconComponent],
   template: `
-    <div class="min-h-screen bg-[#f8fafc] flex flex-col">
+    <div class="h-screen bg-[#f8fafc] flex flex-col overflow-hidden">
       <!-- Alert Component -->
       <app-alert></app-alert>
       
@@ -23,7 +23,7 @@ import { TagIconComponent } from '../settings/tags-management/tag-icon/tag-icon.
       <app-sidebar></app-sidebar>
       
       <!-- Main Content Area -->
-      <div class="lg:pl-[312px] min-h-screen flex flex-col transition-all duration-300">
+      <div class="lg:pl-[312px] h-screen flex flex-col transition-all duration-300 overflow-hidden">
         <!-- Topbar -->
         <app-topbar></app-topbar>
         
