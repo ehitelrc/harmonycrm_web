@@ -30,6 +30,10 @@ export class TemplatesReportComponent implements OnInit {
 
   activeTab: 'bulk' | 'individual' = 'bulk';
   
+  // Departments lists
+  departments: { id: number; name: string }[] = [];
+  selectedDepartmentId: number | null = null;
+
   // Data lists
   bulkSends: any[] = [];
   individualSends: any[] = [];
@@ -68,6 +72,7 @@ export class TemplatesReportComponent implements OnInit {
   }
 
   async onCompanyChange(): Promise<void> {
+    this.selectedDepartmentId = null;
     await this.loadReportData();
   }
 
@@ -80,23 +85,31 @@ export class TemplatesReportComponent implements OnInit {
       if (res?.success && res.data) {
         this.bulkSends = res.data.bulk_sends || [];
         this.individualSends = res.data.individual_sends || [];
+        this.departments = res.data.departments || [];
       } else {
         this.bulkSends = [];
         this.individualSends = [];
+        this.departments = [];
       }
     } catch (error) {
       console.error('Error loading template report:', error);
       this.bulkSends = [];
       this.individualSends = [];
+      this.departments = [];
     } finally {
       this.loading = false;
     }
   }
 
   getFilteredBulkSends(): any[] {
-    if (!this.bulkSearch.trim()) return this.bulkSends;
+    let filtered = this.bulkSends;
+    if (this.selectedDepartmentId) {
+      const deptId = Number(this.selectedDepartmentId);
+      filtered = filtered.filter(b => b.department_id === deptId);
+    }
+    if (!this.bulkSearch.trim()) return filtered;
     const query = this.bulkSearch.toLowerCase().trim();
-    return this.bulkSends.filter(b => {
+    return filtered.filter(b => {
       const desc = (b.description || '').toLowerCase();
       const template = (b.template_name || '').toLowerCase();
       const agent = (b.agent_name || '').toLowerCase();
@@ -105,9 +118,14 @@ export class TemplatesReportComponent implements OnInit {
   }
 
   getFilteredIndividualSends(): any[] {
-    if (!this.individualSearch.trim()) return this.individualSends;
+    let filtered = this.individualSends;
+    if (this.selectedDepartmentId) {
+      const deptId = Number(this.selectedDepartmentId);
+      filtered = filtered.filter(i => i.department_id === deptId);
+    }
+    if (!this.individualSearch.trim()) return filtered;
     const query = this.individualSearch.toLowerCase().trim();
-    return this.individualSends.filter(i => {
+    return filtered.filter(i => {
       const template = (i.template_name || '').toLowerCase();
       const agent = (i.agent_name || '').toLowerCase();
       const phone = (i.client_phone || '').toLowerCase();
@@ -121,11 +139,13 @@ export class TemplatesReportComponent implements OnInit {
   }
 
   get totalBulkRecipients(): number {
-    return this.bulkSends.reduce((sum, b) => sum + (b.total_recipients || 0), 0);
+    const list = this.getFilteredBulkSends();
+    return list.reduce((sum, b) => sum + (b.total_recipients || 0), 0);
   }
 
   get totalBulkSuccessful(): number {
-    return this.bulkSends.reduce((sum, b) => sum + (b.successful_sends || 0), 0);
+    const list = this.getFilteredBulkSends();
+    return list.reduce((sum, b) => sum + (b.successful_sends || 0), 0);
   }
 
   get bulkSuccessRate(): string {
@@ -136,9 +156,10 @@ export class TemplatesReportComponent implements OnInit {
   }
 
   getFilteredLast24HoursCount(): number {
+    const list = this.getFilteredIndividualSends();
     const oneDayAgo = new Date();
     oneDayAgo.setDate(oneDayAgo.getDate() - 1);
-    return this.individualSends.filter(i => {
+    return list.filter(i => {
       if (!i.created_at) return false;
       const date = new Date(i.created_at);
       return date >= oneDayAgo;
@@ -146,7 +167,8 @@ export class TemplatesReportComponent implements OnInit {
   }
 
   getUniqueAgentsCount(): number {
-    const agents = new Set(this.individualSends.map(i => i.agent_name).filter(Boolean));
+    const list = this.getFilteredIndividualSends();
+    const agents = new Set(list.map(i => i.agent_name).filter(Boolean));
     return agents.size;
   }
 

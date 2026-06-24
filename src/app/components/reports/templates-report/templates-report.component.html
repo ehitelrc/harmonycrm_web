@@ -22,6 +22,20 @@
             </option>
           </select>
         </div>
+
+        <!-- Department Filter -->
+        <div class="flex flex-col gap-1">
+          <label class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Departamento</label>
+          <select 
+            [(ngModel)]="selectedDepartmentId"
+            class="bg-white border border-gray-200 text-gray-700 text-xs rounded-xl px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 font-semibold min-w-[200px]"
+          >
+            <option [value]="null">Todos los departamentos</option>
+            <option *ngFor="let d of departments" [value]="d.id">
+              {{ d.name }}
+            </option>
+          </select>
+        </div>
       </div>
     </div>
 
@@ -62,7 +76,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 select-none">
           <div class="bg-white border border-gray-100 p-4 rounded-2xl shadow-premium flex flex-col gap-1">
             <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total Envíos Masivos</span>
-            <span class="text-2xl font-black text-gray-900">{{ bulkSends.length }}</span>
+            <span class="text-2xl font-black text-gray-900">{{ getFilteredBulkSends().length }}</span>
           </div>
           
           <div class="bg-white border border-gray-100 p-4 rounded-2xl shadow-premium flex flex-col gap-1">
@@ -115,6 +129,7 @@
                   <th class="py-3 px-4">Descripción / Campaña</th>
                   <th class="py-3 px-4">Plantilla</th>
                   <th class="py-3 px-4">Remitente (Agente)</th>
+                  <th class="py-3 px-4">Departamento</th>
                   <th class="py-3 px-4">Fecha Envío</th>
                   <th class="py-3 px-4 text-center">Enviados</th>
                   <th class="py-3 px-4 text-center">Éxito</th>
@@ -132,6 +147,11 @@
                     </span>
                   </td>
                   <td class="py-3.5 px-4 font-medium text-gray-700">{{ row.agent_name }}</td>
+                  <td class="py-3.5 px-4">
+                    <span class="bg-purple-50 text-purple-700 font-bold px-2 py-0.5 rounded text-[10px] border border-purple-100">
+                      {{ row.department_name }}
+                    </span>
+                  </td>
                   <td class="py-3.5 px-4 text-gray-400 font-mono">{{ row.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
                   <td class="py-3.5 px-4 text-center font-bold text-gray-900">{{ row.total_recipients }}</td>
                   <td class="py-3.5 px-4 text-center font-bold text-emerald-600">{{ row.successful_sends }}</td>
@@ -151,7 +171,7 @@
                 
                 <!-- Empty State -->
                 <tr *ngIf="getFilteredBulkSends().length === 0">
-                  <td colspan="9" class="py-12 text-center text-xs font-bold text-gray-400 select-none">
+                  <td colspan="10" class="py-12 text-center text-xs font-bold text-gray-400 select-none">
                     No se encontraron registros de envíos masivos.
                   </td>
                 </tr>
@@ -169,7 +189,7 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 select-none">
           <div class="bg-white border border-gray-100 p-4 rounded-2xl shadow-premium flex flex-col gap-1">
             <span class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Total Plantillas Enviadas</span>
-            <span class="text-2xl font-black text-gray-900">{{ individualSends.length }}</span>
+            <span class="text-2xl font-black text-gray-900">{{ getFilteredIndividualSends().length }}</span>
           </div>
 
           <div class="bg-white border border-gray-100 p-4 rounded-2xl shadow-premium flex flex-col gap-1">
@@ -215,6 +235,7 @@
                   <th class="py-3 px-4">Caso #</th>
                   <th class="py-3 px-4">Plantilla Utilizada</th>
                   <th class="py-3 px-4">Agente Remitente</th>
+                  <th class="py-3 px-4">Departamento</th>
                   <th class="py-3 px-4">Fecha y Hora</th>
                   <th class="py-3 px-4">Teléfono Cliente</th>
                   <th class="py-3 px-4 text-center">Estado</th>
@@ -234,6 +255,11 @@
                     </span>
                   </td>
                   <td class="py-3.5 px-4 font-medium text-gray-700">{{ row.agent_name }}</td>
+                  <td class="py-3.5 px-4">
+                    <span class="bg-purple-50 text-purple-700 font-bold px-2 py-0.5 rounded text-[10px] border border-purple-100">
+                      {{ row.department_name }}
+                    </span>
+                  </td>
                   <td class="py-3.5 px-4 text-gray-400 font-mono">{{ row.created_at | date:'dd/MM/yyyy HH:mm:ss' }}</td>
                   <td class="py-3.5 px-4 font-mono text-gray-700 font-bold">{{ row.client_phone || 'N/D' }}</td>
                   <td class="py-3.5 px-4 text-center">
@@ -251,7 +277,7 @@
 
                 <!-- Empty State -->
                 <tr *ngIf="getFilteredIndividualSends().length === 0">
-                  <td colspan="7" class="py-12 text-center text-xs font-bold text-gray-400 select-none">
+                  <td colspan="8" class="py-12 text-center text-xs font-bold text-gray-400 select-none">
                     No se encontraron registros de envíos de plantillas individuales.
                   </td>
                 </tr>
