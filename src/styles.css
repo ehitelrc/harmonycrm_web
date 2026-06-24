@@ -123,7 +123,7 @@
 
 /* Sidebar collapsed layout transitions */
 .sidebar-collapsed .sidebar-wrapper {
-  width: 72px !important;
+  width: 80px !important;
 }
 
 .sidebar-collapsed .w-\[224px\] {
@@ -132,6 +132,6 @@
   border-right-width: 0px !important;
 }
 
-.sidebar-collapsed .lg\:pl-\[296px\] {
-  padding-left: 72px !important;
+.sidebar-collapsed .lg\:pl-\[304px\] {
+  padding-left: 80px !important;
 }
