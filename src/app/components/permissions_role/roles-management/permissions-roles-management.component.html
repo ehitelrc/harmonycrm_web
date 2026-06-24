@@ -48,30 +48,32 @@
 
     <!-- Permissions Table -->
     <div class="bg-white shadow rounded-lg dark:bg-gray-800 p-4" *ngIf="permissions.length > 0">
-      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-        <thead class="bg-gray-50 dark:bg-gray-700">
-          <tr>
-            <!-- <th class="px-4 py-2 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Código</th> -->
-            <th class="px-4 py-2 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Descripción</th>
-            <th class="px-4 py-2 text-center text-sm font-medium text-gray-500 dark:text-gray-300">Asignado</th>
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
-          <tr *ngFor="let p of permissions">
-            <!-- <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">{{ p.code }}</td> -->
-            <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">{{ p.description }}</td>
-            <td class="px-4 py-2 text-center">
-              <input type="checkbox" [(ngModel)]="p.assigned"
-                class="h-4 w-4 text-[#3e66ea] border-gray-300 rounded focus:ring-[#3e66ea]" />
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="max-h-[500px] overflow-y-auto border border-gray-200 dark:border-gray-700 rounded-lg">
+        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+          <thead class="bg-gray-50 dark:bg-gray-700 sticky top-0 z-10 shadow-[0_1px_0_0_rgba(229,231,235,1)] dark:shadow-[0_1px_0_0_rgba(55,65,81,1)]">
+            <tr>
+              <!-- <th class="px-4 py-2 text-left text-sm font-medium text-gray-500 dark:text-gray-300">Código</th> -->
+              <th class="px-4 py-3 text-left text-xs font-bold text-gray-500 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 uppercase tracking-wider">Descripción</th>
+              <th class="px-4 py-3 text-center text-xs font-bold text-gray-500 dark:text-gray-300 bg-gray-50 dark:bg-gray-700 uppercase tracking-wider w-32">Asignado</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-200 dark:divide-gray-700 bg-white dark:bg-gray-800">
+            <tr *ngFor="let p of permissions" class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+              <!-- <td class="px-4 py-2 text-sm text-gray-900 dark:text-white">{{ p.code }}</td> -->
+              <td class="px-4 py-3.5 text-sm text-gray-900 dark:text-white">{{ p.description }}</td>
+              <td class="px-4 py-3.5 text-center">
+                <input type="checkbox" [(ngModel)]="p.assigned"
+                  class="h-4 w-4 text-[#3e66ea] border-gray-300 rounded focus:ring-[#3e66ea] cursor-pointer" />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
       <!-- Save Button -->
       <div class="mt-4 flex justify-end">
         <button (click)="savePermissions()"
-          class="px-4 py-2 bg-[#00113f] text-white rounded-md shadow hover:bg-[#3e66ea] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea]">
+          class="px-4 py-2 bg-[#00113f] text-white rounded-md shadow hover:bg-[#3e66ea] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#3e66ea] cursor-pointer">
           {{ t('save') }}
         </button>
       </div>
