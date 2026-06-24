@@ -142,7 +142,11 @@
                   <td class="py-3.5 px-4 font-mono font-bold text-gray-800">#{{ row.push_id }}</td>
                   <td class="py-3.5 px-4 font-bold text-gray-800">{{ row.description || 'Sin Descripción' }}</td>
                   <td class="py-3.5 px-4">
-                    <span class="bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded text-[10px] font-mono border border-blue-100">
+                    <span 
+                      (click)="showTemplatePreview(row.template_name, row.channel_integration_id)"
+                      class="cursor-pointer hover:bg-blue-100 hover:text-blue-800 transition-colors bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded text-[10px] font-mono border border-blue-100"
+                      title="Click para ver contenido"
+                    >
                       {{ row.template_name }}
                     </span>
                   </td>
@@ -250,7 +254,11 @@
                     </a>
                   </td>
                   <td class="py-3.5 px-4">
-                    <span class="bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded text-[10px] font-mono border border-blue-100">
+                    <span 
+                      (click)="showTemplatePreview(row.template_name, row.channel_integration_id)"
+                      class="cursor-pointer hover:bg-blue-100 hover:text-blue-800 transition-colors bg-blue-50 text-blue-700 font-bold px-2 py-0.5 rounded text-[10px] font-mono border border-blue-100"
+                      title="Click para ver contenido"
+                    >
                       {{ row.template_name }}
                     </span>
                   </td>
@@ -288,6 +296,66 @@
 
       </div>
 
+    </div>
+  </div>
+
+  <!-- Modal Template Preview -->
+  <div 
+    *ngIf="isPreviewModalOpen" 
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-fadeIn"
+    (click)="closePreviewModal()"
+  >
+    <div 
+      class="bg-white rounded-3xl shadow-2xl max-w-lg w-full flex flex-col overflow-hidden transform transition-all duration-300 animate-scaleIn border border-gray-100"
+      (click)="$event.stopPropagation()"
+    >
+      <!-- Modal Header -->
+      <div class="px-6 py-4 bg-gray-50 border-b border-gray-100 flex items-center justify-between">
+        <div class="flex items-center gap-2.5">
+          <!-- WhatsApp Icon -->
+          <div class="p-2 bg-emerald-100 text-emerald-600 rounded-xl">
+            <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+              <path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946C.06 5.348 5.397.01 12.008.01c3.202.001 6.212 1.246 8.477 3.514 2.266 2.268 3.507 5.28 3.505 8.484-.004 6.657-5.34 11.997-11.953 11.997-2.005-.001-3.973-.502-5.724-1.455L0 24zm6.59-4.846c1.6.95 3.188 1.449 4.725 1.451 5.437.002 9.861-4.417 9.864-9.855.002-2.63-1.023-5.101-2.887-6.967C16.486 1.916 14.021.892 11.999.892c-5.441 0-9.867 4.42-9.87 9.86-.001 1.702.443 3.364 1.284 4.804l-1.013 3.693 3.786-1.008c1.429.779 2.927 1.189 4.461 1.19z"/>
+            </svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-gray-900 leading-tight">Contenido de Plantilla</h3>
+            <span class="text-[10px] font-semibold text-gray-400 font-mono tracking-tight">{{ previewTemplateName }}</span>
+          </div>
+        </div>
+        <button 
+          (click)="closePreviewModal()"
+          class="p-1.5 hover:bg-gray-100 rounded-full text-gray-400 hover:text-gray-600 transition-colors"
+        >
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-6 flex flex-col gap-4">
+        <!-- Loading State -->
+        <div *ngIf="previewLoading" class="flex flex-col items-center justify-center py-10 gap-3">
+          <div class="w-6 h-6 border-2 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+          <span class="text-xs text-gray-400 font-medium">Consultando API de Meta...</span>
+        </div>
+
+        <!-- Preview Content -->
+        <div *ngIf="!previewLoading" class="bg-gray-50 border border-gray-100 rounded-2xl p-4 font-normal text-xs text-gray-800 whitespace-pre-wrap leading-relaxed shadow-inner max-h-[300px] overflow-y-auto">
+          {{ previewContent }}
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end">
+        <button 
+          (click)="closePreviewModal()"
+          class="bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs px-4 py-2 rounded-xl transition-all shadow-premium"
+        >
+          Cerrar
+        </button>
+      </div>
     </div>
   </div>
 </app-main-layout>

@@ -7,6 +7,7 @@ import { CaseDashboardService } from '@app/services/case-dashboard.service';
 import { AuthService } from '@app/services/auth.service';
 import { CompanyService } from '@app/services/company.service';
 import { LanguageService } from '@app/services/extras/language.service';
+import { WhatsAppTemplateService } from '@app/services/whatsapp-template.service';
 import { User } from '@app/models/auth.model';
 
 @Component({
@@ -42,11 +43,18 @@ export class TemplatesReportComponent implements OnInit {
   bulkSearch = '';
   individualSearch = '';
 
+  // Modal template preview
+  isPreviewModalOpen = false;
+  previewTemplateName = '';
+  previewContent = '';
+  previewLoading = false;
+
   constructor(
     private authService: AuthService,
     private companyService: CompanyService,
     private caseDashboardService: CaseDashboardService,
-    private languageService: LanguageService
+    private languageService: LanguageService,
+    private whatsappTemplateService: WhatsAppTemplateService
   ) {}
 
   async ngOnInit(): Promise<void> {
@@ -174,5 +182,32 @@ export class TemplatesReportComponent implements OnInit {
 
   t(key: string): string {
     return this.languageService.t(key);
+  }
+
+  async showTemplatePreview(templateName: string, integrationId: number): Promise<void> {
+    if (!templateName || !integrationId) return;
+    this.previewTemplateName = templateName;
+    this.previewContent = '';
+    this.previewLoading = true;
+    this.isPreviewModalOpen = true;
+    try {
+      const res = await this.whatsappTemplateService.getTemplatePreviewFromMeta(templateName, integrationId);
+      if (res?.success && res.data) {
+        this.previewContent = res.data;
+      } else {
+        this.previewContent = 'No se pudo obtener el contenido de la plantilla desde Meta.';
+      }
+    } catch (error) {
+      console.error('Error fetching template preview:', error);
+      this.previewContent = 'Error al obtener la vista previa de la plantilla.';
+    } finally {
+      this.previewLoading = false;
+    }
+  }
+
+  closePreviewModal(): void {
+    this.isPreviewModalOpen = false;
+    this.previewTemplateName = '';
+    this.previewContent = '';
   }
 }
