@@ -12,10 +12,10 @@
         <!-- Icon -->
         <div
           class="flex items-center justify-center mx-auto mb-4"
-          [ngClass]="asset ? 'h-[140px]' : 'w-12 h-12 bg-red-100 rounded-full'"
+          [ngClass]="asset ? 'h-20' : 'w-12 h-12 bg-red-100 rounded-full'"
         >
           <ng-container *ngIf="asset; else defaultIcon">
-            <img [src]="asset" alt="icon" class="h-[140px] object-contain" />
+            <img [src]="asset" alt="icon" class="h-20 object-contain" />
           </ng-container>
 
           <ng-template #defaultIcon>

@@ -235,6 +235,13 @@
   @apply text-center py-6 text-gray-500 italic;
 }
 
+.empty-state img {
+  max-width: 120px;
+  height: auto;
+  margin: 0 auto 12px;
+  display: block;
+}
+
 .virtual-list {
   height: 380px;        /* o el alto que quieras */
   overflow: auto;
