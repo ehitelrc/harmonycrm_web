@@ -235,9 +235,9 @@
                   <td class="py-3.5 pr-2">
                     <div class="flex items-center gap-2">
                       <div class="w-7 h-7 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 text-[10px] font-black uppercase">
-                        {{ (a.agent_name || 'U').substring(0, 2) }}
+                        {{ (a.agent_name || 'U').substring(0, 2) | uppercase }}
                       </div>
-                      <span class="text-gray-800 font-bold truncate max-w-[180px]">{{ a.agent_name || 'Sin Asignar' }}</span>
+                      <span class="text-gray-800 font-bold truncate max-w-[180px]">{{ (a.agent_name || 'Sin Asignar') | uppercase }}</span>
                     </div>
                   </td>
                   <td class="py-3.5 text-center text-amber-600 font-black">{{ a.open_cases }}</td>
