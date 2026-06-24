@@ -26,10 +26,9 @@
           class="absolute left-0 w-[81px] h-full bg-white/15 rounded-l-full z-10 opacity-0 group-hover:opacity-100 hover-tab-funnel transition-all duration-200 pointer-events-none"
         ></div>
 
-        <!-- Icon wrapper (shows hover bg for inactive tabs) -->
+        <!-- Icon wrapper -->
         <div 
           class="w-11 h-8 rounded-xl flex items-center justify-center transition-colors duration-150 z-20"
-          [ngClass]="activeTabId === tab.id ? '' : 'group-hover:bg-[#ffffff]/5'"
         >
           <!-- Dynamic Icons for Tab Categories (Reduced size and stroke for elegance) -->
           <ng-container [ngSwitch]="tab.icon">
