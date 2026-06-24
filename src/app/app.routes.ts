@@ -177,6 +177,11 @@ export const routes: Routes = [
     loadComponent: () => import('./components/funnel-report/funnel-report-management/funnel-report-management.component').then(m => m.FunnelReportManagementComponent),
     canActivate: [AuthGuard]
   },
+  {
+    path: 'report-cases',
+    loadComponent: () => import('./components/reports/cases-report/cases-report.component').then(m => m.CasesReportComponent),
+    canActivate: [AuthGuard]
+  },
   //push whatsapp
   {
     path: 'whatsapp-campaign-push',

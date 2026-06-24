@@ -76,6 +76,7 @@ export class NavigationService {
         { type: 'item', name: 'menu.payment-validations', href: '/payment-validations', icon: 'list', permission: 'dashboard.access' },
         { type: 'item', name: 'menu.unreconciled-payments', href: '/unreconciled-payments', icon: 'error', permission: 'dashboard.access' },
         { type: 'item', name: 'menu.convertions', href: '/report-funnels', icon: 'PackageOpen', permission: 'reports.access' },
+        { type: 'item', name: 'menu.cases-report', href: '/report-cases', icon: 'BarChart', permission: 'reports.access' },
       ],
     }
   ];

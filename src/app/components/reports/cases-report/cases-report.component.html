@@ -1,0 +1,360 @@
+<app-main-layout>
+  <div class="flex flex-col gap-6 py-4">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <h1 class="text-2xl font-extrabold text-gray-900 tracking-tight">
+          {{ t('menu.cases-report') }}
+        </h1>
+        <p class="text-sm text-gray-500 mt-1">
+          Reporte de gestiones generales, distribución por agente e integraciones de canal.
+        </p>
+      </div>
+
+      <!-- Filters Section -->
+      <div class="flex flex-wrap items-center gap-3 bg-white/70 backdrop-blur-md border border-gray-150 p-2.5 rounded-2xl shadow-sm">
+        <!-- Company Selector -->
+        <div class="flex items-center gap-2 select-none">
+          <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Compañía</label>
+          <select 
+            [(ngModel)]="selectedCompanyId" 
+            (change)="onCompanyChange()"
+            class="bg-gray-50 hover:bg-gray-100/70 border border-gray-200 text-gray-700 text-xs font-semibold rounded-xl px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer min-w-[140px]"
+          >
+            <option *ngFor="let c of companies" [value]="c.company_id">
+              {{ c.company_name }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Department Selector -->
+        <div class="flex items-center gap-2 select-none">
+          <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Departamento</label>
+          <select 
+            [(ngModel)]="selectedDepartmentId" 
+            (change)="onFilterChange()"
+            class="bg-gray-50 hover:bg-gray-100/70 border border-gray-200 text-gray-700 text-xs font-semibold rounded-xl px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer min-w-[150px]"
+          >
+            <option [ngValue]="null">Todos los Departamentos</option>
+            <option *ngFor="let d of departments" [value]="d.id">
+              {{ d.name }}
+            </option>
+          </select>
+        </div>
+
+        <!-- Refresh Button -->
+        <button 
+          (click)="loadStats()"
+          [disabled]="loading"
+          class="p-2 bg-blue-50 hover:bg-blue-100 text-blue-600 active:scale-95 transition-all rounded-xl border border-blue-200 flex items-center justify-center disabled:opacity-50 disabled:scale-100 cursor-pointer"
+          title="Refrescar reporte"
+        >
+          <svg class="h-4 w-4" [class.animate-spin]="loading" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Spinner Loader -->
+    <div *ngIf="loading && !stats" class="flex flex-col items-center justify-center py-20 bg-white border border-gray-100 rounded-3xl shadow-premium">
+      <svg class="animate-spin h-10 w-10 text-[#3e66ea]" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor"></circle>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+      </svg>
+      <span class="text-sm font-semibold text-gray-500 mt-4 animate-pulse">Obteniendo métricas...</span>
+    </div>
+
+    <!-- Main Stats View -->
+    <div *ngIf="stats" class="flex flex-col gap-6">
+      
+      <!-- KPI Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <!-- Card: Total -->
+        <div class="bg-white border border-gray-100 p-5 rounded-3xl shadow-premium flex items-center justify-between hover:translate-y-[-2px] transition-transform duration-200">
+          <div>
+            <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Total Gestiones</span>
+            <div class="text-2xl font-black text-gray-900 mt-1">{{ stats.total_cases }}</div>
+            <div class="text-[10px] text-blue-500 font-semibold mt-1">Registrados en la compañía</div>
+          </div>
+          <div class="w-12 h-12 bg-blue-50 rounded-2xl flex items-center justify-center text-blue-600 shadow-sm border border-blue-100/50">
+            <svg class="h-6 w-6 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Card: Open -->
+        <div class="bg-white border border-gray-100 p-5 rounded-3xl shadow-premium flex items-center justify-between hover:translate-y-[-2px] transition-transform duration-200">
+          <div>
+            <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Casos Activos</span>
+            <div class="text-2xl font-black text-amber-600 mt-1">{{ stats.open_cases }}</div>
+            <div class="text-[10px] text-amber-500 font-semibold mt-1">Nuevos hoy: {{ stats.opened_today }}</div>
+          </div>
+          <div class="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center text-amber-600 shadow-sm border border-amber-100/50">
+            <svg class="h-6 w-6 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Card: Closed -->
+        <div class="bg-white border border-gray-100 p-5 rounded-3xl shadow-premium flex items-center justify-between hover:translate-y-[-2px] transition-transform duration-200">
+          <div>
+            <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Resueltos</span>
+            <div class="text-2xl font-black text-emerald-600 mt-1">{{ stats.closed_cases }}</div>
+            <div class="text-[10px] text-emerald-500 font-semibold mt-1">Cerrados hoy: {{ stats.closed_today }}</div>
+          </div>
+          <div class="w-12 h-12 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 shadow-sm border border-emerald-100/50">
+            <svg class="h-6 w-6 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+        </div>
+
+        <!-- Card: Avg Resolution Time -->
+        <div class="bg-white border border-gray-100 p-5 rounded-3xl shadow-premium flex items-center justify-between hover:translate-y-[-2px] transition-transform duration-200">
+          <div>
+            <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">T. Resol. Promedio</span>
+            <div class="text-2xl font-black text-purple-600 mt-1">{{ formatAvgHours(stats.avg_close_hours) }}</div>
+            <div class="text-[10px] text-purple-500 font-semibold mt-1">Tiempo promedio de resolución</div>
+          </div>
+          <div class="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center text-purple-600 shadow-sm border border-purple-100/50">
+            <svg class="h-6 w-6 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Section (2 Columns Grid) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        <!-- Channel Distribution Chart -->
+        <div class="lg:col-span-5 bg-white border border-gray-100 p-5 rounded-3xl shadow-premium flex flex-col">
+          <h3 class="text-sm font-bold text-gray-800 tracking-wide uppercase border-b border-gray-50 pb-3 mb-4">
+            Gestiones por Canal de Entrada
+          </h3>
+          <div class="flex-grow flex items-center justify-center">
+            <apx-chart
+              *ngIf="stats.cases_by_channel && stats.cases_by_channel.length > 0"
+              [series]="channelChartOptions.series!"
+              [chart]="channelChartOptions.chart!"
+              [labels]="channelChartOptions.labels!"
+              [colors]="channelChartOptions.colors!"
+              [dataLabels]="channelChartOptions.dataLabels!"
+              [legend]="channelChartOptions.legend!"
+              [plotOptions]="channelChartOptions.plotOptions!"
+              [tooltip]="channelChartOptions.tooltip!"
+              class="w-full"
+            ></apx-chart>
+            <div *ngIf="!stats.cases_by_channel || stats.cases_by_channel.length === 0" class="text-xs font-semibold text-gray-400 py-20 text-center w-full">
+              No hay datos de canales para esta selección.
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Agents Bar Chart -->
+        <div class="lg:col-span-7 bg-white border border-gray-100 p-5 rounded-3xl shadow-premium flex flex-col">
+          <h3 class="text-sm font-bold text-gray-800 tracking-wide uppercase border-b border-gray-50 pb-3 mb-4">
+            Productividad de Agentes (Top 10)
+          </h3>
+          <div class="flex-grow">
+            <apx-chart
+              *ngIf="stats.cases_by_agent && stats.cases_by_agent.length > 0"
+              [series]="agentChartOptions.series!"
+              [chart]="agentChartOptions.chart!"
+              [plotOptions]="agentChartOptions.plotOptions!"
+              [colors]="agentChartOptions.colors!"
+              [xaxis]="agentChartOptions.xaxis!"
+              [yaxis]="agentChartOptions.yaxis!"
+              [legend]="agentChartOptions.legend!"
+              [grid]="agentChartOptions.grid!"
+              [tooltip]="agentChartOptions.tooltip!"
+              class="w-full"
+            ></apx-chart>
+            <div *ngIf="!stats.cases_by_agent || stats.cases_by_agent.length === 0" class="text-xs font-semibold text-gray-400 py-20 text-center w-full">
+              No hay datos de agentes para esta selección.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Details Section: Agent table & Channel table -->
+      <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+        
+        <!-- Agents Detailed Table -->
+        <div class="xl:col-span-8 bg-white border border-gray-100 p-5 rounded-3xl shadow-premium flex flex-col">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-50 pb-3 mb-4">
+            <h3 class="text-sm font-bold text-gray-800 tracking-wide uppercase">
+              Rendimiento por Agente
+            </h3>
+            
+            <!-- Table Search -->
+            <div class="relative w-full sm:w-[220px]">
+              <input 
+                type="text" 
+                [(ngModel)]="agentSearch"
+                placeholder="Buscar agente..."
+                class="w-full bg-gray-50 hover:bg-gray-100/50 border border-gray-200 text-gray-700 text-xs rounded-xl pl-8 pr-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500"
+              />
+              <svg class="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </div>
+          </div>
+
+          <!-- Table Container -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="border-b border-gray-100 text-xs text-gray-400 font-bold uppercase tracking-wider select-none">
+                  <th (click)="setAgentSort('name')" class="pb-3 cursor-pointer hover:text-gray-700 transition-colors">
+                    Agente
+                    <span *ngIf="agentSortColumn === 'name'">{{ agentSortAsc ? '▲' : '▼' }}</span>
+                  </th>
+                  <th (click)="setAgentSort('open')" class="pb-3 text-center cursor-pointer hover:text-gray-700 transition-colors">
+                    Casos Abiertos
+                    <span *ngIf="agentSortColumn === 'open'">{{ agentSortAsc ? '▲' : '▼' }}</span>
+                  </th>
+                  <th (click)="setAgentSort('closed')" class="pb-3 text-center cursor-pointer hover:text-gray-700 transition-colors">
+                    Casos Cerrados
+                    <span *ngIf="agentSortColumn === 'closed'">{{ agentSortAsc ? '▲' : '▼' }}</span>
+                  </th>
+                  <th (click)="setAgentSort('total')" class="pb-3 text-center cursor-pointer hover:text-gray-700 transition-colors">
+                    Total Asignados
+                    <span *ngIf="agentSortColumn === 'total'">{{ agentSortAsc ? '▲' : '▼' }}</span>
+                  </th>
+                  <th (click)="setAgentSort('avg_time')" class="pb-3 text-center cursor-pointer hover:text-gray-700 transition-colors">
+                    T. Cierre Promedio
+                    <span *ngIf="agentSortColumn === 'avg_time'">{{ agentSortAsc ? '▲' : '▼' }}</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody class="text-xs text-gray-600 font-semibold divide-y divide-gray-50">
+                <tr *ngFor="let a of getFilteredAndSortedAgents()" class="hover:bg-gray-50/50 transition-colors">
+                  <td class="py-3.5 pr-2">
+                    <div class="flex items-center gap-2">
+                      <div class="w-7 h-7 rounded-full bg-blue-50 border border-blue-100 flex items-center justify-center text-blue-600 text-[10px] font-black uppercase">
+                        {{ (a.agent_name || 'U').substring(0, 2) }}
+                      </div>
+                      <span class="text-gray-800 font-bold truncate max-w-[180px]">{{ a.agent_name || 'Sin Asignar' }}</span>
+                    </div>
+                  </td>
+                  <td class="py-3.5 text-center text-amber-600 font-black">{{ a.open_cases }}</td>
+                  <td class="py-3.5 text-center text-emerald-600 font-black">{{ a.closed_cases }}</td>
+                  <td class="py-3.5 text-center text-gray-800 font-black">
+                    {{ (a.open_cases || 0) + (a.closed_cases || 0) }}
+                  </td>
+                  <td class="py-3.5 text-center text-purple-600">
+                    {{ formatAvgHours(a.avg_close_hours) }}
+                  </td>
+                </tr>
+                <tr *ngIf="getFilteredAndSortedAgents().length === 0">
+                  <td colspan="5" class="py-8 text-center text-gray-400 font-medium select-none">
+                    No se encontraron agentes.
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Channels Detail Table -->
+        <div class="xl:col-span-4 bg-white border border-gray-100 p-5 rounded-3xl shadow-premium flex flex-col">
+          <h3 class="text-sm font-bold text-gray-800 tracking-wide uppercase border-b border-gray-50 pb-3 mb-4">
+            Volumen por Canales
+          </h3>
+          
+          <div class="flex-grow flex flex-col gap-4">
+            <div *ngFor="let c of stats.cases_by_channel" class="flex flex-col gap-1.5">
+              <div class="flex justify-between items-center text-xs font-bold text-gray-700">
+                <span class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-[#3e66ea]"></span>
+                  {{ c.channel_name }}
+                </span>
+                <span class="text-gray-800">{{ (c.open_cases || 0) + (c.closed_cases || 0) }} casos</span>
+              </div>
+              
+              <!-- Progress Bar -->
+              <div class="w-full bg-gray-100 h-2.5 rounded-full overflow-hidden flex">
+                <div 
+                  [style.width.%]="(((c.closed_cases || 0) / (((c.open_cases || 0) + (c.closed_cases || 0)) || 1)) * 100)"
+                  class="bg-emerald-500 h-full rounded-l-full"
+                  title="Resueltos"
+                ></div>
+                <div 
+                  [style.width.%]="(((c.open_cases || 0) / (((c.open_cases || 0) + (c.closed_cases || 0)) || 1)) * 100)"
+                  class="bg-amber-400 h-full"
+                  title="Abiertos"
+                ></div>
+              </div>
+
+              <!-- Indicators breakdown -->
+              <div class="flex items-center justify-between text-[10px] text-gray-400 font-semibold mt-0.5 select-none">
+                <span>Abiertos: <b class="text-amber-600">{{ c.open_cases }}</b></span>
+                <span>Cerrados: <b class="text-emerald-600">{{ c.closed_cases }}</b></span>
+              </div>
+            </div>
+
+            <div *ngIf="!stats.cases_by_channel || stats.cases_by_channel.length === 0" class="text-xs font-semibold text-gray-400 py-10 text-center">
+              No hay canales registrados.
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Oldest Active Cases (Alert section) -->
+      <div class="bg-white border border-gray-100 p-5 rounded-3xl shadow-premium flex flex-col">
+        <h3 class="text-sm font-bold text-gray-800 tracking-wide uppercase border-b border-gray-50 pb-3 mb-4 flex items-center gap-2">
+          <svg class="h-4.5 w-4.5 text-red-500 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          Alertas de Atención: Casos Activos Más Antiguos
+        </h3>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div *ngFor="let oldest of stats.oldest_open_cases" class="bg-red-50/20 hover:bg-red-50/40 transition-colors border border-red-100/50 p-4 rounded-2xl flex flex-col justify-between gap-3">
+            <div>
+              <div class="flex justify-between items-center text-xs">
+                <span class="font-black text-gray-800">Caso #{{ oldest.case_id }}</span>
+                <span class="bg-red-100 text-red-700 font-bold px-2 py-0.5 rounded-md text-[9px] uppercase tracking-wider">Prioridad</span>
+              </div>
+              <div class="text-xs text-gray-600 font-semibold mt-2 truncate">
+                Cliente: <b class="text-gray-800">{{ oldest.client_name || 'Desconocido' }}</b>
+              </div>
+            </div>
+            
+            <div class="flex items-center justify-between text-[10px] text-gray-400 mt-1 select-none">
+              <span>Creado: {{ oldest.created_at | date:'dd/MM/yyyy HH:mm' }}</span>
+              <a 
+                [routerLink]="['/conversations']" 
+                class="text-blue-600 font-bold hover:underline"
+              >
+                Atender chat
+              </a>
+            </div>
+          </div>
+
+          <div *ngIf="!stats.oldest_open_cases || stats.oldest_open_cases.length === 0" class="col-span-full py-6 text-center text-xs font-semibold text-emerald-600 select-none bg-emerald-50/10 border border-emerald-100/30 rounded-2xl">
+            ¡Gran trabajo! No hay casos activos pendientes de atención crítica.
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Empty/No Stats View -->
+    <div *ngIf="!loading && !stats" class="flex flex-col items-center justify-center py-20 bg-white border border-gray-100 rounded-3xl shadow-premium">
+      <div class="w-16 h-16 bg-gray-50 border border-gray-150 rounded-2xl flex items-center justify-center text-gray-400 mb-4">
+        <svg class="h-8 w-8 stroke-[1.8]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+      </div>
+      <h3 class="text-base font-bold text-gray-800">No se encontraron estadísticas</h3>
+      <p class="text-xs text-gray-400 mt-1 max-w-[320px] text-center">
+        Selecciona una compañía y departamento válidos para cargar el reporte de gestiones.
+      </p>
+    </div>
+  </div>
+</app-main-layout>
