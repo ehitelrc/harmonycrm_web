@@ -281,16 +281,28 @@
   direction: ltr; /* Restore LTR direction for card content */
 }
 
-.case-card-item:hover {
-  background: rgba(238, 241, 251, 0.6) !important;
+.case-card-item:hover:not(.active-case) {
+  background: #e0e7ff !important;
+  border: 1px solid rgba(0, 0, 0, 0.04) !important;
+  border-right: none !important;
+  border-left-width: 4px !important;
+  border-left-color: transparent !important;
+  border-top-right-radius: 0px !important;
+  border-bottom-right-radius: 0px !important;
   transform: translateY(-1px);
   box-shadow: none !important;
   position: relative;
   z-index: 5;
 }
 
-.dark .case-card-item:hover {
-  background: rgba(31, 41, 55, 0.4) !important;
+.dark .case-card-item:hover:not(.active-case) {
+  background: #1d2247 !important;
+  border: 1px solid rgba(255, 255, 255, 0.04) !important;
+  border-right: none !important;
+  border-left-width: 4px !important;
+  border-left-color: transparent !important;
+  border-top-right-radius: 0px !important;
+  border-bottom-right-radius: 0px !important;
   box-shadow: none !important;
 }
 
@@ -321,24 +333,22 @@
   transition: all 0.2s ease;
 }
 
-.case-card-item:hover::after {
+.case-card-item:hover:not(.active-case)::after {
   content: "";
   position: absolute;
   right: -14px;
   top: calc(50% - 28px);
   width: 14px;
   height: 56px;
-  background-color: rgba(238, 241, 251, 0.6);
-  -webkit-mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 56'><path d='M 0 0 L 0 8 C 0 14, 14 21, 14 28 C 14 35, 0 42, 0 48 L 0 56 Z'/></svg>") no-repeat center;
-  mask: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 56'><path d='M 0 0 L 0 8 C 0 14, 14 21, 14 28 C 14 35, 0 42, 0 48 L 0 56 Z'/></svg>") no-repeat center;
-  mask-size: contain;
-  -webkit-mask-size: contain;
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 56'><path d='M 0 0 L 0 8 C 0 14, 14 21, 14 28 C 14 35, 0 42, 0 48 L 0 56 Z' fill='%23e0e7ff'/><path d='M 0 8 C 0 14, 14 21, 14 28 C 14 35, 0 42, 0 48' fill='none' stroke='rgba(0,0,0,0.04)' stroke-width='1'/></svg>") no-repeat center;
+  background-size: contain;
   pointer-events: none;
   z-index: 5;
 }
 
-.dark .case-card-item:hover::after {
-  background-color: rgba(31, 41, 55, 0.4);
+.dark .case-card-item:hover:not(.active-case)::after {
+  background: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 14 56'><path d='M 0 0 L 0 8 C 0 14, 14 21, 14 28 C 14 35, 0 42, 0 48 L 0 56 Z' fill='%231d2247'/><path d='M 0 8 C 0 14, 14 21, 14 28 C 14 35, 0 42, 0 48' fill='none' stroke='rgba(255,255,255,0.04)' stroke-width='1'/></svg>") no-repeat center;
+  background-size: contain;
 }
 
 .case-card-item.active-case::after {
