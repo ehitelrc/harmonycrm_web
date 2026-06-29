@@ -21,15 +21,27 @@ export const DASHBOARD_URL = returnCompleteURI({
 export class CaseDashboardService {
   constructor(private fetchService: FetchService) { }
 
-  async getByCompanyID(companyId: number): Promise<ApiResponse<DashboardStats>> {
+  async getByCompanyID(companyId: number, startDate?: string, endDate?: string): Promise<ApiResponse<DashboardStats>> {
+    let query = '';
+    if (startDate && endDate) {
+      query = `?start_date=${startDate}&end_date=${endDate}`;
+    } else if (startDate) {
+      query = `?start_date=${startDate}`;
+    }
     return await this.fetchService.get<ApiResponse<DashboardStats>>({
-      API_Gateway: `${DASHBOARD_URL}/company/${companyId}`,
+      API_Gateway: `${DASHBOARD_URL}/company/${companyId}${query}`,
     });
   }
 
-  async getByCompanyAndDepartmentID(companyId: number, departmentId: number): Promise<ApiResponse<DashboardStats>> {
+  async getByCompanyAndDepartmentID(companyId: number, departmentId: number, startDate?: string, endDate?: string): Promise<ApiResponse<DashboardStats>> {
+    let query = '';
+    if (startDate && endDate) {
+      query = `?start_date=${startDate}&end_date=${endDate}`;
+    } else if (startDate) {
+      query = `?start_date=${startDate}`;
+    }
     return await this.fetchService.get<ApiResponse<DashboardStats>>({
-      API_Gateway: `${DASHBOARD_URL}/company/${companyId}/department/${departmentId}`,
+      API_Gateway: `${DASHBOARD_URL}/company/${companyId}/department/${departmentId}${query}`,
     });
   }
 
@@ -39,7 +51,9 @@ export class CaseDashboardService {
     status: string,
     search: string = '',
     page: number = 1,
-    limit: number = 10
+    limit: number = 10,
+    startDate?: string,
+    endDate?: string
   ): Promise<ApiResponse<{ cases: any[]; total: number; page: number; limit: number }>> {
     let query = `status=${status}&page=${page}&limit=${limit}`;
     if (departmentId) {
@@ -47,6 +61,12 @@ export class CaseDashboardService {
     }
     if (search) {
       query += `&search=${encodeURIComponent(search)}`;
+    }
+    if (startDate) {
+      query += `&start_date=${startDate}`;
+    }
+    if (endDate) {
+      query += `&end_date=${endDate}`;
     }
     return await this.fetchService.get<ApiResponse<{ cases: any[]; total: number; page: number; limit: number }>>({
       API_Gateway: `${DASHBOARD_URL}/company/${companyId}/cases?${query}`,

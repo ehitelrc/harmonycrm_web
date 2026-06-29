@@ -46,6 +46,8 @@ export class CasesStatusReportComponent implements OnInit {
   detailTotalCount = 0;
   detailLoading = false;
   chatPreviewCase: any | null = null;
+  startDate = '';
+  endDate = '';
 
   // ApexCharts Config
   statusChartOptions: Partial<ApexOptions> = {};
@@ -112,6 +114,20 @@ export class CasesStatusReportComponent implements OnInit {
     await this.loadDetailCases();
   }
 
+  async onDateFilterChange(): Promise<void> {
+    this.detailPage = 1;
+    await this.loadStats();
+    await this.loadDetailCases();
+  }
+
+  async clearDateFilters(): Promise<void> {
+    this.startDate = '';
+    this.endDate = '';
+    this.detailPage = 1;
+    await this.loadStats();
+    await this.loadDetailCases();
+  }
+
   async onSearchChange(): Promise<void> {
     this.detailPage = 1;
     await this.loadDetailCases();
@@ -126,10 +142,16 @@ export class CasesStatusReportComponent implements OnInit {
       if (this.selectedDepartmentId) {
         res = await this.caseDashboardService.getByCompanyAndDepartmentID(
           this.selectedCompanyId,
-          this.selectedDepartmentId
+          this.selectedDepartmentId,
+          this.startDate,
+          this.endDate
         );
       } else {
-        res = await this.caseDashboardService.getByCompanyID(this.selectedCompanyId);
+        res = await this.caseDashboardService.getByCompanyID(
+          this.selectedCompanyId,
+          this.startDate,
+          this.endDate
+        );
       }
 
       if (res?.success && res.data) {
@@ -168,7 +190,9 @@ export class CasesStatusReportComponent implements OnInit {
         this.selectedStatusFilter,
         this.caseSearch,
         this.detailPage,
-        this.detailLimit
+        this.detailLimit,
+        this.startDate,
+        this.endDate
       );
       if (res?.success && res.data) {
         this.detailCases = res.data.cases || [];

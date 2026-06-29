@@ -42,6 +42,38 @@
           </select>
         </div>
 
+        <!-- Start Date Filter -->
+        <div class="flex items-center gap-2 select-none">
+          <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Desde</label>
+          <input 
+            type="date" 
+            [(ngModel)]="startDate" 
+            (change)="onDateFilterChange()"
+            class="bg-gray-50 hover:bg-gray-100/70 border border-gray-200 text-gray-700 text-xs font-semibold rounded-xl px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
+          />
+        </div>
+
+        <!-- End Date Filter -->
+        <div class="flex items-center gap-2 select-none">
+          <label class="text-xs font-bold text-gray-400 uppercase tracking-wider">Hasta</label>
+          <input 
+            type="date" 
+            [(ngModel)]="endDate" 
+            (change)="onDateFilterChange()"
+            class="bg-gray-50 hover:bg-gray-100/70 border border-gray-200 text-gray-700 text-xs font-semibold rounded-xl px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-blue-500 cursor-pointer"
+          />
+        </div>
+
+        <!-- Clear Dates Button -->
+        <button 
+          *ngIf="startDate || endDate"
+          (click)="clearDateFilters()"
+          class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-650 rounded-xl border border-red-200 flex items-center justify-center cursor-pointer active:scale-95 transition-all text-xs font-bold"
+          title="Limpiar fechas"
+        >
+          Limpiar Fechas
+        </button>
+
         <!-- Refresh Button -->
         <button 
           (click)="loadStats()"

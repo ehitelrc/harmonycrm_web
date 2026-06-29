@@ -40,6 +40,8 @@ export class CasesReportComponent implements OnInit {
   // Search and Sort properties for Agent table
   agentSearch = '';
   oldestSearch = '';
+  startDate = '';
+  endDate = '';
   agentSortColumn = 'total'; // 'name', 'open', 'closed', 'total', 'avg_time'
   agentSortAsc = false;
 
@@ -106,6 +108,16 @@ export class CasesReportComponent implements OnInit {
     await this.loadStats();
   }
 
+  async onDateFilterChange(): Promise<void> {
+    await this.loadStats();
+  }
+
+  async clearDateFilters(): Promise<void> {
+    this.startDate = '';
+    this.endDate = '';
+    await this.loadStats();
+  }
+
   async loadStats(): Promise<void> {
     if (!this.selectedCompanyId) return;
 
@@ -115,10 +127,16 @@ export class CasesReportComponent implements OnInit {
       if (this.selectedDepartmentId) {
         res = await this.caseDashboardService.getByCompanyAndDepartmentID(
           this.selectedCompanyId,
-          this.selectedDepartmentId
+          this.selectedDepartmentId,
+          this.startDate,
+          this.endDate
         );
       } else {
-        res = await this.caseDashboardService.getByCompanyID(this.selectedCompanyId);
+        res = await this.caseDashboardService.getByCompanyID(
+          this.selectedCompanyId,
+          this.startDate,
+          this.endDate
+        );
       }
 
       if (res?.success && res.data) {
