@@ -48,13 +48,31 @@ jobs:
   deploy:
     needs: build-and-push
     runs-on: ubuntu-latest
+    env:
+      DEPLOY_KEY_PATH: /tmp/deploy_key
     steps:
+      - name: Prepare SSH private key
+        env:
+          SSH_KEY: ${{ secrets.SSH_KEY }}
+        run: |
+          printf '%s' "${SSH_KEY}" > "${DEPLOY_KEY_PATH}"
+          tr -d '\r' < "${DEPLOY_KEY_PATH}" > "${DEPLOY_KEY_PATH}.tmp"
+          mv "${DEPLOY_KEY_PATH}.tmp" "${DEPLOY_KEY_PATH}"
+          if grep -Fq '\n' "${DEPLOY_KEY_PATH}"; then
+            perl -0pe 's/\\n/\n/g' -i "${DEPLOY_KEY_PATH}"
+          fi
+          chmod 600 "${DEPLOY_KEY_PATH}"
+          if ! grep -Eq '^-----BEGIN [A-Z0-9 ]*PRIVATE KEY-----$' "${DEPLOY_KEY_PATH}"; then
+            echo "::error::SSH_KEY secret does not contain a private key header"
+            exit 1
+          fi
+
       - name: SSH and deploy to production
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
+          key_path: ${{ env.DEPLOY_KEY_PATH }}
           script: |
             cd /opt/harmony
             sudo docker compose pull harmony_web
