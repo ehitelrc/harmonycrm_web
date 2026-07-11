@@ -82,8 +82,7 @@ jobs:
           key_path: ${{ env.DEPLOY_KEY_PATH }}
           script: |
             cd /opt/harmony
-            sudo docker compose pull harmony_web
-            sudo docker compose up harmony_web -d
+            make up-website
 
       - name: Clean up SSH private key
         if: always()
