@@ -427,7 +427,7 @@
                         <!-- AGENT MESSAGE BLOCK -->
                         <div *ngIf="isFromAgent(m)" class="flex items-end gap-3 max-w-[80%] md:max-w-[70%] group justify-end">
                             <!-- Bubble -->
-                            <div class="px-4 py-3 shadow-sm transition-all message-bubble agent-bubble animate-in relative bg-[#6366F1] text-white rounded-2xl rounded-br-sm flex flex-col gap-1"
+                            <div class="px-4 py-3 shadow-sm transition-all message-bubble agent-bubble animate-in relative bg-[#4F46E5] text-white rounded-2xl rounded-br-sm flex flex-col gap-1"
                                 [class.animate-in]="m._justArrived">
                                 <!-- Sender Name -->
                                 <div class="text-[10px] font-bold text-indigo-200 uppercase tracking-wide">
@@ -488,39 +488,53 @@
                                     <!-- Status Badges -->
                                     <ng-container *ngIf="isFromAgent(m)">
                                         <!-- Pending / Null / Empty -> Clock -->
-                                        <div *ngIf="!m.status" class="flex items-center bg-black/20 text-white/50 px-1 py-0.5 rounded border border-white/5">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                        <div *ngIf="!m.status" class="flex items-center bg-black/25 text-white/60 px-2 py-0.5 rounded-full border border-white/5 shadow-sm">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
                                         </div>
 
                                         <!-- Sent -> Single Check (Gray) -->
-                                        <div *ngIf="m.status === 'sent'" class="flex items-center bg-black/20 text-gray-300 px-1 py-0.5 rounded border border-white/5" title="Enviado">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                        <div *ngIf="m.status === 'sent'" class="flex items-center bg-black/25 text-gray-300 px-2 py-0.5 rounded-full border border-white/5 shadow-sm" title="Enviado">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
                                             </svg>
                                         </div>
 
                                         <!-- Delivered -> Double Check (Gray) -->
-                                        <div *ngIf="m.status === 'delivered'" class="flex items-center bg-black/20 text-gray-200 px-1 py-0.5 rounded border border-white/5" title="Entregado">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                        <div *ngIf="m.status === 'delivered'" class="flex items-center bg-black/25 text-gray-200 px-2 py-0.5 rounded-full border border-white/5 shadow-sm" title="Entregado">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M16 6L9 13L6.5 10.5M21 6L14 13L11.5 10.5" />
                                             </svg>
                                         </div>
 
                                         <!-- Read -> Double Check (Blue/Cyan) -->
-                                        <div *ngIf="m.status === 'read'" class="flex items-center bg-cyan-950/40 text-[#38BDF8] px-1 py-0.5 rounded border border-cyan-500/20" title="Leído">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                        <div *ngIf="m.status === 'read'" class="flex items-center bg-cyan-950/50 text-[#38BDF8] px-2 py-0.5 rounded-full border border-cyan-500/30 shadow-sm" title="Leído">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M16 6L9 13L6.5 10.5M21 6L14 13L11.5 10.5" />
                                             </svg>
                                         </div>
 
-                                        <!-- Failed -> Error (Red) -->
-                                        <div *ngIf="m.status === 'failed' || m.status === 'fail'" class="flex items-center bg-red-950/50 text-red-400 px-1.5 py-0.5 rounded border border-red-500/20 animate-pulse" title="Error de envío">
-                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5 mr-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                                        <!-- Failed -> Error (Red with Hover Tooltip) -->
+                                        <div *ngIf="m.status === 'failed' || m.status === 'fail'" 
+                                             class="relative group/tooltip flex items-center bg-red-950/60 text-red-300 px-2 py-0.5 rounded-full border border-red-500/30 shadow-sm animate-pulse cursor-pointer">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
                                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                             </svg>
-                                            <span class="text-[9px] font-bold uppercase tracking-wider">Error</span>
+                                            <span class="text-[9px] font-bold uppercase tracking-wider mr-0.5">Error</span>
+
+                                            <!-- Premium hover Tooltip -->
+                                            <div class="hidden group-hover/tooltip:block absolute bottom-full mb-2 right-0 z-50 w-64 p-3 bg-gray-950/95 border border-red-500/20 text-white text-xs rounded-xl shadow-xl backdrop-blur-sm whitespace-normal text-left">
+                                                <div class="font-bold text-red-400 mb-1 flex items-center gap-1">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="w-3.5 h-3.5">
+                                                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v3.5a.75.75 0 01-1.5 0v-3.5A.75.75 0 0110 5zm0 9a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd" />
+                                                    </svg>
+                                                    Detalle del Error:
+                                                </div>
+                                                <div class="opacity-90 leading-relaxed">{{ m.message_error || 'No se pudo enviar el mensaje a través de la API de Meta.' }}</div>
+                                                <!-- Small Arrow -->
+                                                <div class="absolute top-full right-4 w-2 h-2 bg-gray-950/95 border-r border-b border-red-500/20 rotate-45 -translate-y-1"></div>
+                                            </div>
                                         </div>
                                     </ng-container>
                                 </div>
