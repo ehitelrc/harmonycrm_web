@@ -80,5 +80,15 @@ export class DashboardService {
     }); 
   }
 
+  async getMessageStatusSummary(companyId: number): Promise<ApiResponse<any>> {
+    const reportUrl = returnCompleteURI({
+      URI: environment.API.BASE,
+      API_Gateway: '/reports',
+    });
+    return await this.fetchService.get<ApiResponse<any>>({
+      API_Gateway: `${reportUrl}/message-statuses/company/${companyId}`,
+    });
+  }
+
 }
 

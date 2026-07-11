@@ -6,6 +6,6 @@ export const environment = {
   },
   TESTING: true,
   production: false,
-  appVersion: 'v2.0.55-stable',
+  appVersion: 'v2.0.57-stable',
   socket_url: window.location.hostname === 'localhost' ? 'ws://localhost:8098' : 'wss://api.harmony.vpcrapps.com'
 };
