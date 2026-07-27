@@ -26,9 +26,10 @@ export class GlobalUnreadService {
   public refreshUnreadCount() {
     const user = this.authService.getCurrentUser();
     if (!user) return;
-    this.caseService.getByAgent(user.user_id).then(res => {
+    const companyId = this.authService.getStoredAuthData()?.company_id;
+    this.caseService.getByAgent(user.user_id, companyId).then(res => {
       const cases = Array.isArray(res?.data) ? res.data : [];
-      const unreadCount = cases.filter(c => c.unread_count > 0 && c.status !== 'closed').length;
+      const unreadCount = cases.filter(c => c.unread_count > 0 && c.status !== 'closed' && (!companyId || c.company_id === companyId)).length;
       this.updateTitle(unreadCount);
     });
   }

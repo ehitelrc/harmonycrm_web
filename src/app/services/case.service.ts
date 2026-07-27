@@ -95,9 +95,13 @@ export interface VwCaseCurrentStage {
 export class CaseService {
   constructor(private fetch: FetchService) { }
 
-  getByAgent(agentId: number) {
+  getByAgent(agentId: number, companyId?: number) {
+    let url = `${CASE_URL}/entry/active_cases/${agentId}`;
+    if (companyId) {
+      url += `?company_id=${companyId}`;
+    }
     return this.fetch.get<ApiResponse<CaseWithChannel[]>>({
-      API_Gateway: `${CASE_URL}/entry/active_cases/${agentId}`,
+      API_Gateway: url,
     });
   }
 

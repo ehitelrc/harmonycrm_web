@@ -704,7 +704,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
   async loadCases() {
     try {
       this.isLoadingCases = true;
-      const r = await this.chatService.getByAgent(this.agent_id!);
+      const r = await this.chatService.getByAgent(this.agent_id!, this.authData?.company_id);
       const arr = Array.isArray(r?.data) ? r.data : [];
       this.cases = arr.map((c: any) => ({
         ...c,
@@ -714,7 +714,7 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
         last_message_preview: c.last_message_preview ?? '',
         last_message_at: c.last_message_at ?? null,
         tags: c.tags || [],
-      })).filter(c => c.status !== 'closed');
+      })).filter(c => c.status !== 'closed' && (!this.authData?.company_id || c.company_id === this.authData.company_id));
 
       // Order by last_message_at descending
       this.cases.sort((a, b) => {
