@@ -48,6 +48,14 @@
       </div>
     </div>
 
+    <!-- Company Badge -->
+    <div *ngIf="companyName" class="ml-4 hidden md:flex items-center space-x-2 bg-indigo-50 text-indigo-700 px-3.5 py-1.5 rounded-xl border border-indigo-100 shadow-sm text-xs font-semibold tracking-wide select-none">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 text-indigo-500">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21M3 3h18v3H3V3z" />
+      </svg>
+      <span>{{ companyName }}</span>
+    </div>
+
     <!-- User Section -->
     <div class="ml-4 flex items-center space-x-4">
       <div class="flex items-center space-x-3.5">

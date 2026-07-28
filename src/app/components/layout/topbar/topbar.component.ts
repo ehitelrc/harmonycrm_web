@@ -44,6 +44,7 @@ export class TopbarComponent implements OnInit, OnDestroy {
   fullName = '';
   firstName = '';
   lastName = '';
+  companyName = '';
   isLogoutDialogOpen = false;
 
   constructor(
@@ -79,6 +80,9 @@ export class TopbarComponent implements OnInit, OnDestroy {
     const stored = this.authorizationService.getCurrentUser() as any;
     let first = stored?.first_name || stored?.name || '';
     let last = stored?.last_name || '';
+
+    const authData = this.authService.getStoredAuthData();
+    this.companyName = authData?.company_name || '';
 
     // Fallbacks desde user_name si faltan partes
     if (!first || !last) {
