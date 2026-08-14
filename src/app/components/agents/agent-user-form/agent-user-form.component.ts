@@ -1,12 +1,16 @@
 import { Component, Input, Output, EventEmitter, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { User, UserRequest } from '../../../models/user.model';
-import { UserService } from '../../../services/user.service';
 import { LanguageService } from '../../../services/extras/language.service';
 import { AlertService } from '../../../services/extras/alert.service';
 import { AgentUser } from '@app/models/agent_user.models';
 import { AgentUserService } from '@app/services/agent-user.service';
+import { CompanyService } from '@app/services/company.service';
+import { DepartmentService } from '@app/services/department.service';
+import { RoleService } from '@app/services/role.service';
+import { Company } from '@app/models/company.model';
+import { Role } from '@app/models/role.model';
+import { Department } from '@app/models/department.model';
 
 @Component({
   selector: 'app-agent-user-form',
@@ -20,32 +24,164 @@ export class AgentUserFormComponent implements OnInit, OnChanges {
   @Output() closed = new EventEmitter<void>();
   @Output() success = new EventEmitter<void>();
 
+  activeTab: 'create' | 'convert' = 'create';
+  
+  // Tab 1: Create Form
+  agentForm!: FormGroup;
+  companies: Company[] = [];
+  roles: Role[] = [];
+  departments: Department[] = [];
+  selectedDepartmentIds: number[] = [];
+
+  // Tab 2: Convert List
   users: AgentUser[] = [];
   isLoading = false;
   isSubmitting = false;
 
   constructor(
+    private fb: FormBuilder,
     private agentUserService: AgentUserService,
+    private companyService: CompanyService,
+    private departmentService: DepartmentService,
+    private roleService: RoleService,
     private alertService: AlertService,
     private languageService: LanguageService
-  ) { }
-
-
-  ngOnChanges(changes: SimpleChanges): void {
-    if (changes['isOpen'] && changes['isOpen'].currentValue) {
-      // Cada vez que se abre el modal, recargar usuarios
-      this.loadNonAgents();
-    }
-
+  ) {
+    this.initForm();
   }
-  
+
+  initForm(): void {
+    this.agentForm = this.fb.group({
+      email: ['', [Validators.required, Validators.email]],
+      full_name: ['', [Validators.required]],
+      phone: [''],
+      password: ['', [Validators.required, Validators.minLength(6)]],
+      company_id: ['', [Validators.required]],
+      role_id: ['', [Validators.required]]
+    });
+  }
+
   get t() {
     return this.languageService.t.bind(this.languageService);
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['isOpen'] && changes['isOpen'].currentValue) {
+      this.resetAll();
+      this.loadInitialData();
+    }
+  }
+
   async ngOnInit(): Promise<void> {
     if (this.isOpen) {
+      await this.loadInitialData();
+    }
+  }
+
+  resetAll(): void {
+    this.activeTab = 'create';
+    this.agentForm.reset();
+    this.selectedDepartmentIds = [];
+    this.departments = [];
+    this.users = [];
+  }
+
+  async loadInitialData(): Promise<void> {
+    this.isLoading = true;
+    try {
+      // Load companies
+      const compRes = await this.companyService.getAllCompanies();
+      if (compRes.success) {
+        this.companies = compRes.data;
+      }
+      
+      // Load roles
+      const roleRes = await this.roleService.getAll();
+      if (roleRes.success) {
+        this.roles = roleRes.data;
+        // Default to the first role that is 'operator' if found
+        const operatorRole = this.roles.find(r => r.name.toLowerCase() === 'operator');
+        if (operatorRole) {
+          this.agentForm.patchValue({ role_id: operatorRole.id });
+        }
+      }
+
+      // If activeTab is 'convert', also load non-agents
+      if (this.activeTab === 'convert') {
+        await this.loadNonAgents();
+      }
+    } catch (err: any) {
+      this.alertService.error(this.t('agent_user_management.error'), err.message || 'Error al cargar datos iniciales');
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  async switchTab(tab: 'create' | 'convert'): Promise<void> {
+    this.activeTab = tab;
+    if (tab === 'convert' && this.users.length === 0) {
       await this.loadNonAgents();
+    }
+  }
+
+  async onCompanyChange(event: Event): Promise<void> {
+    const companyId = +(event.target as HTMLSelectElement).value;
+    this.departments = [];
+    this.selectedDepartmentIds = [];
+    if (!companyId) return;
+
+    this.isLoading = true;
+    try {
+      const deptRes = await this.departmentService.getByCompany(companyId);
+      if (deptRes.success) {
+        this.departments = deptRes.data;
+      }
+    } catch (err: any) {
+      this.alertService.error(this.t('agent_user_management.error'), err.message || 'Error al cargar departamentos');
+    } finally {
+      this.isLoading = false;
+    }
+  }
+
+  onDepartmentToggle(deptId: number, event: Event): void {
+    const checked = (event.target as HTMLInputElement).checked;
+    if (checked) {
+      this.selectedDepartmentIds.push(deptId);
+    } else {
+      this.selectedDepartmentIds = this.selectedDepartmentIds.filter(id => id !== deptId);
+    }
+  }
+
+  async onSubmitCreate(): Promise<void> {
+    if (this.agentForm.invalid) {
+      this.agentForm.markAllAsTouched();
+      return;
+    }
+
+    this.isSubmitting = true;
+    try {
+      const payload = {
+        ...this.agentForm.value,
+        company_id: +this.agentForm.value.company_id,
+        role_id: +this.agentForm.value.role_id,
+        department_ids: this.selectedDepartmentIds
+      };
+
+      const res = await this.agentUserService.createUnifiedAgent(payload);
+      if (res.success) {
+        this.alertService.success(
+          this.t('agent_user_management.success'),
+          'Agente creado y configurado correctamente'
+        );
+        this.success.emit();
+        this.close();
+      } else {
+        this.alertService.error(this.t('agent_user_management.error'), res.message);
+      }
+    } catch (err: any) {
+      this.alertService.error(this.t('agent_user_management.error'), err.message || 'Error al crear agente');
+    } finally {
+      this.isSubmitting = false;
     }
   }
 
@@ -74,7 +210,7 @@ export class AgentUserFormComponent implements OnInit, OnChanges {
           this.t('agent_user_management.success'),
           this.t('agent_user_management.user_converted')
         );
-        this.success.emit(); // notificar éxito al padre
+        this.success.emit();
         this.close();
       } else {
         this.alertService.error(this.t('agent_user_management.error'), response.message);
@@ -87,7 +223,7 @@ export class AgentUserFormComponent implements OnInit, OnChanges {
   }
 
   close(): void {
-    this.users = [];
+    this.resetAll();
     this.closed.emit();
   }
 }
