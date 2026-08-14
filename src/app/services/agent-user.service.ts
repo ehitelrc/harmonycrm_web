@@ -64,6 +64,13 @@ export class AgentUserService {
 		});
 	}
 
+	async createUnifiedAgent(data: any): Promise<ApiResponse<any>> {
+		return await this.fetchService.post<ApiResponse<any>>({
+			API_Gateway: `${USER_URL}/unified`,
+			values: data,
+		});
+	}
+
 	/**
 	 * @description Update user by ID
 	 * @param id User ID
