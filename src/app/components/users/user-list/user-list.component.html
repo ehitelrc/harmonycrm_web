@@ -184,14 +184,12 @@
 
 
 <!-- Manage User Roles Dialog -->
-<div *ngIf="viewingUser" class="fixed inset-0 z-50 overflow-y-auto">
-  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-    <!-- Background overlay -->
-    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" (click)="closeViewDialog()"></div>
+<div *ngIf="viewingUser" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <!-- Background overlay -->
+  <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" (click)="closeViewDialog()"></div>
 
-    <!-- Dialog -->
-    <div class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl
-                transform transition-all sm:my-8 sm:align-middle sm:max-w-md sm:w-full dark:bg-gray-800">
+  <!-- Dialog -->
+  <div class="bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:max-w-md sm:w-full dark:bg-gray-800 z-10">
 
       <!-- Header -->
       <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 dark:bg-gray-800">
@@ -255,20 +253,17 @@
         </button>
       </div>
     </div>
-  </div>
 </div>
 
 
 
 <!-- Delete Confirmation Dialog -->
-<div *ngIf="deletingUserId" class="fixed inset-0 z-50 overflow-y-auto">
-  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-    <!-- Background overlay -->
-    <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" (click)="closeDeleteDialog()"></div>
+<div *ngIf="deletingUserId" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <!-- Background overlay -->
+  <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" (click)="closeDeleteDialog()"></div>
 
-    <!-- Dialog -->
-    <div
-      class="inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full dark:bg-gray-800">
+  <!-- Dialog -->
+  <div class="bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:max-w-lg sm:w-full dark:bg-gray-800 z-10">
       <!-- Header -->
       <div class="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4 dark:bg-gray-800">
         <div class="sm:flex sm:items-start">
@@ -307,7 +302,6 @@
         </button>
       </div>
     </div>
-  </div>
 </div>
 
 <!-- Change Password Dialog -->
