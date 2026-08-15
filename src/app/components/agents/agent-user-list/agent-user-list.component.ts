@@ -143,9 +143,11 @@ export class AgentUserListComponent implements OnInit, OnChanges {
 
   loadCompanies() {
     if (!this.viewingUser) return;
+    const targetUser = this.viewingUser;
     this.companies = [];
+    this.loadingCompanies = true;
 
-    console.log('Loading companies for user:', this.viewingUser.id);
+    console.log('Loading companies for user:', targetUser.id);
 
     this.companyService.getCompaniesByUserId(this.loggedUser?.user_id!).then(response => {
       if (response && response.data) {
@@ -155,8 +157,17 @@ export class AgentUserListComponent implements OnInit, OnChanges {
         }));
 
         console.log('User companies loaded:', this.companies);
-      }
 
+        // Auto-select logged-in company
+        const storedCompanyId = this.authService.getStoredAuthData()?.company_id;
+        if (storedCompanyId) {
+          const matchingCompany = this.companies.find(c => c.company_id === storedCompanyId);
+          if (matchingCompany) {
+            this.selectedCompany = matchingCompany.company_id;
+            this.loadDepartments(this.selectedCompany, targetUser.id);
+          }
+        }
+      }
 
       this.loadingCompanies = false;
     }).catch(error => {

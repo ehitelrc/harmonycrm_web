@@ -11,6 +11,7 @@ import { RoleService } from '@app/services/role.service';
 import { Company } from '@app/models/company.model';
 import { Role } from '@app/models/role.model';
 import { Department } from '@app/models/department.model';
+import { AuthService } from '../../../services/auth.service';
 
 @Component({
   selector: 'app-agent-user-form',
@@ -45,7 +46,8 @@ export class AgentUserFormComponent implements OnInit, OnChanges {
     private departmentService: DepartmentService,
     private roleService: RoleService,
     private alertService: AlertService,
-    private languageService: LanguageService
+    private languageService: LanguageService,
+    private authService: AuthService
   ) {
     this.initForm();
   }
@@ -106,6 +108,16 @@ export class AgentUserFormComponent implements OnInit, OnChanges {
         }
       }
 
+      // Pre-select current active company and load its departments
+      const activeCompanyId = this.authService.getStoredAuthData()?.company_id;
+      if (activeCompanyId) {
+        const exists = this.companies.some(c => c.id === activeCompanyId);
+        if (exists) {
+          this.agentForm.patchValue({ company_id: activeCompanyId });
+          await this.loadDepartmentsForCompany(activeCompanyId);
+        }
+      }
+
       // If activeTab is 'convert', also load non-agents
       if (this.activeTab === 'convert') {
         await this.loadNonAgents();
@@ -124,8 +136,7 @@ export class AgentUserFormComponent implements OnInit, OnChanges {
     }
   }
 
-  async onCompanyChange(event: Event): Promise<void> {
-    const companyId = +(event.target as HTMLSelectElement).value;
+  async loadDepartmentsForCompany(companyId: number): Promise<void> {
     this.departments = [];
     this.selectedDepartmentIds = [];
     if (!companyId) return;
@@ -141,6 +152,11 @@ export class AgentUserFormComponent implements OnInit, OnChanges {
     } finally {
       this.isLoading = false;
     }
+  }
+
+  async onCompanyChange(event: Event): Promise<void> {
+    const companyId = +(event.target as HTMLSelectElement).value;
+    await this.loadDepartmentsForCompany(companyId);
   }
 
   onDepartmentToggle(deptId: number, event: Event): void {

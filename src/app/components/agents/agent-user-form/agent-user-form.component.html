@@ -1,41 +1,60 @@
-<div *ngIf="isOpen" class="fixed inset-0 z-50 overflow-y-auto" (click)="close()">
-  <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
-    <!-- Background overlay -->
-    <div class="fixed inset-0 bg-gray-900 bg-opacity-50 transition-opacity"></div>
+<div *ngIf="isOpen" class="fixed inset-0 z-50 flex items-center justify-center p-4">
+  <!-- Background overlay -->
+  <div class="fixed inset-0 bg-gray-900 bg-opacity-50 backdrop-blur-sm transition-opacity" (click)="close()"></div>
 
-    <!-- Modal container -->
-    <div class="inline-block align-bottom bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:my-8 sm:align-middle sm:max-w-3xl sm:w-full dark:bg-gray-800"
-         (click)="$event.stopPropagation()">
+  <!-- Modal container -->
+  <div class="bg-white rounded-2xl text-left overflow-hidden shadow-2xl transform transition-all sm:max-w-3xl sm:w-full dark:bg-gray-800 z-10 flex flex-col max-h-[90vh]"
+       (click)="$event.stopPropagation()">
 
-      <!-- Header -->
-      <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-700/50">
-        <h3 class="text-lg font-semibold text-[#00113f] dark:text-white flex items-center gap-2">
-          <svg class="h-5 w-5 text-[#3e66ea]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-          </svg>
-          {{ t('agent_user_management.add_user') }}
-        </h3>
-        <button type="button" (click)="close()" 
-                class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
-          <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-          </svg>
-        </button>
+    <!-- Header -->
+    <div class="px-6 py-4 border-b border-gray-100 dark:border-gray-700 flex justify-between items-center bg-gray-50/50 dark:bg-gray-700/50">
+      <h3 class="text-lg font-semibold text-[#00113f] dark:text-white flex items-center gap-2">
+        <svg class="h-5 w-5 text-[#3e66ea]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+        </svg>
+        {{ t('agent_user_management.add_user') }}
+      </h3>
+      <button type="button" (click)="close()" 
+              class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors">
+        <svg class="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Navigation Tabs -->
+    <div class="flex border-b border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 pt-2">
+      <button type="button" (click)="switchTab('create')" 
+              [class]="activeTab === 'create' ? 'border-[#3e66ea] text-[#3e66ea] font-semibold border-b-2' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 border-transparent'"
+              class="px-4 py-2.5 text-sm focus:outline-none transition-all">
+        Crear Nuevo Agente
+      </button>
+      <button type="button" (click)="switchTab('convert')" 
+              [class]="activeTab === 'convert' ? 'border-[#3e66ea] text-[#3e66ea] font-semibold border-b-2' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 border-transparent'"
+              class="px-4 py-2.5 text-sm focus:outline-none transition-all">
+        Habilitar Usuario Existente
+      </button>
+    </div>
+
+    <!-- Context Help Banner -->
+    <div class="px-6 pt-4">
+      <div *ngIf="activeTab === 'create'" class="p-3.5 bg-blue-50/50 dark:bg-blue-950/20 border border-blue-100 dark:border-blue-900/50 rounded-xl flex gap-2.5 items-start">
+        <svg class="h-5 w-5 text-blue-500 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <div class="text-xs text-blue-800 dark:text-blue-300">
+          <span class="font-bold">Crear un agente desde cero:</span> Este formulario creará automáticamente una cuenta de usuario nueva en el sistema con el correo, nombre y contraseña provistos, y lo registrará como agente asignándole su rol y departamentos en una sola acción. No es necesario crear el usuario previamente.
+        </div>
       </div>
-
-      <!-- Navigation Tabs -->
-      <div class="flex border-b border-gray-100 dark:border-gray-700 bg-white dark:bg-gray-800 px-6 pt-2">
-        <button (click)="switchTab('create')" 
-                [class]="activeTab === 'create' ? 'border-[#3e66ea] text-[#3e66ea] font-semibold border-b-2' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 border-transparent'"
-                class="px-4 py-2.5 text-sm focus:outline-none transition-all">
-          Crear Nuevo Agente
-        </button>
-        <button (click)="switchTab('convert')" 
-                [class]="activeTab === 'convert' ? 'border-[#3e66ea] text-[#3e66ea] font-semibold border-b-2' : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 border-transparent'"
-                class="px-4 py-2.5 text-sm focus:outline-none transition-all">
-          Habilitar Usuario Existente
-        </button>
+      <div *ngIf="activeTab === 'convert'" class="p-3.5 bg-amber-50/50 dark:bg-amber-950/20 border border-amber-100 dark:border-amber-900/50 rounded-xl flex gap-2.5 items-start">
+        <svg class="h-5 w-5 text-amber-500 dark:text-amber-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z" />
+        </svg>
+        <div class="text-xs text-amber-800 dark:text-amber-300">
+          <span class="font-bold">Habilitar un usuario existente:</span> Use esta opción si la persona ya tiene un usuario de Harmony (por ejemplo, un Administrador o Supervisor) y ahora también operará como agente de atención. Solo debe buscarlo en la lista y hacer clic en convertir.
+        </div>
       </div>
+    </div>
 
       <!-- Body -->
       <div class="px-6 py-6 bg-white dark:bg-gray-800 max-h-[70vh] overflow-y-auto">
@@ -218,4 +237,3 @@
 
     </div>
   </div>
-</div>
