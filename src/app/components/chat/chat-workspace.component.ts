@@ -2562,7 +2562,9 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
             last_message_at: new Date().toISOString(),
             tags: [],
             integration_name: this.selectedIntegration?.integration_name || '',
-            channel_id: '2'
+            channel_id: '2',
+            channel_code: 'whatsapp',
+            channel_name: 'Whatsapp'
           };
           this.cases.unshift(tempCase);
           createdCase = tempCase;
