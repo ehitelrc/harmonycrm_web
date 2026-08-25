@@ -2539,27 +2539,46 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
         this.alert.success("Mensaje enviado correctamente");
         this.isNewConversationOpen = false;
 
-        console.log(res.data.case_id);
-
+        console.log("Nuevo case_id creado:", res.data?.case_id);
 
         await this.loadCases();
 
         const newCaseId = res.data?.case_id;
+        let createdCase = this.cases.find(c => c.case_id == newCaseId);
 
-        const createdCase = this.cases.find(c => c.case_id === newCaseId);
+        if (!createdCase && newCaseId) {
+          console.log("Constructing temporary case locally for immediate selection");
+          const tempCase: CaseWithChannel = {
+            case_id: newCaseId,
+            client_id: this.newConvSelectedClient?.id || null,
+            client_name: this.newConvSelectedClient?.full_name || phone,
+            sender_id: phone,
+            company_id: this.authData?.company_id,
+            department_id: this.selectedIntegration?.department_id,
+            agent_id: this.agent_id,
+            status: 'open',
+            unread_count: 0,
+            last_message_preview: 'Apertura de conversación',
+            last_message_at: new Date().toISOString(),
+            tags: [],
+            integration_name: this.selectedIntegration?.integration_name || '',
+            channel_id: '2'
+          };
+          this.cases.unshift(tempCase);
+          createdCase = tempCase;
+          this.applyContactFilter();
+        }
 
         if (createdCase) {
-          // marcar highlight temporal
           createdCase._highlight = true;
-
           this.selectCase(createdCase);
 
-          // quitar highlight después de 2 segundos
           setTimeout(() => {
-            createdCase._highlight = false;
+            if (createdCase) createdCase._highlight = false;
+            this.cdr.markForCheck();
           }, 2000);
         } else {
-          console.warn("⚠ No se encontró el caso recién creado en la lista.");
+          console.warn("⚠ No se encontró ni se pudo construir el caso recién creado en la lista.");
         }
 
 

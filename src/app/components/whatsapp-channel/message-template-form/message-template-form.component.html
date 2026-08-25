@@ -3,11 +3,11 @@
     <div class="flex items-center justify-center min-h-screen px-4">
         <div class="fixed inset-0 bg-gray-900 bg-opacity-60 transition-opacity"></div>
 
-        <div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg z-10"
+        <div class="relative bg-white dark:bg-gray-800 rounded-xl shadow-2xl w-full max-w-lg z-10 max-h-[90vh] flex flex-col"
             (click)="$event.stopPropagation()">
 
             <!-- Header -->
-            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700">
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200 dark:border-gray-700 shrink-0">
                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
                     {{ isEditing ? 'Editar plantilla' : 'Nueva plantilla' }}
                 </h2>
@@ -21,7 +21,9 @@
             </div>
 
             <!-- Form -->
-            <form [formGroup]="form" (ngSubmit)="submit()" class="px-6 py-5 space-y-4">
+            <form [formGroup]="form" (ngSubmit)="submit()" class="flex flex-col flex-1 overflow-hidden">
+                <!-- Scrollable Body -->
+                <div class="flex-1 overflow-y-auto px-6 py-5 space-y-4">
 
 
                 <!-- Nombre de la plantilla -->
@@ -173,9 +175,10 @@
                         </span>
                     </label>
                 </div>
+                </div>
 
                 <!-- Acciones -->
-                <div class="flex justify-end gap-3 pt-2 border-t border-gray-100 dark:border-gray-700 mt-4">
+                <div class="flex justify-end gap-3 px-6 py-4 border-t border-gray-100 dark:border-gray-700 shrink-0">
                     <button type="button" (click)="onCancel()" [disabled]="isSubmitting"
                         class="px-4 py-2 text-sm rounded-md border border-gray-300 text-gray-700 hover:bg-gray-50 dark:border-gray-600 dark:text-gray-300 dark:hover:bg-gray-700 transition-colors">
                         Cancelar
