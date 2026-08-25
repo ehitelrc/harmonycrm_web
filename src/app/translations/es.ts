@@ -495,7 +495,7 @@ export const esTranslations = {
   "integration.webhook_url": "URL del webhook",
   "integration.name": "Nombre de la integración",
   "integration.api_key": "Clave API",
-  "integration.app_identifier": "Identificador de la app",
+  "integration.app_identifier": "Identificador de la app / ID de Teléfono (WhatsApp)",
   "integration.access_token": "Token de acceso",
   "integration.status": "Estado",
   "integration.actions": "Acciones",
