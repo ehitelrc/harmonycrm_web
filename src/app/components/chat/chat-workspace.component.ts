@@ -685,7 +685,10 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
 
         // Buscar caso
         const idx = this.cases.findIndex(c => c.case_id === caseId);
-        if (idx < 0) return;
+        if (idx < 0) {
+          this.loadCases();
+          return;
+        }
 
         const updated = [...this.cases];
         updated[idx] = {
@@ -844,15 +847,28 @@ export class ChatWorkspaceComponent implements OnInit, OnDestroy, OnChanges {
       }
     }
 
-    // evitar duplicados
-    const isDuplicate = this.messages.some(m =>
+    // evitar duplicados o actualizar si viene con contenido multimedia
+    const idx = this.messages.findIndex(m =>
       (real.id && m.id === real.id) ||
       (!!real.channel_message_id && m.channel_message_id === real.channel_message_id)
     );
 
-    if (!isDuplicate) {
-      this.messages = [...this.messages, real];
+    if (idx >= 0) {
+      if ((real.base64_content || real.file_url) && !(this.messages[idx].base64_content || this.messages[idx].file_url)) {
+        const copy = [...this.messages];
+        copy[idx] = {
+          ...copy[idx],
+          base64_content: real.base64_content,
+          file_url: real.file_url,
+          mime_type: real.mime_type
+        };
+        this.messages = copy;
+        this.cdr.markForCheck();
+      }
+      return;
     }
+
+    this.messages = [...this.messages, real];
 
     this.updatePreview(evt.case_id, real);
     this.check24HourWindow();
